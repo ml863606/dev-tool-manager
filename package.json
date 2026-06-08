@@ -1,0 +1,40 @@
+{
+  "name": "dev-tool-manage",
+  "version": "1.0.0",
+  "description": "开发工具统一管理器",
+  "main": "./out/main/index.js",
+  "author": "",
+  "scripts": {
+    "dev": "set CHOKIDAR_USEPOLLING=1&& set CHOKIDAR_INTERVAL=300&& electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "@types/sqlite3": "^3.1.11",
+    "@vicons/ionicons5": "^0.12.0",
+    "adm-zip": "^0.5.12",
+    "axios": "^1.15.2",
+    "electron-log": "^5.1.5",
+    "electron-store": "^8.2.0",
+    "fs-extra": "^11.2.0",
+    "naive-ui": "^2.38.2",
+    "pinia": "^2.1.7",
+    "sqlite3": "^6.0.1",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/adm-zip": "^0.5.5",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.12.7",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.1.0",
+    "typescript": "^5.4.5",
+    "vue-tsc": "^2.0.13"
+  }
+}

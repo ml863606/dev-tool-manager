@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm config *)",
+      "Bash(npm_config_ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install *)",
+      "Bash(npm uninstall *)",
+      "Bash(xargs grep *)"
+    ]
+  }
+}
