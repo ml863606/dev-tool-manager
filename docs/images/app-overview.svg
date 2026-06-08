@@ -1,0 +1,50 @@
+<svg width="1120" height="640" viewBox="0 0 1120 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1120" height="640" rx="20" fill="#0f0f1a"/>
+  <rect x="24" y="24" width="220" height="592" rx="16" fill="#1a1a2e" stroke="#2a2a40"/>
+  <text x="60" y="78" fill="#7c6af7" font-family="Segoe UI, Arial" font-size="26" font-weight="700">DevTools</text>
+  <rect x="48" y="126" width="172" height="48" rx="10" fill="#2d2557"/>
+  <text x="86" y="157" fill="#d8d2ff" font-family="Segoe UI, Arial" font-size="18">工具库</text>
+  <text x="86" y="222" fill="#9090a8" font-family="Segoe UI, Arial" font-size="18">下载任务</text>
+  <text x="86" y="286" fill="#9090a8" font-family="Segoe UI, Arial" font-size="18">端口占用</text>
+  <text x="86" y="350" fill="#9090a8" font-family="Segoe UI, Arial" font-size="18">设置</text>
+
+  <rect x="276" y="54" width="790" height="96" rx="14" fill="#1a1a2e" stroke="#2a2a40"/>
+  <text x="312" y="98" fill="#e0e0e0" font-family="Segoe UI, Arial" font-size="28" font-weight="700">开发工具统一管理器</text>
+  <text x="312" y="128" fill="#8888a6" font-family="Segoe UI, Arial" font-size="15">下载、安装、版本管理、服务配置、端口排查，一站式完成。</text>
+
+  <g>
+    <rect x="276" y="190" width="240" height="180" rx="14" fill="#1a1a2e" stroke="#1a5a2a"/>
+    <circle cx="326" cy="244" r="28" fill="#f5f5f8"/>
+    <text x="312" y="253" fill="#5FA04E" font-family="Segoe UI, Arial" font-size="22" font-weight="700">N</text>
+    <text x="372" y="236" fill="#e0e0e0" font-family="Segoe UI, Arial" font-size="22" font-weight="700">Node.js</text>
+    <text x="372" y="262" fill="#77778f" font-family="Segoe UI, Arial" font-size="14">前端运行环境</text>
+    <rect x="304" y="294" width="86" height="30" rx="6" fill="#1a3a1a"/>
+    <text x="318" y="315" fill="#52c41a" font-family="Consolas, monospace" font-size="15">20.20.1</text>
+    <rect x="304" y="334" width="176" height="24" rx="6" fill="#2d2557"/>
+  </g>
+
+  <g>
+    <rect x="546" y="190" width="240" height="180" rx="14" fill="#1a1a2e" stroke="#2a2a40"/>
+    <circle cx="596" cy="244" r="28" fill="#f5f5f8"/>
+    <text x="582" y="253" fill="#4479A1" font-family="Segoe UI, Arial" font-size="22" font-weight="700">My</text>
+    <text x="642" y="236" fill="#e0e0e0" font-family="Segoe UI, Arial" font-size="22" font-weight="700">MySQL</text>
+    <text x="642" y="262" fill="#77778f" font-family="Segoe UI, Arial" font-size="14">服务安装向导</text>
+    <rect x="574" y="300" width="88" height="28" rx="6" fill="#2d2557"/>
+    <text x="589" y="319" fill="#d8d2ff" font-family="Segoe UI, Arial" font-size="14">本地安装</text>
+  </g>
+
+  <g>
+    <rect x="816" y="190" width="250" height="180" rx="14" fill="#1a1a2e" stroke="#2a2a40"/>
+    <circle cx="866" cy="244" r="28" fill="#f5f5f8"/>
+    <text x="855" y="253" fill="#FF4438" font-family="Segoe UI, Arial" font-size="22" font-weight="700">R</text>
+    <text x="912" y="236" fill="#e0e0e0" font-family="Segoe UI, Arial" font-size="22" font-weight="700">Redis</text>
+    <text x="912" y="262" fill="#77778f" font-family="Segoe UI, Arial" font-size="14">注册 Windows 服务</text>
+    <rect x="844" y="300" width="92" height="28" rx="6" fill="#2d2557"/>
+    <text x="859" y="319" fill="#d8d2ff" font-family="Segoe UI, Arial" font-size="14">服务配置</text>
+  </g>
+
+  <rect x="276" y="412" width="790" height="148" rx="14" fill="#1a1a2e" stroke="#2a2a40"/>
+  <text x="312" y="452" fill="#e0e0e0" font-family="Segoe UI, Arial" font-size="20" font-weight="700">端口占用排查</text>
+  <rect x="312" y="478" width="710" height="42" rx="8" fill="#0f0f1a" stroke="#2a2a40"/>
+  <text x="334" y="505" fill="#8888a6" font-family="Consolas, monospace" font-size="15">3306    LISTENING    mysqld.exe    PID 6236    D:\...\mysqld.exe</text>
+</svg>
