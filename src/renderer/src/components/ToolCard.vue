@@ -45,6 +45,18 @@
       </n-tooltip>
     </div>
 
+    <div v-if="hasSpecialActions" class="special-actions">
+      <n-button
+        v-if="props.tool.id === 'nodejs'"
+        size="small"
+        :loading="npmRegistryLoading"
+        :disabled="npmRegistryLoading"
+        @click="openNpmRegistryModal"
+      >
+        设置 npm 源
+      </n-button>
+    </div>
+
     <div class="card-footer">
       <n-select
         v-if="props.tool.id === 'jdk'"
@@ -89,15 +101,6 @@
         </template>
         <span class="url-tooltip">{{ cachedPackage?.filePath }}</span>
       </n-tooltip>
-      <n-button
-        v-if="props.tool.id === 'nodejs'"
-        size="small"
-        :loading="npmRegistryLoading"
-        :disabled="npmRegistryLoading"
-        @click="openNpmRegistryModal"
-      >
-        设置 npm 源
-      </n-button>
       <template v-if="!isInstalled">
         <n-tooltip placement="top" :delay="300" :disabled="!downloadUrlPreview">
           <template #trigger>
@@ -363,6 +366,7 @@ let portCheckTimer: ReturnType<typeof setTimeout> | null = null
 
 const DYNAMIC_TOOLS = ['nodejs', 'maven', 'jdk', 'python', 'mysql', 'git', 'codex', 'claude-code']
 const isDynamic = computed(() => DYNAMIC_TOOLS.includes(props.tool.id))
+const hasSpecialActions = computed(() => props.tool.id === 'nodejs')
 const selectedFilename = computed(() => {
   const built = isDynamic.value ? buildDynamicUrls(selectedVersion.value) : undefined
   return built?.filename ?? props.tool.versions?.find((v: any) => v.version === selectedVersion.value)?.filename ?? ''
@@ -966,6 +970,8 @@ function handleOpenDir() {
   flex-direction: column;
   gap: 10px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  min-width: 0;
 }
 .tool-card:hover { border-color: #4a4a70; box-shadow: 0 4px 20px rgba(124, 106, 247, 0.1); }
 .tool-card--installed { border-color: #1a3a1a; }
@@ -1047,9 +1053,30 @@ function handleOpenDir() {
 }
 .install-path--clickable .install-path-text { color: #a89cff; }
 
-.card-footer { display: flex; align-items: center; gap: 8px; }
-.vendor-select { width: 170px; flex-shrink: 0; }
-.version-select { flex: 1; }
+.special-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.vendor-select {
+  width: 160px;
+  max-width: 100%;
+  flex: 0 1 160px;
+}
+.version-select {
+  flex: 1 1 160px;
+  min-width: 0;
+  max-width: 100%;
+}
 
 .download-meta {
   display: flex;
