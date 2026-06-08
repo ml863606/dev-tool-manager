@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppSettings, IpcDownloadPayload, MysqlInstallPayload } from '../shared/types'
+import type { AppSettings, IpcDownloadPayload, MysqlInstallPayload, RedisInstallPayload } from '../shared/types'
 
 const api = {
   tools: {
@@ -25,7 +25,9 @@ const api = {
   },
   network: {
     detect: () => ipcRenderer.invoke('network:detect'),
-    probeAll: () => ipcRenderer.invoke('network:probeAll')
+    probeAll: () => ipcRenderer.invoke('network:probeAll'),
+    checkPort: (port: number) => ipcRenderer.invoke('network:checkPort', port),
+    listPorts: () => ipcRenderer.invoke('network:listPorts')
   },
   python: {
     fetchVersions: () => ipcRenderer.invoke('python:fetchVersions')
@@ -43,6 +45,9 @@ const api = {
   mysql: {
     fetchVersions: () => ipcRenderer.invoke('mysql:fetchVersions'),
     installLocal: (payload: MysqlInstallPayload) => ipcRenderer.invoke('mysql:installLocal', payload)
+  },
+  redis: {
+    installLocal: (payload: RedisInstallPayload) => ipcRenderer.invoke('redis:installLocal', payload)
   },
   git: {
     fetchVersions: () => ipcRenderer.invoke('git:fetchVersions')

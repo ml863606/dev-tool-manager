@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-C2r3WdZW.js"(exports, module) {
+  "assets/index-FX1Dophw.js"(exports, module) {
     /**
     * @vue/shared v3.5.33
     * (c) 2018-present Yuxi (Evan) You and Vue contributors
@@ -6592,13 +6592,13 @@ var require_index_001 = __commonJS({
       const Component = instance.type;
       instance.accessCache = /* @__PURE__ */ Object.create(null);
       instance.proxy = new Proxy(instance.ctx, PublicInstanceProxyHandlers);
-      const { setup } = Component;
-      if (setup) {
+      const { setup: setup2 } = Component;
+      if (setup2) {
         pauseTracking();
-        const setupContext = instance.setupContext = setup.length > 1 ? createSetupContext(instance) : null;
+        const setupContext = instance.setupContext = setup2.length > 1 ? createSetupContext(instance) : null;
         const reset = setCurrentInstance(instance);
         const setupResult = callWithErrorHandling(
-          setup,
+          setup2,
           instance,
           0,
           [
@@ -7826,7 +7826,7 @@ var require_index_001 = __commonJS({
       const { state, actions, getters } = options;
       const initialState = pinia.state.value[id];
       let store;
-      function setup() {
+      function setup2() {
         if (!initialState && true) {
           {
             pinia.state.value[id] = state ? state() : {};
@@ -7842,10 +7842,10 @@ var require_index_001 = __commonJS({
           return computedGetters;
         }, {}));
       }
-      store = createSetupStore(id, setup, options, pinia, hot, true);
+      store = createSetupStore(id, setup2, options, pinia, hot, true);
       return store;
     }
-    function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) {
+    function createSetupStore($id, setup2, options = {}, pinia, hot, isOptionsStore) {
       let scope;
       const optionsForPlugin = assign$1({ actions: {} }, options);
       const $subscribeOptions = { deep: true };
@@ -7976,7 +7976,7 @@ var require_index_001 = __commonJS({
       const store = /* @__PURE__ */ reactive(partialStore);
       pinia._s.set($id, store);
       const runWithContext = pinia._a && pinia._a.runWithContext || fallbackRunWithContext;
-      const setupStore = runWithContext(() => pinia._e.run(() => (scope = effectScope()).run(() => setup({ action }))));
+      const setupStore = runWithContext(() => pinia._e.run(() => (scope = effectScope()).run(() => setup2({ action }))));
       for (const key in setupStore) {
         const prop = setupStore[key];
         if (/* @__PURE__ */ isRef(prop) && !isComputed(prop) || /* @__PURE__ */ isReactive(prop)) {
@@ -8031,13 +8031,13 @@ var require_index_001 = __commonJS({
     }
     /*! #__NO_SIDE_EFFECTS__ */
     // @__NO_SIDE_EFFECTS__
-    function defineStore(idOrOptions, setup, setupOptions) {
+    function defineStore(idOrOptions, setup2, setupOptions) {
       let id;
       let options;
-      const isSetupStore = typeof setup === "function";
+      const isSetupStore = typeof setup2 === "function";
       {
         id = idOrOptions;
-        options = isSetupStore ? setupOptions : setup;
+        options = isSetupStore ? setupOptions : setup2;
       }
       function useStore(pinia, hot) {
         const hasContext = hasInjectionContext();
@@ -8049,7 +8049,7 @@ var require_index_001 = __commonJS({
         pinia = activePinia;
         if (!pinia._s.has(id)) {
           if (isSetupStore) {
-            createSetupStore(id, setup, options, pinia);
+            createSetupStore(id, setup2, options, pinia);
           } else {
             createOptionsStore(id, options, pinia);
           }
@@ -10544,6 +10544,13 @@ ${unwrappedProps}
     function createId(length = 8) {
       return Math.random().toString(16).slice(2, 2 + length);
     }
+    function repeat(count, v) {
+      const ret = [];
+      for (let i = 0; i < count; ++i) {
+        ret.push(v);
+      }
+      return ret;
+    }
     function getEventTarget(e) {
       const path = e.composedPath();
       return path[0];
@@ -10961,18 +10968,18 @@ ${unwrappedProps}
         return /* @__PURE__ */ readonly(/* @__PURE__ */ ref(null));
       if (usedCount$1 === 0)
         on("click", document, clickHandler, true);
-      const setup = () => {
+      const setup2 = () => {
         usedCount$1 += 1;
       };
       if (managable$1 && (managable$1 = hasInstance())) {
-        onBeforeMount(setup);
+        onBeforeMount(setup2);
         onBeforeUnmount(() => {
           usedCount$1 -= 1;
           if (usedCount$1 === 0)
             off("click", document, clickHandler, true);
         });
       } else {
-        setup();
+        setup2();
       }
       return /* @__PURE__ */ readonly(mousePositionRef);
     }
@@ -11001,12 +11008,12 @@ ${unwrappedProps}
       if (usedCount === 0) {
         on("click", window, handleClick, true);
       }
-      const setup = () => {
+      const setup2 = () => {
         usedCount += 1;
         on("click", window, clickedHandler, true);
       };
       if (managable && (managable = hasInstance())) {
-        onBeforeMount(setup);
+        onBeforeMount(setup2);
         onBeforeUnmount(() => {
           usedCount -= 1;
           if (usedCount === 0) {
@@ -11016,7 +11023,7 @@ ${unwrappedProps}
           clearTimer();
         });
       } else {
-        setup();
+        setup2();
       }
       return /* @__PURE__ */ readonly(clickedRef);
     }
@@ -11053,6 +11060,113 @@ ${unwrappedProps}
     !window.MSStream;
     function useIsIos() {
       return isIos;
+    }
+    function useKeyboard(options = {}, enabledRef) {
+      const state = /* @__PURE__ */ reactive({
+        ctrl: false,
+        command: false,
+        win: false,
+        shift: false,
+        tab: false
+      });
+      const { keydown, keyup } = options;
+      const keydownHandler = (e) => {
+        switch (e.key) {
+          case "Control":
+            state.ctrl = true;
+            break;
+          case "Meta":
+            state.command = true;
+            state.win = true;
+            break;
+          case "Shift":
+            state.shift = true;
+            break;
+          case "Tab":
+            state.tab = true;
+            break;
+        }
+        if (keydown !== void 0) {
+          Object.keys(keydown).forEach((key) => {
+            if (key !== e.key)
+              return;
+            const handler = keydown[key];
+            if (typeof handler === "function") {
+              handler(e);
+            } else {
+              const { stop = false, prevent = false } = handler;
+              if (stop)
+                e.stopPropagation();
+              if (prevent)
+                e.preventDefault();
+              handler.handler(e);
+            }
+          });
+        }
+      };
+      const keyupHandler = (e) => {
+        switch (e.key) {
+          case "Control":
+            state.ctrl = false;
+            break;
+          case "Meta":
+            state.command = false;
+            state.win = false;
+            break;
+          case "Shift":
+            state.shift = false;
+            break;
+          case "Tab":
+            state.tab = false;
+            break;
+        }
+        if (keyup !== void 0) {
+          Object.keys(keyup).forEach((key) => {
+            if (key !== e.key)
+              return;
+            const handler = keyup[key];
+            if (typeof handler === "function") {
+              handler(e);
+            } else {
+              const { stop = false, prevent = false } = handler;
+              if (stop)
+                e.stopPropagation();
+              if (prevent)
+                e.preventDefault();
+              handler.handler(e);
+            }
+          });
+        }
+      };
+      const setup2 = () => {
+        if (enabledRef === void 0 || enabledRef.value) {
+          on("keydown", document, keydownHandler);
+          on("keyup", document, keyupHandler);
+        }
+        if (enabledRef !== void 0) {
+          watch(enabledRef, (value) => {
+            if (value) {
+              on("keydown", document, keydownHandler);
+              on("keyup", document, keyupHandler);
+            } else {
+              off("keydown", document, keydownHandler);
+              off("keyup", document, keyupHandler);
+            }
+          });
+        }
+      };
+      if (hasInstance()) {
+        onBeforeMount(setup2);
+        onBeforeUnmount(() => {
+          if (enabledRef === void 0 || enabledRef.value) {
+            off("keydown", document, keydownHandler);
+            off("keyup", document, keyupHandler);
+          }
+        });
+      } else {
+        setup2();
+      }
+      return /* @__PURE__ */ readonly(state);
     }
     function createInjectionKey(key) {
       return key;
@@ -11107,6 +11221,25 @@ ${unwrappedProps}
       type: [String, Object, Boolean],
       default: void 0
     };
+    function useDeferredTrue(valueRef, delay, shouldDelayRef) {
+      const delayedRef = /* @__PURE__ */ ref(valueRef.value);
+      let timerId = null;
+      watch(valueRef, (value) => {
+        if (timerId !== null) window.clearTimeout(timerId);
+        if (value === true) {
+          if (shouldDelayRef && !shouldDelayRef.value) {
+            delayedRef.value = true;
+          } else {
+            timerId = window.setTimeout(() => {
+              delayedRef.value = true;
+            }, delay);
+          }
+        } else {
+          delayedRef.value = false;
+        }
+      });
+      return delayedRef;
+    }
     const isBrowser$1 = typeof document !== "undefined" && typeof window !== "undefined";
     const isComposingRef = /* @__PURE__ */ ref(false);
     function compositionStartHandler() {
@@ -11224,7 +11357,7 @@ ${unwrappedProps}
       }
       return slot();
     }
-    function flatten$2(vNodes, filterCommentNode = true, result = []) {
+    function flatten$3(vNodes, filterCommentNode = true, result = []) {
       vNodes.forEach((vNode) => {
         if (vNode === null)
           return;
@@ -11235,14 +11368,14 @@ ${unwrappedProps}
           return;
         }
         if (Array.isArray(vNode)) {
-          flatten$2(vNode, filterCommentNode, result);
+          flatten$3(vNode, filterCommentNode, result);
           return;
         }
         if (vNode.type === Fragment) {
           if (vNode.children === null)
             return;
           if (Array.isArray(vNode.children)) {
-            flatten$2(vNode.children, filterCommentNode, result);
+            flatten$3(vNode.children, filterCommentNode, result);
           }
         } else if (vNode.type !== Comment) {
           result.push(vNode);
@@ -11255,7 +11388,7 @@ ${unwrappedProps}
       if (slot === void 0) {
         throw new Error(`[vueuc/${scope}]: slot[${slotName}] is empty.`);
       }
-      const content = flatten$2(slot());
+      const content = flatten$3(slot());
       if (content.length === 1) {
         return content[0];
       } else {
@@ -12111,7 +12244,7 @@ ${style2}
           };
       }
     }
-    const style$q = c([
+    const style$y = c([
       c(".v-binder-follower-container", {
         position: "absolute",
         left: "0",
@@ -12193,7 +12326,7 @@ ${style2}
           }
         });
         const ssrAdapter2 = useSsrAdapter();
-        style$q.mount({
+        style$y.mount({
           id: "vueuc/binder",
           head: true,
           anchorMetaName: cssrAnchorMetaName$1,
@@ -13532,7 +13665,7 @@ ${style2}
       }
     });
     const hiddenAttr = "v-hidden";
-    const style$p = c("[v-hidden]", {
+    const style$x = c("[v-hidden]", {
       display: "none!important"
     });
     const VOverflow = /* @__PURE__ */ defineComponent({
@@ -13633,7 +13766,7 @@ ${style2}
           }
         }
         const ssrAdapter2 = useSsrAdapter();
-        style$p.mount({
+        style$x.mount({
           id: "vueuc/overflow",
           head: true,
           anchorMetaName: cssrAnchorMetaName$1,
@@ -13990,6 +14123,17 @@ ${style2}
       } = getMargin(inset);
       return `${top} ${left} ${bottom} ${right}`;
     }
+    function download(url, name) {
+      if (!url) return;
+      const a = document.createElement("a");
+      a.href = url;
+      if (name !== void 0) {
+        a.download = name;
+      }
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
     let _isJsdom;
     function isJsdom() {
       if (_isJsdom === void 0) {
@@ -14014,6 +14158,20 @@ ${style2}
           return void 0;
       }
     }
+    const smallerSizeMap = {
+      tiny: "mini",
+      small: "tiny",
+      medium: "small",
+      large: "medium",
+      huge: "large"
+    };
+    function smallerSize(size2) {
+      const result = smallerSizeMap[size2];
+      if (result === void 0) {
+        throw new Error(`${size2} has no smaller size.`);
+      }
+      return result;
+    }
     function warn(location2, message) {
       console.error(`[naive/${location2}]: ${message}`);
     }
@@ -14027,7 +14185,16 @@ ${style2}
         return funcs(...args);
       }
     }
-    function flatten$1(vNodes, filterCommentNode = true, result = []) {
+    function createRefSetter(ref2) {
+      return (inst) => {
+        if (inst) {
+          ref2.value = inst.$el;
+        } else {
+          ref2.value = null;
+        }
+      };
+    }
+    function flatten$2(vNodes, filterCommentNode = true, result = []) {
       vNodes.forEach((vNode) => {
         if (vNode === null) return;
         if (typeof vNode !== "object") {
@@ -14037,13 +14204,13 @@ ${style2}
           return;
         }
         if (Array.isArray(vNode)) {
-          flatten$1(vNode, filterCommentNode, result);
+          flatten$2(vNode, filterCommentNode, result);
           return;
         }
         if (vNode.type === Fragment) {
           if (vNode.children === null) return;
           if (Array.isArray(vNode.children)) {
-            flatten$1(vNode.children, filterCommentNode, result);
+            flatten$2(vNode.children, filterCommentNode, result);
           }
         } else {
           if (vNode.type === Comment && filterCommentNode) return;
@@ -14058,7 +14225,7 @@ ${style2}
         warn("getFirstSlotVNode", `slot[${slotName}] is empty`);
         return null;
       }
-      const slotContent = flatten$1(slot(props));
+      const slotContent = flatten$2(slot(props));
       if (slotContent.length === 1) {
         return slotContent[0];
       } else {
@@ -14070,7 +14237,7 @@ ${style2}
       if (!slot) {
         return null;
       }
-      const slotContent = flatten$1(slot(props));
+      const slotContent = flatten$2(slot(props));
       if (slotContent.length === 1) {
         return slotContent[0];
       } else {
@@ -14183,6 +14350,10 @@ ${style2}
         mergedClsPrefixRef: NConfigProvider2 ? NConfigProvider2.mergedClsPrefixRef : /* @__PURE__ */ shallowRef(defaultClsPrefix),
         namespaceRef: computed(() => NConfigProvider2 === null || NConfigProvider2 === void 0 ? void 0 : NConfigProvider2.mergedNamespaceRef.value)
       };
+    }
+    function useMergedClsPrefix() {
+      const NConfigProvider2 = inject(configProviderInjectionKey, null);
+      return NConfigProvider2 ? NConfigProvider2.mergedClsPrefixRef : /* @__PURE__ */ shallowRef(defaultClsPrefix);
     }
     function useThemeClass(componentName, hashRef, cssVarsRef, props) {
       if (!cssVarsRef) throwError("useThemeClass", "cssVarsRef is not passed");
@@ -16629,7 +16800,7 @@ ${style2}
       themeOverrides: Object,
       builtinThemeOverrides: Object
     };
-    const style$o = cB("base-icon", `
+    const style$w = cB("base-icon", `
  height: 1em;
  width: 1em;
  line-height: 1em;
@@ -16663,7 +16834,7 @@ ${style2}
         onMouseup: Function
       },
       setup(props) {
-        useStyle("-base-icon", style$o, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-icon", style$w, /* @__PURE__ */ toRef(props, "clsPrefix"));
       },
       render() {
         return h("i", {
@@ -16708,6 +16879,24 @@ ${style2}
         }));
       }
     });
+    const ArrowDownIcon = /* @__PURE__ */ defineComponent({
+      name: "ArrowDown",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 28 28",
+          version: "1.1",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("g", {
+          stroke: "none",
+          "stroke-width": "1",
+          "fill-rule": "evenodd"
+        }, h("g", {
+          "fill-rule": "nonzero"
+        }, h("path", {
+          d: "M23.7916,15.2664 C24.0788,14.9679 24.0696,14.4931 23.7711,14.206 C23.4726,13.9188 22.9978,13.928 22.7106,14.2265 L14.7511,22.5007 L14.7511,3.74792 C14.7511,3.33371 14.4153,2.99792 14.0011,2.99792 C13.5869,2.99792 13.2511,3.33371 13.2511,3.74793 L13.2511,22.4998 L5.29259,14.2265 C5.00543,13.928 4.53064,13.9188 4.23213,14.206 C3.93361,14.4931 3.9244,14.9679 4.21157,15.2664 L13.2809,24.6944 C13.6743,25.1034 14.3289,25.1034 14.7223,24.6944 L23.7916,15.2664 Z"
+        }))));
+      }
+    });
     function replaceable(name, icon) {
       const IconComponent = /* @__PURE__ */ defineComponent({
         render() {
@@ -16727,6 +16916,19 @@ ${style2}
         }
       });
     }
+    const BackwardIcon = /* @__PURE__ */ defineComponent({
+      name: "Backward",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 20 20",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("path", {
+          d: "M12.2674 15.793C11.9675 16.0787 11.4927 16.0672 11.2071 15.7673L6.20572 10.5168C5.9298 10.2271 5.9298 9.7719 6.20572 9.48223L11.2071 4.23177C11.4927 3.93184 11.9675 3.92031 12.2674 4.206C12.5673 4.49169 12.5789 4.96642 12.2932 5.26634L7.78458 9.99952L12.2932 14.7327C12.5789 15.0326 12.5673 15.5074 12.2674 15.793Z",
+          fill: "currentColor"
+        }));
+      }
+    });
     const FinishedIcon = /* @__PURE__ */ defineComponent({
       name: "Checkmark",
       render() {
@@ -16750,6 +16952,19 @@ ${style2}
           xmlns: "http://www.w3.org/2000/svg"
         }, h("path", {
           d: "M3.14645 5.64645C3.34171 5.45118 3.65829 5.45118 3.85355 5.64645L8 9.79289L12.1464 5.64645C12.3417 5.45118 12.6583 5.45118 12.8536 5.64645C13.0488 5.84171 13.0488 6.15829 12.8536 6.35355L8.35355 10.8536C8.15829 11.0488 7.84171 11.0488 7.64645 10.8536L3.14645 6.35355C2.95118 6.15829 2.95118 5.84171 3.14645 5.64645Z",
+          fill: "currentColor"
+        }));
+      }
+    });
+    const ChevronRightIcon = /* @__PURE__ */ defineComponent({
+      name: "ChevronRight",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 16 16",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("path", {
+          d: "M5.64645 3.14645C5.45118 3.34171 5.45118 3.65829 5.64645 3.85355L9.79289 8L5.64645 12.1464C5.45118 12.3417 5.45118 12.6583 5.64645 12.8536C5.84171 13.0488 6.15829 13.0488 6.35355 12.8536L10.8536 8.35355C11.0488 8.15829 11.0488 7.84171 10.8536 7.64645L6.35355 3.14645C6.15829 2.95118 5.84171 2.95118 5.64645 3.14645Z",
           fill: "currentColor"
         }));
       }
@@ -16862,6 +17077,77 @@ ${style2}
         }));
       }
     });
+    const FastBackwardIcon = /* @__PURE__ */ defineComponent({
+      name: "FastBackward",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 20 20",
+          version: "1.1",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("g", {
+          stroke: "none",
+          "stroke-width": "1",
+          fill: "none",
+          "fill-rule": "evenodd"
+        }, h("g", {
+          fill: "currentColor",
+          "fill-rule": "nonzero"
+        }, h("path", {
+          d: "M8.73171,16.7949 C9.03264,17.0795 9.50733,17.0663 9.79196,16.7654 C10.0766,16.4644 10.0634,15.9897 9.76243,15.7051 L4.52339,10.75 L17.2471,10.75 C17.6613,10.75 17.9971,10.4142 17.9971,10 C17.9971,9.58579 17.6613,9.25 17.2471,9.25 L4.52112,9.25 L9.76243,4.29275 C10.0634,4.00812 10.0766,3.53343 9.79196,3.2325 C9.50733,2.93156 9.03264,2.91834 8.73171,3.20297 L2.31449,9.27241 C2.14819,9.4297 2.04819,9.62981 2.01448,9.8386 C2.00308,9.89058 1.99707,9.94459 1.99707,10 C1.99707,10.0576 2.00356,10.1137 2.01585,10.1675 C2.05084,10.3733 2.15039,10.5702 2.31449,10.7254 L8.73171,16.7949 Z"
+        }))));
+      }
+    });
+    const FastForwardIcon = /* @__PURE__ */ defineComponent({
+      name: "FastForward",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 20 20",
+          version: "1.1",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("g", {
+          stroke: "none",
+          "stroke-width": "1",
+          fill: "none",
+          "fill-rule": "evenodd"
+        }, h("g", {
+          fill: "currentColor",
+          "fill-rule": "nonzero"
+        }, h("path", {
+          d: "M11.2654,3.20511 C10.9644,2.92049 10.4897,2.93371 10.2051,3.23464 C9.92049,3.53558 9.93371,4.01027 10.2346,4.29489 L15.4737,9.25 L2.75,9.25 C2.33579,9.25 2,9.58579 2,10.0000012 C2,10.4142 2.33579,10.75 2.75,10.75 L15.476,10.75 L10.2346,15.7073 C9.93371,15.9919 9.92049,16.4666 10.2051,16.7675 C10.4897,17.0684 10.9644,17.0817 11.2654,16.797 L17.6826,10.7276 C17.8489,10.5703 17.9489,10.3702 17.9826,10.1614 C17.994,10.1094 18,10.0554 18,10.0000012 C18,9.94241 17.9935,9.88633 17.9812,9.83246 C17.9462,9.62667 17.8467,9.42976 17.6826,9.27455 L11.2654,3.20511 Z"
+        }))));
+      }
+    });
+    const FilterIcon = /* @__PURE__ */ defineComponent({
+      name: "Filter",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 28 28",
+          version: "1.1",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("g", {
+          stroke: "none",
+          "stroke-width": "1",
+          "fill-rule": "evenodd"
+        }, h("g", {
+          "fill-rule": "nonzero"
+        }, h("path", {
+          d: "M17,19 C17.5522847,19 18,19.4477153 18,20 C18,20.5522847 17.5522847,21 17,21 L11,21 C10.4477153,21 10,20.5522847 10,20 C10,19.4477153 10.4477153,19 11,19 L17,19 Z M21,13 C21.5522847,13 22,13.4477153 22,14 C22,14.5522847 21.5522847,15 21,15 L7,15 C6.44771525,15 6,14.5522847 6,14 C6,13.4477153 6.44771525,13 7,13 L21,13 Z M24,7 C24.5522847,7 25,7.44771525 25,8 C25,8.55228475 24.5522847,9 24,9 L4,9 C3.44771525,9 3,8.55228475 3,8 C3,7.44771525 3.44771525,7 4,7 L24,7 Z"
+        }))));
+      }
+    });
+    const ForwardIcon = /* @__PURE__ */ defineComponent({
+      name: "Forward",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 20 20",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("path", {
+          d: "M7.73271 4.20694C8.03263 3.92125 8.50737 3.93279 8.79306 4.23271L13.7944 9.48318C14.0703 9.77285 14.0703 10.2281 13.7944 10.5178L8.79306 15.7682C8.50737 16.0681 8.03263 16.0797 7.73271 15.794C7.43279 15.5083 7.42125 15.0336 7.70694 14.7336L12.2155 10.0005L7.70694 5.26729C7.42125 4.96737 7.43279 4.49264 7.73271 4.20694Z",
+          fill: "currentColor"
+        }));
+      }
+    });
     const InfoIcon = replaceable("info", () => h("svg", {
       viewBox: "0 0 28 28",
       version: "1.1",
@@ -16875,6 +17161,26 @@ ${style2}
     }, h("path", {
       d: "M14,2 C20.6274,2 26,7.37258 26,14 C26,20.6274 20.6274,26 14,26 C7.37258,26 2,20.6274 2,14 C2,7.37258 7.37258,2 14,2 Z M14,11 C13.4477,11 13,11.4477 13,12 L13,12 L13,20 C13,20.5523 13.4477,21 14,21 C14.5523,21 15,20.5523 15,20 L15,20 L15,12 C15,11.4477 14.5523,11 14,11 Z M14,6.75 C13.3096,6.75 12.75,7.30964 12.75,8 C12.75,8.69036 13.3096,9.25 14,9.25 C14.6904,9.25 15.25,8.69036 15.25,8 C15.25,7.30964 14.6904,6.75 14,6.75 Z"
     })))));
+    const MoreIcon = /* @__PURE__ */ defineComponent({
+      name: "More",
+      render() {
+        return h("svg", {
+          viewBox: "0 0 16 16",
+          version: "1.1",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, h("g", {
+          stroke: "none",
+          "stroke-width": "1",
+          fill: "none",
+          "fill-rule": "evenodd"
+        }, h("g", {
+          fill: "currentColor",
+          "fill-rule": "nonzero"
+        }, h("path", {
+          d: "M4,7 C4.55228,7 5,7.44772 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44772 3.44772,7 4,7 Z M8,7 C8.55229,7 9,7.44772 9,8 C9,8.55229 8.55229,9 8,9 C7.44772,9 7,8.55229 7,8 C7,7.44772 7.44772,7 8,7 Z M12,7 C12.5523,7 13,7.44772 13,8 C13,8.55229 12.5523,9 12,9 C11.4477,9 11,8.55229 11,8 C11,7.44772 11.4477,7 12,7 Z"
+        }))));
+      }
+    });
     const RemoveIcon = /* @__PURE__ */ defineComponent({
       name: "Remove",
       render() {
@@ -16943,7 +17249,7 @@ ${style2}
         transition
       })];
     }
-    const style$n = cB("base-clear", `
+    const style$v = cB("base-clear", `
  flex-shrink: 0;
  height: 1em;
  width: 1em;
@@ -16983,7 +17289,7 @@ ${style2}
         onClear: Function
       },
       setup(props) {
-        useStyle("-base-clear", style$n, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-clear", style$v, /* @__PURE__ */ toRef(props, "clsPrefix"));
         return {
           handleMouseDown(e) {
             e.preventDefault();
@@ -17017,7 +17323,7 @@ ${style2}
         }));
       }
     });
-    const style$m = cB("base-close", `
+    const style$u = cB("base-close", `
  display: flex;
  align-items: center;
  justify-content: center;
@@ -17086,7 +17392,7 @@ ${style2}
         absolute: Boolean
       },
       setup(props) {
-        useStyle("-base-close", style$m, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-close", style$u, /* @__PURE__ */ toRef(props, "clsPrefix"));
         return () => {
           const {
             clsPrefix,
@@ -17239,7 +17545,7 @@ ${style2}
         });
       }
     });
-    const style$l = c$1([c$1("@keyframes rotator", `
+    const style$t = c$1([c$1("@keyframes rotator", `
  0% {
  -webkit-transform: rotate(0deg);
  transform: rotate(0deg);
@@ -17303,7 +17609,7 @@ ${style2}
         }
       }, exposedLoadingProps),
       setup(props) {
-        useStyle("-base-loading", style$l, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-loading", style$t, /* @__PURE__ */ toRef(props, "clsPrefix"));
       },
       render() {
         const {
@@ -17728,7 +18034,7 @@ ${style2}
       railInsetVerticalLeft: "2px auto 2px 4px",
       railColor: "transparent"
     };
-    function self$Y(vars) {
+    function self$_(vars) {
       const {
         scrollbarColor,
         scrollbarColorHover,
@@ -17747,14 +18053,14 @@ ${style2}
     const scrollbarLight = {
       name: "Scrollbar",
       common: derived,
-      self: self$Y
+      self: self$_
     };
     const scrollbarDark = {
       name: "Scrollbar",
       common: derived$1,
-      self: self$Y
+      self: self$_
     };
-    const style$k = cB("scrollbar", `
+    const style$s = cB("scrollbar", `
  overflow: hidden;
  position: relative;
  z-index: auto;
@@ -17898,7 +18204,7 @@ ${style2}
         let memoMouseX = 0;
         let memoMouseY = 0;
         const isIos2 = useIsIos();
-        const themeRef = useTheme("Scrollbar", "-scrollbar", style$k, scrollbarLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Scrollbar", "-scrollbar", style$s, scrollbarLight, props, mergedClsPrefixRef);
         const yBarSizeRef = computed(() => {
           const {
             value: containerHeight
@@ -19020,7 +19326,7 @@ ${style2}
         return move(this, "prev", options);
       }
     };
-    function flatten(treeNodes, expandedKeys) {
+    function flatten$1(treeNodes, expandedKeys) {
       const expandedKeySet = expandedKeys ? new Set(expandedKeys) : void 0;
       const flattenedNodes = [];
       function traverse2(treeNodes2) {
@@ -19164,7 +19470,7 @@ ${style2}
         maxLevel: Math.max(...levelTreeNodeMap.keys()),
         getChildren,
         getFlattenedNodes(expandedKeys) {
-          return flatten(treeNodes, expandedKeys);
+          return flatten$1(treeNodes, expandedKeys);
         },
         getNode,
         getPrev,
@@ -19225,7 +19531,7 @@ ${style2}
       iconSizeLarge: "46px",
       iconSizeHuge: "52px"
     };
-    function self$X(vars) {
+    function self$Z(vars) {
       const {
         textColorDisabled,
         iconColor,
@@ -19250,14 +19556,14 @@ ${style2}
     const emptyLight = {
       name: "Empty",
       common: derived,
-      self: self$X
+      self: self$Z
     };
     const emptyDark = {
       name: "Empty",
       common: derived$1,
-      self: self$X
+      self: self$Z
     };
-    const style$j = cB("empty", `
+    const style$r = cB("empty", `
  display: flex;
  flex-direction: column;
  align-items: center;
@@ -19307,7 +19613,7 @@ ${style2}
           inlineThemeDisabled,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Empty", "-empty", style$j, emptyLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Empty", "-empty", style$r, emptyLight, props, mergedClsPrefixRef);
         const {
           localeRef
         } = useLocale("Empty");
@@ -19400,7 +19706,7 @@ ${style2}
       optionPaddingHuge: "0 12px",
       loadingSize: "18px"
     };
-    function self$W(vars) {
+    function self$Y(vars) {
       const {
         borderRadius,
         popoverColor,
@@ -19458,7 +19764,7 @@ ${style2}
         Scrollbar: scrollbarLight,
         Empty: emptyLight
       },
-      self: self$W
+      self: self$Y
     });
     const internalSelectMenuDark = {
       name: "InternalSelectMenu",
@@ -19467,7 +19773,7 @@ ${style2}
         Scrollbar: scrollbarDark,
         Empty: emptyDark
       },
-      self: self$W
+      self: self$Y
     };
     const NSelectGroupHeader = /* @__PURE__ */ defineComponent({
       name: "NBaseSelectGroupHeader",
@@ -19520,7 +19826,7 @@ ${style2}
         }) : node;
       }
     });
-    function renderCheckMark(show, clsPrefix) {
+    function renderCheckMark$1(show, clsPrefix) {
       return h(Transition, {
         name: "fade-in-scale-up-transition"
       }, {
@@ -19647,7 +19953,7 @@ ${style2}
           handleMouseEnter,
           handleMouseMove
         } = this;
-        const checkmark = renderCheckMark(isSelected, clsPrefix);
+        const checkmark = renderCheckMark$1(isSelected, clsPrefix);
         const children = renderLabel ? [renderLabel(rawNode, isSelected), showCheckmark && checkmark] : [render(rawNode[this.labelField], rawNode, isSelected), showCheckmark && checkmark];
         const attrs = nodeProps === null || nodeProps === void 0 ? void 0 : nodeProps(rawNode);
         const node = h("div", Object.assign({}, attrs, {
@@ -19701,7 +20007,7 @@ ${style2}
         transform: `${originalTransform} scale(1)`
       })];
     }
-    const style$i = cB("base-select-menu", `
+    const style$q = cB("base-select-menu", `
  line-height: 1.5;
  outline: none;
  z-index: 0;
@@ -19888,7 +20194,7 @@ ${style2}
           mergedComponentPropsRef
         } = useConfig(props);
         const rtlEnabledRef = useRtl("InternalSelectMenu", mergedRtlRef, mergedClsPrefixRef);
-        const themeRef = useTheme("InternalSelectMenu", "-internal-select-menu", style$i, internalSelectMenuLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        const themeRef = useTheme("InternalSelectMenu", "-internal-select-menu", style$q, internalSelectMenuLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const selfRef = /* @__PURE__ */ ref(null);
         const virtualListRef = /* @__PURE__ */ ref(null);
         const scrollbarRef = /* @__PURE__ */ ref(null);
@@ -20315,7 +20621,7 @@ ${style2}
       arrowHeight: "6px",
       padding: "8px 14px"
     };
-    function self$V(vars) {
+    function self$X(vars) {
       const {
         boxShadow2,
         popoverColor,
@@ -20339,7 +20645,7 @@ ${style2}
       peers: {
         Scrollbar: scrollbarLight
       },
-      self: self$V
+      self: self$X
     });
     const popoverDark = {
       name: "Popover",
@@ -20347,7 +20653,7 @@ ${style2}
       peers: {
         Scrollbar: scrollbarDark
       },
-      self: self$V
+      self: self$X
     };
     const oppositePlacement = {
       top: "bottom",
@@ -20356,7 +20662,7 @@ ${style2}
       right: "left"
     };
     const arrowSize = "var(--n-arrow-height) * 1.414";
-    const style$h = c$1([cB("popover", `
+    const style$p = c$1([cB("popover", `
  transition:
  box-shadow .3s var(--n-bezier),
  background-color .3s var(--n-bezier),
@@ -20571,7 +20877,7 @@ ${style2}
           inlineThemeDisabled,
           mergedRtlRef
         } = useConfig(props);
-        const themeRef = useTheme("Popover", "-popover", style$h, popoverLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Popover", "-popover", style$p, popoverLight, props, mergedClsPrefixRef);
         const rtlEnabledRef = useRtl("Popover", mergedRtlRef, mergedClsPrefixRef);
         const followerRef = /* @__PURE__ */ ref(null);
         const NPopover2 = inject("NPopover");
@@ -21516,7 +21822,7 @@ ${style2}
         });
       }
     };
-    function self$U(vars) {
+    function self$W(vars) {
       const {
         textColor2,
         primaryColorHover,
@@ -21681,7 +21987,7 @@ ${style2}
     }
     const tagLight = {
       common: derived,
-      self: self$U
+      self: self$W
     };
     const commonProps = {
       color: Object,
@@ -21697,7 +22003,7 @@ ${style2}
         default: void 0
       }
     };
-    const style$g = cB("tag", `
+    const style$o = cB("tag", `
  --n-close-margin: var(--n-close-margin-top) var(--n-close-margin-right) var(--n-close-margin-bottom) var(--n-close-margin-left);
  white-space: nowrap;
  position: relative;
@@ -21812,7 +22118,7 @@ ${style2}
           var _a, _b;
           return props.size || ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Tag) === null || _b === void 0 ? void 0 : _b.size) || "medium";
         });
-        const themeRef = useTheme("Tag", "-tag", style$g, tagLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Tag", "-tag", style$o, tagLight, props, mergedClsPrefixRef);
         provide(tagInjectionKey, {
           roundRef: /* @__PURE__ */ toRef(props, "round")
         });
@@ -22191,7 +22497,7 @@ ${style2}
         });
       }
     };
-    function self$T(vars) {
+    function self$V(vars) {
       const {
         borderRadius,
         textColor2,
@@ -22295,9 +22601,9 @@ ${style2}
       peers: {
         Popover: popoverLight
       },
-      self: self$T
+      self: self$V
     });
-    const style$f = c$1([cB("base-selection", `
+    const style$n = c$1([cB("base-selection", `
  --n-padding-single: var(--n-padding-single-top) var(--n-padding-single-right) var(--n-padding-single-bottom) var(--n-padding-single-left);
  --n-padding-multiple: var(--n-padding-multiple-top) var(--n-padding-multiple-right) var(--n-padding-multiple-bottom) var(--n-padding-multiple-left);
  position: relative;
@@ -22587,7 +22893,7 @@ ${style2}
         const showTagsPopoverRef = /* @__PURE__ */ ref(false);
         const patternInputFocusedRef = /* @__PURE__ */ ref(false);
         const hoverRef = /* @__PURE__ */ ref(false);
-        const themeRef = useTheme("InternalSelection", "-internal-selection", style$f, internalSelectionLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        const themeRef = useTheme("InternalSelection", "-internal-selection", style$n, internalSelectionLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const mergedClearableRef = computed(() => {
           return props.clearable && !props.disabled && (hoverRef.value || props.active);
         });
@@ -23439,7 +23745,7 @@ ${style2}
         transform: "translateY(60%)"
       })];
     }
-    const style$e = c$1([c$1("@keyframes n-base-slot-machine-fade-up-in", `
+    const style$m = c$1([c$1("@keyframes n-base-slot-machine-fade-up-in", `
  from {
  transform: translateY(60%);
  opacity: 0;
@@ -23561,7 +23867,7 @@ ${style2}
         }
       },
       setup(props) {
-        useStyle("-base-slot-machine", style$e, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-slot-machine", style$m, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const oldValueRef = /* @__PURE__ */ ref();
         const newValueRef = /* @__PURE__ */ ref();
         const numbersRef = computed(() => {
@@ -23626,7 +23932,7 @@ ${style2}
         };
       }
     });
-    const style$d = cB("base-wave", `
+    const style$l = cB("base-wave", `
  position: absolute;
  left: 0;
  right: 0;
@@ -23643,7 +23949,7 @@ ${style2}
         }
       },
       setup(props) {
-        useStyle("-base-wave", style$d, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-wave", style$l, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const selfRef = /* @__PURE__ */ ref(null);
         const activeRef = /* @__PURE__ */ ref(false);
         let animationTimerId = null;
@@ -23846,7 +24152,7 @@ ${style2}
       linkPadding: "0 0 0 16px",
       railWidth: "4px"
     };
-    function self$S(vars) {
+    function self$U(vars) {
       const {
         borderRadius,
         railColor,
@@ -23871,7 +24177,7 @@ ${style2}
     const anchorDark = {
       name: "Anchor",
       common: derived$1,
-      self: self$S
+      self: self$U
     };
     const isChrome = isBrowser$1 && "chrome" in window;
     isBrowser$1 && navigator.userAgent.includes("Firefox");
@@ -23883,7 +24189,7 @@ ${style2}
       paddingLarge: "0 14px",
       clearSize: "16px"
     };
-    function self$R(vars) {
+    function self$T(vars) {
       const {
         textColor2,
         textColor3,
@@ -23995,9 +24301,9 @@ ${style2}
       peers: {
         Scrollbar: scrollbarDark
       },
-      self: self$R
+      self: self$T
     });
-    function self$Q(vars) {
+    function self$S(vars) {
       const {
         textColor2,
         textColor3,
@@ -24105,10 +24411,10 @@ ${style2}
       peers: {
         Scrollbar: scrollbarLight
       },
-      self: self$Q
+      self: self$S
     });
     const inputInjectionKey = createInjectionKey("n-input");
-    const style$c = cB("input", `
+    const style$k = cB("input", `
  max-width: 100%;
  cursor: text;
  line-height: 1.5;
@@ -24586,7 +24892,7 @@ ${style2}
           mergedRtlRef,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Input", "-input", style$c, inputLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Input", "-input", style$k, inputLight, props, mergedClsPrefixRef);
         if (isSafari) {
           useStyle("-input-safari", safariStyle, mergedClsPrefixRef);
         }
@@ -25765,7 +26071,7 @@ ${style2}
       });
       return valOptMap;
     }
-    function self$P(vars) {
+    function self$R(vars) {
       const {
         boxShadow2
       } = vars;
@@ -25780,9 +26086,9 @@ ${style2}
         InternalSelectMenu: internalSelectMenuDark,
         Input: inputDark
       },
-      self: self$P
+      self: self$R
     };
-    function self$O(vars) {
+    function self$Q(vars) {
       const {
         borderRadius,
         avatarColor,
@@ -25813,9 +26119,9 @@ ${style2}
     const avatarDark = {
       name: "Avatar",
       common: derived$1,
-      self: self$O
+      self: self$Q
     };
-    function self$N() {
+    function self$P() {
       return {
         gap: "-12px"
       };
@@ -25826,7 +26132,7 @@ ${style2}
       peers: {
         Avatar: avatarDark
       },
-      self: self$N
+      self: self$P
     };
     const commonVariables$h = {
       width: "44px",
@@ -25878,7 +26184,7 @@ ${style2}
         };
       }
     };
-    function self$M(vars) {
+    function self$O(vars) {
       const {
         errorColor,
         infoColor,
@@ -25898,9 +26204,9 @@ ${style2}
     }
     const badgeLight = {
       common: derived,
-      self: self$M
+      self: self$O
     };
-    const style$b = c$1([c$1("@keyframes badge-wave-spread", {
+    const style$j = c$1([c$1("@keyframes badge-wave-spread", {
       from: {
         boxShadow: "0 0 0.5px 0px var(--n-ripple-color)",
         opacity: 0.6
@@ -25997,7 +26303,7 @@ ${style2}
           inlineThemeDisabled,
           mergedRtlRef
         } = useConfig(props);
-        const themeRef = useTheme("Badge", "-badge", style$b, badgeLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Badge", "-badge", style$j, badgeLight, props, mergedClsPrefixRef);
         const appearedRef = /* @__PURE__ */ ref(false);
         const handleAfterEnter = () => {
           appearedRef.value = true;
@@ -26115,7 +26421,7 @@ ${style2}
     const commonVariables$g = {
       fontWeightActive: "400"
     };
-    function self$L(vars) {
+    function self$N(vars) {
       const {
         fontSize: fontSize2,
         textColor3,
@@ -26140,7 +26446,7 @@ ${style2}
     const breadcrumbDark = {
       name: "Breadcrumb",
       common: derived$1,
-      self: self$L
+      self: self$N
     };
     function createHoverColor(rgb) {
       return composite(rgb, [255, 255, 255, 0.16]);
@@ -26168,7 +26474,7 @@ ${style2}
       iconSizeLarge: "20px",
       rippleDuration: ".6s"
     };
-    function self$K(vars) {
+    function self$M(vars) {
       const {
         heightTiny,
         heightSmall,
@@ -26405,13 +26711,13 @@ ${style2}
     const buttonLight = {
       name: "Button",
       common: derived,
-      self: self$K
+      self: self$M
     };
     const buttonDark = {
       name: "Button",
       common: derived$1,
       self(vars) {
-        const commonSelf = self$K(vars);
+        const commonSelf = self$M(vars);
         commonSelf.waveOpacity = "0.8";
         commonSelf.colorOpacitySecondary = "0.16";
         commonSelf.colorOpacitySecondaryHover = "0.2";
@@ -26419,7 +26725,7 @@ ${style2}
         return commonSelf;
       }
     };
-    const style$a = c$1([cB("button", `
+    const style$i = c$1([cB("button", `
  margin: 0;
  font-weight: var(--n-font-weight);
  line-height: 1;
@@ -26719,7 +27025,7 @@ ${style2}
         const handleBlur = () => {
           enterPressedRef.value = false;
         };
-        const themeRef = useTheme("Button", "-button", style$a, buttonLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Button", "-button", style$i, buttonLight, props, mergedClsPrefixRef);
         const rtlEnabledRef = useRtl("Button", mergedRtlRef, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const theme = themeRef.value;
@@ -27056,7 +27362,7 @@ ${style2}
     const commonVariables$e = {
       titleFontSize: "22px"
     };
-    function self$J(vars) {
+    function self$L(vars) {
       const {
         borderRadius,
         fontSize: fontSize2,
@@ -27101,7 +27407,7 @@ ${style2}
       peers: {
         Button: buttonDark
       },
-      self: self$J
+      self: self$L
     };
     const commonVariables$d = {
       paddingSmall: "12px 16px 12px",
@@ -27115,7 +27421,7 @@ ${style2}
       closeIconSize: "18px",
       closeSize: "22px"
     };
-    function self$I(vars) {
+    function self$K(vars) {
       const {
         primaryColor,
         borderRadius,
@@ -27167,13 +27473,13 @@ ${style2}
     const cardLight = {
       name: "Card",
       common: derived,
-      self: self$I
+      self: self$K
     };
     const cardDark = {
       name: "Card",
       common: derived$1,
       self(vars) {
-        const commonSelf = self$I(vars);
+        const commonSelf = self$K(vars);
         const {
           cardColor,
           modalColor,
@@ -27192,7 +27498,7 @@ ${style2}
  padding: 0 var(--n-padding-left) var(--n-padding-bottom) var(--n-padding-left);
  font-size: var(--n-font-size);
 `);
-    const style$9 = c$1([cB("card", `
+    const style$h = c$1([cB("card", `
  font-size: var(--n-font-size);
  line-height: var(--n-line-height);
  display: flex;
@@ -27370,7 +27676,7 @@ ${style2}
           mergedRtlRef,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Card", "-card", style$9, cardLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Card", "-card", style$h, cardLight, props, mergedClsPrefixRef);
         const rtlEnabledRef = useRtl("Card", mergedRtlRef, mergedClsPrefixRef);
         const mergedSizeRef = computed(() => {
           var _a, _b;
@@ -27548,7 +27854,7 @@ ${style2}
         }));
       }
     });
-    function self$H() {
+    function self$J() {
       return {
         dotSize: "8px",
         dotColor: "rgba(255, 255, 255, .3)",
@@ -27562,7 +27868,7 @@ ${style2}
     const carouselDark = {
       name: "Carousel",
       common: derived$1,
-      self: self$H
+      self: self$J
     };
     const commonVariables$c = {
       sizeSmall: "14px",
@@ -27571,7 +27877,7 @@ ${style2}
       labelPadding: "0 8px",
       labelFontWeight: "400"
     };
-    function self$G(vars) {
+    function self$I(vars) {
       const {
         baseColor,
         inputColorDisabled,
@@ -27616,6 +27922,11 @@ ${style2}
         textColorDisabled
       });
     }
+    const checkboxLight = {
+      name: "Checkbox",
+      common: derived,
+      self: self$I
+    };
     const checkboxDark = {
       name: "Checkbox",
       common: derived$1,
@@ -27623,13 +27934,13 @@ ${style2}
         const {
           cardColor
         } = vars;
-        const commonSelf = self$G(vars);
+        const commonSelf = self$I(vars);
         commonSelf.color = "#0000";
         commonSelf.checkMarkColor = cardColor;
         return commonSelf;
       }
     };
-    function self$F(vars) {
+    function self$H(vars) {
       const {
         borderRadius,
         boxShadow2,
@@ -27671,8 +27982,624 @@ ${style2}
         Checkbox: checkboxDark,
         Empty: emptyLight
       },
-      self: self$F
+      self: self$H
     };
+    const checkboxGroupInjectionKey = createInjectionKey("n-checkbox-group");
+    const checkboxGroupProps = {
+      min: Number,
+      max: Number,
+      size: String,
+      value: Array,
+      defaultValue: {
+        type: Array,
+        default: null
+      },
+      disabled: {
+        type: Boolean,
+        default: void 0
+      },
+      "onUpdate:value": [Function, Array],
+      onUpdateValue: [Function, Array],
+      // deprecated
+      onChange: [Function, Array]
+    };
+    const NCheckboxGroup = /* @__PURE__ */ defineComponent({
+      name: "CheckboxGroup",
+      props: checkboxGroupProps,
+      setup(props) {
+        const {
+          mergedClsPrefixRef
+        } = useConfig(props);
+        const formItem = useFormItem(props);
+        const {
+          mergedSizeRef,
+          mergedDisabledRef
+        } = formItem;
+        const uncontrolledValueRef = /* @__PURE__ */ ref(props.defaultValue);
+        const controlledValueRef = computed(() => props.value);
+        const mergedValueRef = useMergedState(controlledValueRef, uncontrolledValueRef);
+        const checkedCount = computed(() => {
+          var _a;
+          return ((_a = mergedValueRef.value) === null || _a === void 0 ? void 0 : _a.length) || 0;
+        });
+        const valueSetRef = computed(() => {
+          if (Array.isArray(mergedValueRef.value)) {
+            return new Set(mergedValueRef.value);
+          }
+          return /* @__PURE__ */ new Set();
+        });
+        function toggleCheckbox(checked, checkboxValue) {
+          const {
+            nTriggerFormInput,
+            nTriggerFormChange
+          } = formItem;
+          const {
+            onChange,
+            "onUpdate:value": _onUpdateValue,
+            onUpdateValue
+          } = props;
+          if (Array.isArray(mergedValueRef.value)) {
+            const groupValue = Array.from(mergedValueRef.value);
+            const index = groupValue.findIndex((value) => value === checkboxValue);
+            if (checked) {
+              if (!~index) {
+                groupValue.push(checkboxValue);
+                if (onUpdateValue) {
+                  call(onUpdateValue, groupValue, {
+                    actionType: "check",
+                    value: checkboxValue
+                  });
+                }
+                if (_onUpdateValue) {
+                  call(_onUpdateValue, groupValue, {
+                    actionType: "check",
+                    value: checkboxValue
+                  });
+                }
+                nTriggerFormInput();
+                nTriggerFormChange();
+                uncontrolledValueRef.value = groupValue;
+                if (onChange) call(onChange, groupValue);
+              }
+            } else {
+              if (~index) {
+                groupValue.splice(index, 1);
+                if (onUpdateValue) {
+                  call(onUpdateValue, groupValue, {
+                    actionType: "uncheck",
+                    value: checkboxValue
+                  });
+                }
+                if (_onUpdateValue) {
+                  call(_onUpdateValue, groupValue, {
+                    actionType: "uncheck",
+                    value: checkboxValue
+                  });
+                }
+                if (onChange) call(onChange, groupValue);
+                uncontrolledValueRef.value = groupValue;
+                nTriggerFormInput();
+                nTriggerFormChange();
+              }
+            }
+          } else {
+            if (checked) {
+              if (onUpdateValue) {
+                call(onUpdateValue, [checkboxValue], {
+                  actionType: "check",
+                  value: checkboxValue
+                });
+              }
+              if (_onUpdateValue) {
+                call(_onUpdateValue, [checkboxValue], {
+                  actionType: "check",
+                  value: checkboxValue
+                });
+              }
+              if (onChange) call(onChange, [checkboxValue]);
+              uncontrolledValueRef.value = [checkboxValue];
+              nTriggerFormInput();
+              nTriggerFormChange();
+            } else {
+              if (onUpdateValue) {
+                call(onUpdateValue, [], {
+                  actionType: "uncheck",
+                  value: checkboxValue
+                });
+              }
+              if (_onUpdateValue) {
+                call(_onUpdateValue, [], {
+                  actionType: "uncheck",
+                  value: checkboxValue
+                });
+              }
+              if (onChange) call(onChange, []);
+              uncontrolledValueRef.value = [];
+              nTriggerFormInput();
+              nTriggerFormChange();
+            }
+          }
+        }
+        provide(checkboxGroupInjectionKey, {
+          checkedCountRef: checkedCount,
+          maxRef: /* @__PURE__ */ toRef(props, "max"),
+          minRef: /* @__PURE__ */ toRef(props, "min"),
+          valueSetRef,
+          disabledRef: mergedDisabledRef,
+          mergedSizeRef,
+          toggleCheckbox
+        });
+        return {
+          mergedClsPrefix: mergedClsPrefixRef
+        };
+      },
+      render() {
+        return h("div", {
+          class: `${this.mergedClsPrefix}-checkbox-group`,
+          role: "group"
+        }, this.$slots);
+      }
+    });
+    const renderCheckMark = () => h("svg", {
+      viewBox: "0 0 64 64",
+      class: "check-icon"
+    }, h("path", {
+      d: "M50.42,16.76L22.34,39.45l-8.1-11.46c-1.12-1.58-3.3-1.96-4.88-0.84c-1.58,1.12-1.95,3.3-0.84,4.88l10.26,14.51  c0.56,0.79,1.42,1.31,2.38,1.45c0.16,0.02,0.32,0.03,0.48,0.03c0.8,0,1.57-0.27,2.2-0.78l30.99-25.03c1.5-1.21,1.74-3.42,0.52-4.92  C54.13,15.78,51.93,15.55,50.42,16.76z"
+    }));
+    const renderLineMark = () => h("svg", {
+      viewBox: "0 0 100 100",
+      class: "line-icon"
+    }, h("path", {
+      d: "M80.2,55.5H21.4c-2.8,0-5.1-2.5-5.1-5.5l0,0c0-3,2.3-5.5,5.1-5.5h58.7c2.8,0,5.1,2.5,5.1,5.5l0,0C85.2,53.1,82.9,55.5,80.2,55.5z"
+    }));
+    const style$g = c$1([
+      cB("checkbox", `
+ font-size: var(--n-font-size);
+ outline: none;
+ cursor: pointer;
+ display: inline-flex;
+ flex-wrap: nowrap;
+ align-items: flex-start;
+ word-break: break-word;
+ line-height: var(--n-size);
+ --n-merged-color-table: var(--n-color-table);
+ `, [cM("show-label", "line-height: var(--n-label-line-height);"), c$1("&:hover", [cB("checkbox-box", [cE("border", "border: var(--n-border-checked);")])]), c$1("&:focus:not(:active)", [cB("checkbox-box", [cE("border", `
+ border: var(--n-border-focus);
+ box-shadow: var(--n-box-shadow-focus);
+ `)])]), cM("inside-table", [cB("checkbox-box", `
+ background-color: var(--n-merged-color-table);
+ `)]), cM("checked", [cB("checkbox-box", `
+ background-color: var(--n-color-checked);
+ `, [cB("checkbox-icon", [
+        // if not set width to 100%, safari & old chrome won't display the icon
+        c$1(".check-icon", `
+ opacity: 1;
+ transform: scale(1);
+ `)
+      ])])]), cM("indeterminate", [cB("checkbox-box", [cB("checkbox-icon", [c$1(".check-icon", `
+ opacity: 0;
+ transform: scale(.5);
+ `), c$1(".line-icon", `
+ opacity: 1;
+ transform: scale(1);
+ `)])])]), cM("checked, indeterminate", [c$1("&:focus:not(:active)", [cB("checkbox-box", [cE("border", `
+ border: var(--n-border-checked);
+ box-shadow: var(--n-box-shadow-focus);
+ `)])]), cB("checkbox-box", `
+ background-color: var(--n-color-checked);
+ border-left: 0;
+ border-top: 0;
+ `, [cE("border", {
+        border: "var(--n-border-checked)"
+      })])]), cM("disabled", {
+        cursor: "not-allowed"
+      }, [cM("checked", [cB("checkbox-box", `
+ background-color: var(--n-color-disabled-checked);
+ `, [cE("border", {
+        border: "var(--n-border-disabled-checked)"
+      }), cB("checkbox-icon", [c$1(".check-icon, .line-icon", {
+        fill: "var(--n-check-mark-color-disabled-checked)"
+      })])])]), cB("checkbox-box", `
+ background-color: var(--n-color-disabled);
+ `, [cE("border", `
+ border: var(--n-border-disabled);
+ `), cB("checkbox-icon", [c$1(".check-icon, .line-icon", `
+ fill: var(--n-check-mark-color-disabled);
+ `)])]), cE("label", `
+ color: var(--n-text-color-disabled);
+ `)]), cB("checkbox-box-wrapper", `
+ position: relative;
+ width: var(--n-size);
+ flex-shrink: 0;
+ flex-grow: 0;
+ user-select: none;
+ -webkit-user-select: none;
+ `), cB("checkbox-box", `
+ position: absolute;
+ left: 0;
+ top: 50%;
+ transform: translateY(-50%);
+ height: var(--n-size);
+ width: var(--n-size);
+ display: inline-block;
+ box-sizing: border-box;
+ border-radius: var(--n-border-radius);
+ background-color: var(--n-color);
+ transition: background-color 0.3s var(--n-bezier);
+ `, [cE("border", `
+ transition:
+ border-color .3s var(--n-bezier),
+ box-shadow .3s var(--n-bezier);
+ border-radius: inherit;
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: 0;
+ bottom: 0;
+ border: var(--n-border);
+ `), cB("checkbox-icon", `
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ position: absolute;
+ left: 1px;
+ right: 1px;
+ top: 1px;
+ bottom: 1px;
+ `, [c$1(".check-icon, .line-icon", `
+ width: 100%;
+ fill: var(--n-check-mark-color);
+ opacity: 0;
+ transform: scale(0.5);
+ transform-origin: center;
+ transition:
+ fill 0.3s var(--n-bezier),
+ transform 0.3s var(--n-bezier),
+ opacity 0.3s var(--n-bezier),
+ border-color 0.3s var(--n-bezier);
+ `), iconSwitchTransition({
+        left: "1px",
+        top: "1px"
+      })])]), cE("label", `
+ color: var(--n-text-color);
+ transition: color .3s var(--n-bezier);
+ user-select: none;
+ -webkit-user-select: none;
+ padding: var(--n-label-padding);
+ font-weight: var(--n-label-font-weight);
+ `, [c$1("&:empty", {
+        display: "none"
+      })])]),
+      // modal table header checkbox
+      insideModal(cB("checkbox", `
+ --n-merged-color-table: var(--n-color-table-modal);
+ `)),
+      // popover table header checkbox
+      insidePopover(cB("checkbox", `
+ --n-merged-color-table: var(--n-color-table-popover);
+ `))
+    ]);
+    const checkboxProps = Object.assign(Object.assign({}, useTheme.props), {
+      size: String,
+      checked: {
+        type: [Boolean, String, Number],
+        default: void 0
+      },
+      defaultChecked: {
+        type: [Boolean, String, Number],
+        default: false
+      },
+      value: [String, Number],
+      disabled: {
+        type: Boolean,
+        default: void 0
+      },
+      indeterminate: Boolean,
+      label: String,
+      focusable: {
+        type: Boolean,
+        default: true
+      },
+      checkedValue: {
+        type: [Boolean, String, Number],
+        default: true
+      },
+      uncheckedValue: {
+        type: [Boolean, String, Number],
+        default: false
+      },
+      "onUpdate:checked": [Function, Array],
+      onUpdateChecked: [Function, Array],
+      // private
+      privateInsideTable: Boolean,
+      // deprecated
+      onChange: [Function, Array]
+    });
+    const NCheckbox = /* @__PURE__ */ defineComponent({
+      name: "Checkbox",
+      props: checkboxProps,
+      setup(props) {
+        const NCheckboxGroup2 = inject(checkboxGroupInjectionKey, null);
+        const selfRef = /* @__PURE__ */ ref(null);
+        const {
+          mergedClsPrefixRef,
+          inlineThemeDisabled,
+          mergedRtlRef,
+          mergedComponentPropsRef
+        } = useConfig(props);
+        const uncontrolledCheckedRef = /* @__PURE__ */ ref(props.defaultChecked);
+        const controlledCheckedRef = /* @__PURE__ */ toRef(props, "checked");
+        const mergedCheckedRef = useMergedState(controlledCheckedRef, uncontrolledCheckedRef);
+        const renderedCheckedRef = useMemo(() => {
+          if (NCheckboxGroup2) {
+            const groupValueSet = NCheckboxGroup2.valueSetRef.value;
+            if (groupValueSet && props.value !== void 0) {
+              return groupValueSet.has(props.value);
+            }
+            return false;
+          } else {
+            return mergedCheckedRef.value === props.checkedValue;
+          }
+        });
+        const formItem = useFormItem(props, {
+          mergedSize(NFormItem) {
+            var _a, _b;
+            const {
+              size: size2
+            } = props;
+            if (size2 !== void 0) return size2;
+            if (NCheckboxGroup2) {
+              const {
+                value: mergedSize
+              } = NCheckboxGroup2.mergedSizeRef;
+              if (mergedSize !== void 0) {
+                return mergedSize;
+              }
+            }
+            if (NFormItem) {
+              const {
+                mergedSize
+              } = NFormItem;
+              if (mergedSize !== void 0) return mergedSize.value;
+            }
+            const configSize = (_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Checkbox) === null || _b === void 0 ? void 0 : _b.size;
+            if (configSize) return configSize;
+            return "medium";
+          },
+          mergedDisabled(NFormItem) {
+            const {
+              disabled
+            } = props;
+            if (disabled !== void 0) return disabled;
+            if (NCheckboxGroup2) {
+              if (NCheckboxGroup2.disabledRef.value) return true;
+              const {
+                maxRef: {
+                  value: max
+                },
+                checkedCountRef
+              } = NCheckboxGroup2;
+              if (max !== void 0 && checkedCountRef.value >= max && !renderedCheckedRef.value) {
+                return true;
+              }
+              const {
+                minRef: {
+                  value: min
+                }
+              } = NCheckboxGroup2;
+              if (min !== void 0 && checkedCountRef.value <= min && renderedCheckedRef.value) {
+                return true;
+              }
+            }
+            if (NFormItem) {
+              return NFormItem.disabled.value;
+            }
+            return false;
+          }
+        });
+        const {
+          mergedDisabledRef,
+          mergedSizeRef
+        } = formItem;
+        const themeRef = useTheme("Checkbox", "-checkbox", style$g, checkboxLight, props, mergedClsPrefixRef);
+        function toggle(e) {
+          if (NCheckboxGroup2 && props.value !== void 0) {
+            NCheckboxGroup2.toggleCheckbox(!renderedCheckedRef.value, props.value);
+          } else {
+            const {
+              onChange,
+              "onUpdate:checked": _onUpdateCheck,
+              onUpdateChecked
+            } = props;
+            const {
+              nTriggerFormInput,
+              nTriggerFormChange
+            } = formItem;
+            const nextChecked = renderedCheckedRef.value ? props.uncheckedValue : props.checkedValue;
+            if (_onUpdateCheck) {
+              call(_onUpdateCheck, nextChecked, e);
+            }
+            if (onUpdateChecked) {
+              call(onUpdateChecked, nextChecked, e);
+            }
+            if (onChange) call(onChange, nextChecked, e);
+            nTriggerFormInput();
+            nTriggerFormChange();
+            uncontrolledCheckedRef.value = nextChecked;
+          }
+        }
+        function handleClick2(e) {
+          if (!mergedDisabledRef.value) {
+            toggle(e);
+          }
+        }
+        function handleKeyUp(e) {
+          if (mergedDisabledRef.value) return;
+          switch (e.key) {
+            case " ":
+            case "Enter":
+              toggle(e);
+          }
+        }
+        function handleKeyDown(e) {
+          switch (e.key) {
+            case " ":
+              e.preventDefault();
+          }
+        }
+        const exposedMethods = {
+          focus: () => {
+            var _a;
+            (_a = selfRef.value) === null || _a === void 0 ? void 0 : _a.focus();
+          },
+          blur: () => {
+            var _a;
+            (_a = selfRef.value) === null || _a === void 0 ? void 0 : _a.blur();
+          }
+        };
+        const rtlEnabledRef = useRtl("Checkbox", mergedRtlRef, mergedClsPrefixRef);
+        const cssVarsRef = computed(() => {
+          const {
+            value: mergedSize
+          } = mergedSizeRef;
+          const {
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            },
+            self: {
+              borderRadius,
+              color,
+              colorChecked,
+              colorDisabled,
+              colorTableHeader,
+              colorTableHeaderModal,
+              colorTableHeaderPopover,
+              checkMarkColor,
+              checkMarkColorDisabled,
+              border,
+              borderFocus,
+              borderDisabled,
+              borderChecked,
+              boxShadowFocus,
+              textColor,
+              textColorDisabled,
+              checkMarkColorDisabledChecked,
+              colorDisabledChecked,
+              borderDisabledChecked,
+              labelPadding,
+              labelLineHeight,
+              labelFontWeight,
+              [createKey("fontSize", mergedSize)]: fontSize2,
+              [createKey("size", mergedSize)]: size2
+            }
+          } = themeRef.value;
+          return {
+            "--n-label-line-height": labelLineHeight,
+            "--n-label-font-weight": labelFontWeight,
+            "--n-size": size2,
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-border-radius": borderRadius,
+            "--n-border": border,
+            "--n-border-checked": borderChecked,
+            "--n-border-focus": borderFocus,
+            "--n-border-disabled": borderDisabled,
+            "--n-border-disabled-checked": borderDisabledChecked,
+            "--n-box-shadow-focus": boxShadowFocus,
+            "--n-color": color,
+            "--n-color-checked": colorChecked,
+            "--n-color-table": colorTableHeader,
+            "--n-color-table-modal": colorTableHeaderModal,
+            "--n-color-table-popover": colorTableHeaderPopover,
+            "--n-color-disabled": colorDisabled,
+            "--n-color-disabled-checked": colorDisabledChecked,
+            "--n-text-color": textColor,
+            "--n-text-color-disabled": textColorDisabled,
+            "--n-check-mark-color": checkMarkColor,
+            "--n-check-mark-color-disabled": checkMarkColorDisabled,
+            "--n-check-mark-color-disabled-checked": checkMarkColorDisabledChecked,
+            "--n-font-size": fontSize2,
+            "--n-label-padding": labelPadding
+          };
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("checkbox", computed(() => mergedSizeRef.value[0]), cssVarsRef, props) : void 0;
+        return Object.assign(formItem, exposedMethods, {
+          rtlEnabled: rtlEnabledRef,
+          selfRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          mergedDisabled: mergedDisabledRef,
+          renderedChecked: renderedCheckedRef,
+          mergedTheme: themeRef,
+          labelId: createId(),
+          handleClick: handleClick2,
+          handleKeyUp,
+          handleKeyDown,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender
+        });
+      },
+      render() {
+        var _a;
+        const {
+          $slots,
+          renderedChecked,
+          mergedDisabled,
+          indeterminate,
+          privateInsideTable,
+          cssVars,
+          labelId,
+          label,
+          mergedClsPrefix,
+          focusable,
+          handleKeyUp,
+          handleKeyDown,
+          handleClick: handleClick2
+        } = this;
+        (_a = this.onRender) === null || _a === void 0 ? void 0 : _a.call(this);
+        const labelNode = resolveWrappedSlot($slots.default, (children) => {
+          if (label || children) {
+            return h("span", {
+              class: `${mergedClsPrefix}-checkbox__label`,
+              id: labelId
+            }, label || children);
+          }
+          return null;
+        });
+        return h("div", {
+          ref: "selfRef",
+          class: [`${mergedClsPrefix}-checkbox`, this.themeClass, this.rtlEnabled && `${mergedClsPrefix}-checkbox--rtl`, renderedChecked && `${mergedClsPrefix}-checkbox--checked`, mergedDisabled && `${mergedClsPrefix}-checkbox--disabled`, indeterminate && `${mergedClsPrefix}-checkbox--indeterminate`, privateInsideTable && `${mergedClsPrefix}-checkbox--inside-table`, labelNode && `${mergedClsPrefix}-checkbox--show-label`],
+          tabindex: mergedDisabled || !focusable ? void 0 : 0,
+          role: "checkbox",
+          "aria-checked": indeterminate ? "mixed" : renderedChecked,
+          "aria-labelledby": labelId,
+          style: cssVars,
+          onKeyup: handleKeyUp,
+          onKeydown: handleKeyDown,
+          onClick: handleClick2,
+          onMousedown: () => {
+            on("selectstart", window, (e) => {
+              e.preventDefault();
+            }, {
+              once: true
+            });
+          }
+        }, h("div", {
+          class: `${mergedClsPrefix}-checkbox-box-wrapper`
+        }, " ", h("div", {
+          class: `${mergedClsPrefix}-checkbox-box`
+        }, h(NIconSwitchTransition, null, {
+          default: () => this.indeterminate ? h("div", {
+            key: "indeterminate",
+            class: `${mergedClsPrefix}-checkbox-icon`
+          }, renderLineMark()) : h("div", {
+            key: "check",
+            class: `${mergedClsPrefix}-checkbox-icon`
+          }, renderCheckMark())
+        }), h("div", {
+          class: `${mergedClsPrefix}-checkbox-box__border`
+        }))), labelNode);
+      }
+    });
     const codeDark = {
       name: "Code",
       common: derived$1,
@@ -27702,7 +28629,7 @@ ${style2}
         };
       }
     };
-    function self$E(vars) {
+    function self$G(vars) {
       const {
         fontWeight,
         textColor1,
@@ -27728,9 +28655,9 @@ ${style2}
     const collapseDark = {
       name: "Collapse",
       common: derived$1,
-      self: self$E
+      self: self$G
     };
-    function self$D(vars) {
+    function self$F(vars) {
       const {
         cubicBezierEaseInOut: cubicBezierEaseInOut2
       } = vars;
@@ -27741,9 +28668,9 @@ ${style2}
     const collapseTransitionDark = {
       name: "CollapseTransition",
       common: derived$1,
-      self: self$D
+      self: self$F
     };
-    function self$C(vars) {
+    function self$E(vars) {
       const {
         fontSize: fontSize2,
         boxShadow2,
@@ -27782,7 +28709,7 @@ ${style2}
         Input: inputDark,
         Button: buttonDark
       },
-      self: self$C
+      self: self$E
     };
     const configProviderProps = {
       abstract: Boolean,
@@ -27995,7 +28922,311 @@ ${style2}
         InternalSelectMenu: internalSelectMenuDark
       }
     };
-    function self$B(vars) {
+    function self$D(vars) {
+      const {
+        boxShadow2
+      } = vars;
+      return {
+        menuBoxShadow: boxShadow2
+      };
+    }
+    const popselectLight = createTheme({
+      name: "Popselect",
+      common: derived,
+      peers: {
+        Popover: popoverLight,
+        InternalSelectMenu: internalSelectMenuLight
+      },
+      self: self$D
+    });
+    const popselectInjectionKey = createInjectionKey("n-popselect");
+    const style$f = cB("popselect-menu", `
+ box-shadow: var(--n-menu-box-shadow);
+`);
+    const panelProps = {
+      multiple: Boolean,
+      value: {
+        type: [String, Number, Array],
+        default: null
+      },
+      cancelable: Boolean,
+      options: {
+        type: Array,
+        default: () => []
+      },
+      size: String,
+      scrollable: Boolean,
+      "onUpdate:value": [Function, Array],
+      onUpdateValue: [Function, Array],
+      onMouseenter: Function,
+      onMouseleave: Function,
+      renderLabel: Function,
+      showCheckmark: {
+        type: Boolean,
+        default: void 0
+      },
+      nodeProps: Function,
+      virtualScroll: Boolean,
+      // deprecated
+      onChange: [Function, Array]
+    };
+    const panelPropKeys = keysOf(panelProps);
+    const NPopselectPanel = /* @__PURE__ */ defineComponent({
+      name: "PopselectPanel",
+      props: panelProps,
+      setup(props) {
+        const NPopselect2 = inject(popselectInjectionKey);
+        const {
+          mergedClsPrefixRef,
+          inlineThemeDisabled,
+          mergedComponentPropsRef
+        } = useConfig(props);
+        const mergedSizeRef = computed(() => {
+          var _a, _b;
+          return props.size || ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Popselect) === null || _b === void 0 ? void 0 : _b.size) || "medium";
+        });
+        const themeRef = useTheme("Popselect", "-pop-select", style$f, popselectLight, NPopselect2.props, mergedClsPrefixRef);
+        const treeMateRef = computed(() => {
+          return createTreeMate(props.options, createTmOptions("value", "children"));
+        });
+        function doUpdateValue(value, option) {
+          const {
+            onUpdateValue,
+            "onUpdate:value": _onUpdateValue,
+            onChange
+          } = props;
+          if (onUpdateValue) call(onUpdateValue, value, option);
+          if (_onUpdateValue) {
+            call(_onUpdateValue, value, option);
+          }
+          if (onChange) call(onChange, value, option);
+        }
+        function handleToggle(tmNode) {
+          toggle(tmNode.key);
+        }
+        function handleMenuMousedown(e) {
+          if (!happensIn(e, "action") && !happensIn(e, "empty") && !happensIn(e, "header")) {
+            e.preventDefault();
+          }
+        }
+        function toggle(value) {
+          const {
+            value: {
+              getNode
+            }
+          } = treeMateRef;
+          if (props.multiple) {
+            if (Array.isArray(props.value)) {
+              const newValue = [];
+              const newOptions = [];
+              let shouldAddValue = true;
+              props.value.forEach((v) => {
+                if (v === value) {
+                  shouldAddValue = false;
+                  return;
+                }
+                const tmNode = getNode(v);
+                if (tmNode) {
+                  newValue.push(tmNode.key);
+                  newOptions.push(tmNode.rawNode);
+                }
+              });
+              if (shouldAddValue) {
+                newValue.push(value);
+                newOptions.push(getNode(value).rawNode);
+              }
+              doUpdateValue(newValue, newOptions);
+            } else {
+              const tmNode = getNode(value);
+              if (tmNode) {
+                doUpdateValue([value], [tmNode.rawNode]);
+              }
+            }
+          } else {
+            if (props.value === value && props.cancelable) {
+              doUpdateValue(null, null);
+            } else {
+              const tmNode = getNode(value);
+              if (tmNode) {
+                doUpdateValue(value, tmNode.rawNode);
+              }
+              const {
+                "onUpdate:show": _onUpdateShow,
+                onUpdateShow
+              } = NPopselect2.props;
+              if (_onUpdateShow) call(_onUpdateShow, false);
+              if (onUpdateShow) call(onUpdateShow, false);
+              NPopselect2.setShow(false);
+            }
+          }
+          void nextTick(() => {
+            NPopselect2.syncPosition();
+          });
+        }
+        watch(/* @__PURE__ */ toRef(props, "options"), () => {
+          void nextTick(() => {
+            NPopselect2.syncPosition();
+          });
+        });
+        const cssVarsRef = computed(() => {
+          const {
+            self: {
+              menuBoxShadow
+            }
+          } = themeRef.value;
+          return {
+            "--n-menu-box-shadow": menuBoxShadow
+          };
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("select", void 0, cssVarsRef, NPopselect2.props) : void 0;
+        return {
+          mergedTheme: NPopselect2.mergedThemeRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          treeMate: treeMateRef,
+          handleToggle,
+          handleMenuMousedown,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender,
+          mergedSize: mergedSizeRef,
+          scrollbarProps: NPopselect2.props.scrollbarProps
+        };
+      },
+      render() {
+        var _a;
+        (_a = this.onRender) === null || _a === void 0 ? void 0 : _a.call(this);
+        return h(NInternalSelectMenu, {
+          clsPrefix: this.mergedClsPrefix,
+          focusable: true,
+          nodeProps: this.nodeProps,
+          class: [`${this.mergedClsPrefix}-popselect-menu`, this.themeClass],
+          style: this.cssVars,
+          theme: this.mergedTheme.peers.InternalSelectMenu,
+          themeOverrides: this.mergedTheme.peerOverrides.InternalSelectMenu,
+          multiple: this.multiple,
+          treeMate: this.treeMate,
+          size: this.mergedSize,
+          value: this.value,
+          virtualScroll: this.virtualScroll,
+          scrollable: this.scrollable,
+          scrollbarProps: this.scrollbarProps,
+          renderLabel: this.renderLabel,
+          onToggle: this.handleToggle,
+          onMouseenter: this.onMouseenter,
+          onMouseleave: this.onMouseenter,
+          onMousedown: this.handleMenuMousedown,
+          showCheckmark: this.showCheckmark
+        }, {
+          header: () => {
+            var _a2, _b;
+            return ((_b = (_a2 = this.$slots).header) === null || _b === void 0 ? void 0 : _b.call(_a2)) || [];
+          },
+          action: () => {
+            var _a2, _b;
+            return ((_b = (_a2 = this.$slots).action) === null || _b === void 0 ? void 0 : _b.call(_a2)) || [];
+          },
+          empty: () => {
+            var _a2, _b;
+            return ((_b = (_a2 = this.$slots).empty) === null || _b === void 0 ? void 0 : _b.call(_a2)) || [];
+          }
+        });
+      }
+    });
+    const popselectProps = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, useTheme.props), omit(popoverBaseProps, ["showArrow", "arrow"])), {
+      placement: Object.assign(Object.assign({}, popoverBaseProps.placement), {
+        default: "bottom"
+      }),
+      trigger: {
+        type: String,
+        default: "hover"
+      }
+    }), panelProps), {
+      scrollbarProps: Object
+    });
+    const NPopselect = /* @__PURE__ */ defineComponent({
+      name: "Popselect",
+      props: popselectProps,
+      slots: Object,
+      inheritAttrs: false,
+      __popover__: true,
+      setup(props) {
+        const {
+          mergedClsPrefixRef
+        } = useConfig(props);
+        const themeRef = useTheme("Popselect", "-popselect", void 0, popselectLight, props, mergedClsPrefixRef);
+        const popoverInstRef = /* @__PURE__ */ ref(null);
+        function syncPosition() {
+          var _a;
+          (_a = popoverInstRef.value) === null || _a === void 0 ? void 0 : _a.syncPosition();
+        }
+        function setShow(value) {
+          var _a;
+          (_a = popoverInstRef.value) === null || _a === void 0 ? void 0 : _a.setShow(value);
+        }
+        provide(popselectInjectionKey, {
+          props,
+          mergedThemeRef: themeRef,
+          syncPosition,
+          setShow
+        });
+        const exposedMethods = {
+          syncPosition,
+          setShow
+        };
+        return Object.assign(Object.assign({}, exposedMethods), {
+          popoverInstRef,
+          mergedTheme: themeRef
+        });
+      },
+      render() {
+        const {
+          mergedTheme
+        } = this;
+        const popoverProps2 = {
+          theme: mergedTheme.peers.Popover,
+          themeOverrides: mergedTheme.peerOverrides.Popover,
+          builtinThemeOverrides: {
+            padding: "0"
+          },
+          ref: "popoverInstRef",
+          internalRenderBody: (className, ref2, style2, onMouseenter, onMouseleave) => {
+            const {
+              $attrs
+            } = this;
+            return h(NPopselectPanel, Object.assign({}, $attrs, {
+              class: [$attrs.class, className],
+              style: [$attrs.style, ...style2]
+            }, keep(this.$props, panelPropKeys), {
+              ref: createRefSetter(ref2),
+              onMouseenter: mergeEventHandlers([onMouseenter, $attrs.onMouseenter]),
+              onMouseleave: mergeEventHandlers([onMouseleave, $attrs.onMouseleave])
+            }), {
+              header: () => {
+                var _a, _b;
+                return (_b = (_a = this.$slots).header) === null || _b === void 0 ? void 0 : _b.call(_a);
+              },
+              action: () => {
+                var _a, _b;
+                return (_b = (_a = this.$slots).action) === null || _b === void 0 ? void 0 : _b.call(_a);
+              },
+              empty: () => {
+                var _a, _b;
+                return (_b = (_a = this.$slots).empty) === null || _b === void 0 ? void 0 : _b.call(_a);
+              }
+            });
+          }
+        };
+        return h(NPopover, Object.assign({}, omit(this.$props, panelPropKeys), popoverProps2, {
+          internalDeactivateImmediately: true
+        }), {
+          trigger: () => {
+            var _a, _b;
+            return (_b = (_a = this.$slots).default) === null || _b === void 0 ? void 0 : _b.call(_a);
+          }
+        });
+      }
+    });
+    function self$C(vars) {
       const {
         boxShadow2
       } = vars;
@@ -28010,7 +29241,7 @@ ${style2}
         InternalSelection: internalSelectionLight,
         InternalSelectMenu: internalSelectMenuLight
       },
-      self: self$B
+      self: self$C
     });
     const selectDark = {
       name: "Select",
@@ -28019,9 +29250,9 @@ ${style2}
         InternalSelection: internalSelectionDark,
         InternalSelectMenu: internalSelectMenuDark
       },
-      self: self$B
+      self: self$C
     };
-    const style$8 = c$1([cB("select", `
+    const style$e = c$1([cB("select", `
  z-index: auto;
  outline: none;
  width: 100%;
@@ -28170,7 +29401,7 @@ ${style2}
           inlineThemeDisabled,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Select", "-select", style$8, selectLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Select", "-select", style$e, selectLight, props, mergedClsPrefixRef);
         const uncontrolledValueRef = /* @__PURE__ */ ref(props.defaultValue);
         const controlledValueRef = /* @__PURE__ */ toRef(props, "value");
         const mergedValueRef = useMergedState(controlledValueRef, uncontrolledValueRef);
@@ -28988,7 +30219,7 @@ ${style2}
       prefixMarginLarge: "0 8px 0 0",
       suffixMarginLarge: "0 0 0 8px"
     };
-    function self$A(vars) {
+    function self$B(vars) {
       const {
         textColor2,
         primaryColor,
@@ -29047,6 +30278,16 @@ ${style2}
         jumperTextColorDisabled: textColorDisabled
       });
     }
+    const paginationLight = createTheme({
+      name: "Pagination",
+      common: derived,
+      peers: {
+        Select: selectLight,
+        Input: inputLight,
+        Popselect: popselectLight
+      },
+      self: self$B
+    });
     const paginationDark = {
       name: "Pagination",
       common: derived$1,
@@ -29063,12 +30304,937 @@ ${style2}
         const borderColorActive = changeColor(primaryColor, {
           alpha: Number(opacity3)
         });
-        const commonSelf = self$A(vars);
+        const commonSelf = self$B(vars);
         commonSelf.itemBorderActive = `1px solid ${borderColorActive}`;
         commonSelf.itemBorderDisabled = "1px solid #0000";
         return commonSelf;
       }
     };
+    const hoverStyleProps = `
+ background: var(--n-item-color-hover);
+ color: var(--n-item-text-color-hover);
+ border: var(--n-item-border-hover);
+`;
+    const hoverStyleChildren = [cM("button", `
+ background: var(--n-button-color-hover);
+ border: var(--n-button-border-hover);
+ color: var(--n-button-icon-color-hover);
+ `)];
+    const style$d = cB("pagination", `
+ display: flex;
+ vertical-align: middle;
+ font-size: var(--n-item-font-size);
+ flex-wrap: nowrap;
+`, [cB("pagination-prefix", `
+ display: flex;
+ align-items: center;
+ margin: var(--n-prefix-margin);
+ `), cB("pagination-suffix", `
+ display: flex;
+ align-items: center;
+ margin: var(--n-suffix-margin);
+ `), c$1("> *:not(:first-child)", `
+ margin: var(--n-item-margin);
+ `), cB("select", `
+ width: var(--n-select-width);
+ `), c$1("&.transition-disabled", [cB("pagination-item", "transition: none!important;")]), cB("pagination-quick-jumper", `
+ white-space: nowrap;
+ display: flex;
+ color: var(--n-jumper-text-color);
+ transition: color .3s var(--n-bezier);
+ align-items: center;
+ font-size: var(--n-jumper-font-size);
+ `, [cB("input", `
+ margin: var(--n-input-margin);
+ width: var(--n-input-width);
+ `)]), cB("pagination-item", `
+ position: relative;
+ cursor: pointer;
+ user-select: none;
+ -webkit-user-select: none;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ box-sizing: border-box;
+ min-width: var(--n-item-size);
+ height: var(--n-item-size);
+ padding: var(--n-item-padding);
+ background-color: var(--n-item-color);
+ color: var(--n-item-text-color);
+ border-radius: var(--n-item-border-radius);
+ border: var(--n-item-border);
+ fill: var(--n-button-icon-color);
+ transition:
+ color .3s var(--n-bezier),
+ border-color .3s var(--n-bezier),
+ background-color .3s var(--n-bezier),
+ fill .3s var(--n-bezier);
+ `, [cM("button", `
+ background: var(--n-button-color);
+ color: var(--n-button-icon-color);
+ border: var(--n-button-border);
+ padding: 0;
+ `, [cB("base-icon", `
+ font-size: var(--n-button-icon-size);
+ `)]), cNotM("disabled", [cM("hover", hoverStyleProps, hoverStyleChildren), c$1("&:hover", hoverStyleProps, hoverStyleChildren), c$1("&:active", `
+ background: var(--n-item-color-pressed);
+ color: var(--n-item-text-color-pressed);
+ border: var(--n-item-border-pressed);
+ `, [cM("button", `
+ background: var(--n-button-color-pressed);
+ border: var(--n-button-border-pressed);
+ color: var(--n-button-icon-color-pressed);
+ `)]), cM("active", `
+ background: var(--n-item-color-active);
+ color: var(--n-item-text-color-active);
+ border: var(--n-item-border-active);
+ `, [c$1("&:hover", `
+ background: var(--n-item-color-active-hover);
+ `)])]), cM("disabled", `
+ cursor: not-allowed;
+ color: var(--n-item-text-color-disabled);
+ `, [cM("active, button", `
+ background-color: var(--n-item-color-disabled);
+ border: var(--n-item-border-disabled);
+ `)])]), cM("disabled", `
+ cursor: not-allowed;
+ `, [cB("pagination-quick-jumper", `
+ color: var(--n-jumper-text-color-disabled);
+ `)]), cM("simple", `
+ display: flex;
+ align-items: center;
+ flex-wrap: nowrap;
+ `, [cB("pagination-quick-jumper", [cB("input", `
+ margin: 0;
+ `)])])]);
+    function getDefaultPageSize(paginationProps2) {
+      var _a;
+      if (!paginationProps2) return 10;
+      const {
+        defaultPageSize
+      } = paginationProps2;
+      if (defaultPageSize !== void 0) return defaultPageSize;
+      const pageSizeOption = (_a = paginationProps2.pageSizes) === null || _a === void 0 ? void 0 : _a[0];
+      if (typeof pageSizeOption === "number") return pageSizeOption;
+      return (pageSizeOption === null || pageSizeOption === void 0 ? void 0 : pageSizeOption.value) || 10;
+    }
+    function createPageItemsInfo(currentPage, pageCount, pageSlot, showQuickJumpDropdown) {
+      let hasFastBackward = false;
+      let hasFastForward = false;
+      let fastBackwardTo = 1;
+      let fastForwardTo = pageCount;
+      if (pageCount === 1) {
+        return {
+          hasFastBackward: false,
+          hasFastForward: false,
+          fastForwardTo,
+          fastBackwardTo,
+          items: [{
+            type: "page",
+            label: 1,
+            active: currentPage === 1,
+            mayBeFastBackward: false,
+            mayBeFastForward: false
+          }]
+        };
+      }
+      if (pageCount === 2) {
+        return {
+          hasFastBackward: false,
+          hasFastForward: false,
+          fastForwardTo,
+          fastBackwardTo,
+          items: [{
+            type: "page",
+            label: 1,
+            active: currentPage === 1,
+            mayBeFastBackward: false,
+            mayBeFastForward: false
+          }, {
+            type: "page",
+            label: 2,
+            active: currentPage === 2,
+            mayBeFastBackward: true,
+            mayBeFastForward: false
+          }]
+        };
+      }
+      const firstPage = 1;
+      const lastPage = pageCount;
+      let middleStart = currentPage;
+      let middleEnd = currentPage;
+      const middleDelta = (pageSlot - 5) / 2;
+      middleEnd += Math.ceil(middleDelta);
+      middleEnd = Math.min(Math.max(middleEnd, firstPage + pageSlot - 3), lastPage - 2);
+      middleStart -= Math.floor(middleDelta);
+      middleStart = Math.max(Math.min(middleStart, lastPage - pageSlot + 3), firstPage + 2);
+      let leftSplit = false;
+      let rightSplit = false;
+      if (middleStart > firstPage + 2) leftSplit = true;
+      if (middleEnd < lastPage - 2) rightSplit = true;
+      const items = [];
+      items.push({
+        type: "page",
+        label: 1,
+        active: currentPage === 1,
+        mayBeFastBackward: false,
+        mayBeFastForward: false
+      });
+      if (leftSplit) {
+        hasFastBackward = true;
+        fastBackwardTo = middleStart - 1;
+        items.push({
+          type: "fast-backward",
+          active: false,
+          label: void 0,
+          options: showQuickJumpDropdown ? createRange(firstPage + 1, middleStart - 1) : null
+        });
+      } else if (lastPage >= firstPage + 1) {
+        items.push({
+          type: "page",
+          label: firstPage + 1,
+          mayBeFastBackward: true,
+          mayBeFastForward: false,
+          active: currentPage === firstPage + 1
+        });
+      }
+      for (let i = middleStart; i <= middleEnd; ++i) {
+        items.push({
+          type: "page",
+          label: i,
+          mayBeFastBackward: false,
+          mayBeFastForward: false,
+          active: currentPage === i
+        });
+      }
+      if (rightSplit) {
+        hasFastForward = true;
+        fastForwardTo = middleEnd + 1;
+        items.push({
+          type: "fast-forward",
+          active: false,
+          label: void 0,
+          options: showQuickJumpDropdown ? createRange(middleEnd + 1, lastPage - 1) : null
+        });
+      } else if (middleEnd === lastPage - 2 && items[items.length - 1].label !== lastPage - 1) {
+        items.push({
+          type: "page",
+          mayBeFastForward: true,
+          mayBeFastBackward: false,
+          label: lastPage - 1,
+          active: currentPage === lastPage - 1
+        });
+      }
+      if (items[items.length - 1].label !== lastPage) {
+        items.push({
+          type: "page",
+          mayBeFastForward: false,
+          mayBeFastBackward: false,
+          label: lastPage,
+          active: currentPage === lastPage
+        });
+      }
+      return {
+        hasFastBackward,
+        hasFastForward,
+        fastBackwardTo,
+        fastForwardTo,
+        items
+      };
+    }
+    function createRange(from, to) {
+      const range = [];
+      for (let i = from; i <= to; ++i) {
+        range.push({
+          label: `${i}`,
+          value: i
+        });
+      }
+      return range;
+    }
+    const paginationProps = Object.assign(Object.assign({}, useTheme.props), {
+      simple: Boolean,
+      page: Number,
+      defaultPage: {
+        type: Number,
+        default: 1
+      },
+      itemCount: Number,
+      pageCount: Number,
+      defaultPageCount: {
+        type: Number,
+        default: 1
+      },
+      showSizePicker: Boolean,
+      pageSize: Number,
+      defaultPageSize: Number,
+      pageSizes: {
+        type: Array,
+        default() {
+          return [10];
+        }
+      },
+      showQuickJumper: Boolean,
+      size: String,
+      disabled: Boolean,
+      pageSlot: {
+        type: Number,
+        default: 9
+      },
+      selectProps: Object,
+      prev: Function,
+      next: Function,
+      goto: Function,
+      prefix: Function,
+      suffix: Function,
+      label: Function,
+      displayOrder: {
+        type: Array,
+        default: ["pages", "size-picker", "quick-jumper"]
+      },
+      to: useAdjustedTo.propTo,
+      showQuickJumpDropdown: {
+        type: Boolean,
+        default: true
+      },
+      scrollbarProps: Object,
+      "onUpdate:page": [Function, Array],
+      onUpdatePage: [Function, Array],
+      "onUpdate:pageSize": [Function, Array],
+      onUpdatePageSize: [Function, Array],
+      /** @deprecated */
+      onPageSizeChange: [Function, Array],
+      /** @deprecated */
+      onChange: [Function, Array]
+    });
+    const NPagination = /* @__PURE__ */ defineComponent({
+      name: "Pagination",
+      props: paginationProps,
+      slots: Object,
+      setup(props) {
+        const {
+          mergedComponentPropsRef,
+          mergedClsPrefixRef,
+          inlineThemeDisabled,
+          mergedRtlRef
+        } = useConfig(props);
+        const mergedSizeRef = computed(() => {
+          var _a, _b;
+          return props.size || ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Pagination) === null || _b === void 0 ? void 0 : _b.size) || "medium";
+        });
+        const themeRef = useTheme("Pagination", "-pagination", style$d, paginationLight, props, mergedClsPrefixRef);
+        const {
+          localeRef
+        } = useLocale("Pagination");
+        const selfRef = /* @__PURE__ */ ref(null);
+        const uncontrolledPageRef = /* @__PURE__ */ ref(props.defaultPage);
+        const uncontrolledPageSizeRef = /* @__PURE__ */ ref(getDefaultPageSize(props));
+        const mergedPageRef = useMergedState(/* @__PURE__ */ toRef(props, "page"), uncontrolledPageRef);
+        const mergedPageSizeRef = useMergedState(/* @__PURE__ */ toRef(props, "pageSize"), uncontrolledPageSizeRef);
+        const mergedPageCountRef = computed(() => {
+          const {
+            itemCount
+          } = props;
+          if (itemCount !== void 0) {
+            return Math.max(1, Math.ceil(itemCount / mergedPageSizeRef.value));
+          }
+          const {
+            pageCount
+          } = props;
+          if (pageCount !== void 0) return Math.max(pageCount, 1);
+          return 1;
+        });
+        const jumperValueRef = /* @__PURE__ */ ref("");
+        watchEffect(() => {
+          void props.simple;
+          jumperValueRef.value = String(mergedPageRef.value);
+        });
+        const fastForwardActiveRef = /* @__PURE__ */ ref(false);
+        const fastBackwardActiveRef = /* @__PURE__ */ ref(false);
+        const showFastForwardMenuRef = /* @__PURE__ */ ref(false);
+        const showFastBackwardMenuRef = /* @__PURE__ */ ref(false);
+        const handleFastForwardMouseenter = () => {
+          if (props.disabled) return;
+          fastForwardActiveRef.value = true;
+          disableTransitionOneTick();
+        };
+        const handleFastForwardMouseleave = () => {
+          if (props.disabled) return;
+          fastForwardActiveRef.value = false;
+          disableTransitionOneTick();
+        };
+        const handleFastBackwardMouseenter = () => {
+          fastBackwardActiveRef.value = true;
+          disableTransitionOneTick();
+        };
+        const handleFastBackwardMouseleave = () => {
+          fastBackwardActiveRef.value = false;
+          disableTransitionOneTick();
+        };
+        const handleMenuSelect = (value) => {
+          doUpdatePage(value);
+        };
+        const pageItemsInfo = computed(() => createPageItemsInfo(mergedPageRef.value, mergedPageCountRef.value, props.pageSlot, props.showQuickJumpDropdown));
+        watchEffect(() => {
+          if (!pageItemsInfo.value.hasFastBackward) {
+            fastBackwardActiveRef.value = false;
+            showFastBackwardMenuRef.value = false;
+          } else if (!pageItemsInfo.value.hasFastForward) {
+            fastForwardActiveRef.value = false;
+            showFastForwardMenuRef.value = false;
+          }
+        });
+        const pageSizeOptionsRef = computed(() => {
+          const suffix2 = localeRef.value.selectionSuffix;
+          return props.pageSizes.map((size2) => {
+            if (typeof size2 === "number") {
+              return {
+                label: `${size2} / ${suffix2}`,
+                value: size2
+              };
+            } else {
+              return size2;
+            }
+          });
+        });
+        const inputSizeRef = computed(() => {
+          var _a, _b;
+          return ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Pagination) === null || _b === void 0 ? void 0 : _b.inputSize) || smallerSize(mergedSizeRef.value);
+        });
+        const selectSizeRef = computed(() => {
+          var _a, _b;
+          return ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Pagination) === null || _b === void 0 ? void 0 : _b.selectSize) || smallerSize(mergedSizeRef.value);
+        });
+        const startIndexRef = computed(() => {
+          return (mergedPageRef.value - 1) * mergedPageSizeRef.value;
+        });
+        const endIndexRef = computed(() => {
+          const endIndex = mergedPageRef.value * mergedPageSizeRef.value - 1;
+          const {
+            itemCount
+          } = props;
+          if (itemCount !== void 0) {
+            return endIndex > itemCount - 1 ? itemCount - 1 : endIndex;
+          }
+          return endIndex;
+        });
+        const mergedItemCountRef = computed(() => {
+          const {
+            itemCount
+          } = props;
+          if (itemCount !== void 0) return itemCount;
+          return (props.pageCount || 1) * mergedPageSizeRef.value;
+        });
+        const rtlEnabledRef = useRtl("Pagination", mergedRtlRef, mergedClsPrefixRef);
+        function disableTransitionOneTick() {
+          void nextTick(() => {
+            var _a;
+            const {
+              value: selfEl
+            } = selfRef;
+            if (!selfEl) return;
+            selfEl.classList.add("transition-disabled");
+            void ((_a = selfRef.value) === null || _a === void 0 ? void 0 : _a.offsetWidth);
+            selfEl.classList.remove("transition-disabled");
+          });
+        }
+        function doUpdatePage(page) {
+          if (page === mergedPageRef.value) return;
+          const {
+            "onUpdate:page": _onUpdatePage,
+            onUpdatePage,
+            onChange,
+            simple
+          } = props;
+          if (_onUpdatePage) call(_onUpdatePage, page);
+          if (onUpdatePage) call(onUpdatePage, page);
+          if (onChange) call(onChange, page);
+          uncontrolledPageRef.value = page;
+          if (simple) {
+            jumperValueRef.value = String(page);
+          }
+        }
+        function doUpdatePageSize(pageSize) {
+          if (pageSize === mergedPageSizeRef.value) return;
+          const {
+            "onUpdate:pageSize": _onUpdatePageSize,
+            onUpdatePageSize,
+            onPageSizeChange
+          } = props;
+          if (_onUpdatePageSize) call(_onUpdatePageSize, pageSize);
+          if (onUpdatePageSize) call(onUpdatePageSize, pageSize);
+          if (onPageSizeChange) call(onPageSizeChange, pageSize);
+          uncontrolledPageSizeRef.value = pageSize;
+          if (mergedPageCountRef.value < mergedPageRef.value) {
+            doUpdatePage(mergedPageCountRef.value);
+          }
+        }
+        function forward() {
+          if (props.disabled) return;
+          const page = Math.min(mergedPageRef.value + 1, mergedPageCountRef.value);
+          doUpdatePage(page);
+        }
+        function backward() {
+          if (props.disabled) return;
+          const page = Math.max(mergedPageRef.value - 1, 1);
+          doUpdatePage(page);
+        }
+        function fastForward() {
+          if (props.disabled) return;
+          const page = Math.min(pageItemsInfo.value.fastForwardTo, mergedPageCountRef.value);
+          doUpdatePage(page);
+        }
+        function fastBackward() {
+          if (props.disabled) return;
+          const page = Math.max(pageItemsInfo.value.fastBackwardTo, 1);
+          doUpdatePage(page);
+        }
+        function handleSizePickerChange(value) {
+          doUpdatePageSize(value);
+        }
+        function doQuickJump() {
+          const page = Number.parseInt(jumperValueRef.value);
+          if (Number.isNaN(page)) return;
+          doUpdatePage(Math.max(1, Math.min(page, mergedPageCountRef.value)));
+          if (!props.simple) {
+            jumperValueRef.value = "";
+          }
+        }
+        function handleQuickJumperChange() {
+          doQuickJump();
+        }
+        function handlePageItemClick(pageItem) {
+          if (props.disabled) return;
+          switch (pageItem.type) {
+            case "page":
+              doUpdatePage(pageItem.label);
+              break;
+            case "fast-backward":
+              fastBackward();
+              break;
+            case "fast-forward":
+              fastForward();
+              break;
+          }
+        }
+        function handleJumperInput(value) {
+          jumperValueRef.value = value.replace(/\D+/g, "");
+        }
+        watchEffect(() => {
+          void mergedPageRef.value;
+          void mergedPageSizeRef.value;
+          disableTransitionOneTick();
+        });
+        const cssVarsRef = computed(() => {
+          const size2 = mergedSizeRef.value;
+          const {
+            self: {
+              buttonBorder,
+              buttonBorderHover,
+              buttonBorderPressed,
+              buttonIconColor,
+              buttonIconColorHover,
+              buttonIconColorPressed,
+              itemTextColor,
+              itemTextColorHover,
+              itemTextColorPressed,
+              itemTextColorActive,
+              itemTextColorDisabled,
+              itemColor,
+              itemColorHover,
+              itemColorPressed,
+              itemColorActive,
+              itemColorActiveHover,
+              itemColorDisabled,
+              itemBorder,
+              itemBorderHover,
+              itemBorderPressed,
+              itemBorderActive,
+              itemBorderDisabled,
+              itemBorderRadius,
+              jumperTextColor,
+              jumperTextColorDisabled,
+              buttonColor,
+              buttonColorHover,
+              buttonColorPressed,
+              [createKey("itemPadding", size2)]: itemPadding,
+              [createKey("itemMargin", size2)]: itemMargin,
+              [createKey("inputWidth", size2)]: inputWidth,
+              [createKey("selectWidth", size2)]: selectWidth,
+              [createKey("inputMargin", size2)]: inputMargin,
+              [createKey("selectMargin", size2)]: selectMargin,
+              [createKey("jumperFontSize", size2)]: jumperFontSize,
+              [createKey("prefixMargin", size2)]: prefixMargin,
+              [createKey("suffixMargin", size2)]: suffixMargin,
+              [createKey("itemSize", size2)]: itemSize,
+              [createKey("buttonIconSize", size2)]: buttonIconSize,
+              [createKey("itemFontSize", size2)]: itemFontSize,
+              [`${createKey("itemMargin", size2)}Rtl`]: itemMarginRtl,
+              [`${createKey("inputMargin", size2)}Rtl`]: inputMarginRtl
+            },
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            }
+          } = themeRef.value;
+          return {
+            "--n-prefix-margin": prefixMargin,
+            "--n-suffix-margin": suffixMargin,
+            "--n-item-font-size": itemFontSize,
+            "--n-select-width": selectWidth,
+            "--n-select-margin": selectMargin,
+            "--n-input-width": inputWidth,
+            "--n-input-margin": inputMargin,
+            "--n-input-margin-rtl": inputMarginRtl,
+            "--n-item-size": itemSize,
+            "--n-item-text-color": itemTextColor,
+            "--n-item-text-color-disabled": itemTextColorDisabled,
+            "--n-item-text-color-hover": itemTextColorHover,
+            "--n-item-text-color-active": itemTextColorActive,
+            "--n-item-text-color-pressed": itemTextColorPressed,
+            "--n-item-color": itemColor,
+            "--n-item-color-hover": itemColorHover,
+            "--n-item-color-disabled": itemColorDisabled,
+            "--n-item-color-active": itemColorActive,
+            "--n-item-color-active-hover": itemColorActiveHover,
+            "--n-item-color-pressed": itemColorPressed,
+            "--n-item-border": itemBorder,
+            "--n-item-border-hover": itemBorderHover,
+            "--n-item-border-disabled": itemBorderDisabled,
+            "--n-item-border-active": itemBorderActive,
+            "--n-item-border-pressed": itemBorderPressed,
+            "--n-item-padding": itemPadding,
+            "--n-item-border-radius": itemBorderRadius,
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-jumper-font-size": jumperFontSize,
+            "--n-jumper-text-color": jumperTextColor,
+            "--n-jumper-text-color-disabled": jumperTextColorDisabled,
+            "--n-item-margin": itemMargin,
+            "--n-item-margin-rtl": itemMarginRtl,
+            "--n-button-icon-size": buttonIconSize,
+            "--n-button-icon-color": buttonIconColor,
+            "--n-button-icon-color-hover": buttonIconColorHover,
+            "--n-button-icon-color-pressed": buttonIconColorPressed,
+            "--n-button-color-hover": buttonColorHover,
+            "--n-button-color": buttonColor,
+            "--n-button-color-pressed": buttonColorPressed,
+            "--n-button-border": buttonBorder,
+            "--n-button-border-hover": buttonBorderHover,
+            "--n-button-border-pressed": buttonBorderPressed
+          };
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("pagination", computed(() => {
+          let hash = "";
+          hash += mergedSizeRef.value[0];
+          return hash;
+        }), cssVarsRef, props) : void 0;
+        return {
+          rtlEnabled: rtlEnabledRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          locale: localeRef,
+          selfRef,
+          mergedPage: mergedPageRef,
+          pageItems: computed(() => {
+            return pageItemsInfo.value.items;
+          }),
+          mergedItemCount: mergedItemCountRef,
+          jumperValue: jumperValueRef,
+          pageSizeOptions: pageSizeOptionsRef,
+          mergedPageSize: mergedPageSizeRef,
+          inputSize: inputSizeRef,
+          selectSize: selectSizeRef,
+          mergedTheme: themeRef,
+          mergedPageCount: mergedPageCountRef,
+          startIndex: startIndexRef,
+          endIndex: endIndexRef,
+          showFastForwardMenu: showFastForwardMenuRef,
+          showFastBackwardMenu: showFastBackwardMenuRef,
+          fastForwardActive: fastForwardActiveRef,
+          fastBackwardActive: fastBackwardActiveRef,
+          handleMenuSelect,
+          handleFastForwardMouseenter,
+          handleFastForwardMouseleave,
+          handleFastBackwardMouseenter,
+          handleFastBackwardMouseleave,
+          handleJumperInput,
+          handleBackwardClick: backward,
+          handleForwardClick: forward,
+          handlePageItemClick,
+          handleSizePickerChange,
+          handleQuickJumperChange,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender
+        };
+      },
+      render() {
+        const {
+          $slots,
+          mergedClsPrefix,
+          disabled,
+          cssVars,
+          mergedPage,
+          mergedPageCount,
+          pageItems,
+          showSizePicker,
+          showQuickJumper,
+          mergedTheme,
+          locale,
+          inputSize,
+          selectSize,
+          mergedPageSize,
+          pageSizeOptions,
+          jumperValue,
+          simple,
+          prev,
+          next,
+          prefix: prefix2,
+          suffix: suffix2,
+          label,
+          goto,
+          handleJumperInput,
+          handleSizePickerChange,
+          handleBackwardClick,
+          handlePageItemClick,
+          handleForwardClick,
+          handleQuickJumperChange,
+          onRender
+        } = this;
+        onRender === null || onRender === void 0 ? void 0 : onRender();
+        const renderPrefix = prefix2 || $slots.prefix;
+        const renderSuffix = suffix2 || $slots.suffix;
+        const renderPrev = prev || $slots.prev;
+        const renderNext = next || $slots.next;
+        const renderLabel = label || $slots.label;
+        return h("div", {
+          ref: "selfRef",
+          class: [`${mergedClsPrefix}-pagination`, this.themeClass, this.rtlEnabled && `${mergedClsPrefix}-pagination--rtl`, disabled && `${mergedClsPrefix}-pagination--disabled`, simple && `${mergedClsPrefix}-pagination--simple`],
+          style: cssVars
+        }, renderPrefix ? h("div", {
+          class: `${mergedClsPrefix}-pagination-prefix`
+        }, renderPrefix({
+          page: mergedPage,
+          pageSize: mergedPageSize,
+          pageCount: mergedPageCount,
+          startIndex: this.startIndex,
+          endIndex: this.endIndex,
+          itemCount: this.mergedItemCount
+        })) : null, this.displayOrder.map((part) => {
+          switch (part) {
+            case "pages":
+              return h(Fragment, null, h("div", {
+                class: [`${mergedClsPrefix}-pagination-item`, !renderPrev && `${mergedClsPrefix}-pagination-item--button`, (mergedPage <= 1 || mergedPage > mergedPageCount || disabled) && `${mergedClsPrefix}-pagination-item--disabled`],
+                onClick: handleBackwardClick
+              }, renderPrev ? renderPrev({
+                page: mergedPage,
+                pageSize: mergedPageSize,
+                pageCount: mergedPageCount,
+                startIndex: this.startIndex,
+                endIndex: this.endIndex,
+                itemCount: this.mergedItemCount
+              }) : h(NBaseIcon, {
+                clsPrefix: mergedClsPrefix
+              }, {
+                default: () => this.rtlEnabled ? h(ForwardIcon, null) : h(BackwardIcon, null)
+              })), simple ? h(Fragment, null, h("div", {
+                class: `${mergedClsPrefix}-pagination-quick-jumper`
+              }, h(NInput, {
+                value: jumperValue,
+                onUpdateValue: handleJumperInput,
+                size: inputSize,
+                placeholder: "",
+                disabled,
+                theme: mergedTheme.peers.Input,
+                themeOverrides: mergedTheme.peerOverrides.Input,
+                onChange: handleQuickJumperChange
+              })), " /", " ", mergedPageCount) : pageItems.map((pageItem, index) => {
+                let contentNode;
+                let onMouseenter;
+                let onMouseleave;
+                const {
+                  type
+                } = pageItem;
+                switch (type) {
+                  case "page":
+                    const pageNode = pageItem.label;
+                    if (renderLabel) {
+                      contentNode = renderLabel({
+                        type: "page",
+                        node: pageNode,
+                        active: pageItem.active
+                      });
+                    } else {
+                      contentNode = pageNode;
+                    }
+                    break;
+                  case "fast-forward":
+                    const fastForwardNode = this.fastForwardActive ? h(NBaseIcon, {
+                      clsPrefix: mergedClsPrefix
+                    }, {
+                      default: () => this.rtlEnabled ? h(FastBackwardIcon, null) : h(FastForwardIcon, null)
+                    }) : h(NBaseIcon, {
+                      clsPrefix: mergedClsPrefix
+                    }, {
+                      default: () => h(MoreIcon, null)
+                    });
+                    if (renderLabel) {
+                      contentNode = renderLabel({
+                        type: "fast-forward",
+                        node: fastForwardNode,
+                        active: this.fastForwardActive || this.showFastForwardMenu
+                      });
+                    } else {
+                      contentNode = fastForwardNode;
+                    }
+                    onMouseenter = this.handleFastForwardMouseenter;
+                    onMouseleave = this.handleFastForwardMouseleave;
+                    break;
+                  case "fast-backward":
+                    const fastBackwardNode = this.fastBackwardActive ? h(NBaseIcon, {
+                      clsPrefix: mergedClsPrefix
+                    }, {
+                      default: () => this.rtlEnabled ? h(FastForwardIcon, null) : h(FastBackwardIcon, null)
+                    }) : h(NBaseIcon, {
+                      clsPrefix: mergedClsPrefix
+                    }, {
+                      default: () => h(MoreIcon, null)
+                    });
+                    if (renderLabel) {
+                      contentNode = renderLabel({
+                        type: "fast-backward",
+                        node: fastBackwardNode,
+                        active: this.fastBackwardActive || this.showFastBackwardMenu
+                      });
+                    } else {
+                      contentNode = fastBackwardNode;
+                    }
+                    onMouseenter = this.handleFastBackwardMouseenter;
+                    onMouseleave = this.handleFastBackwardMouseleave;
+                    break;
+                }
+                const itemNode = h("div", {
+                  key: index,
+                  class: [`${mergedClsPrefix}-pagination-item`, pageItem.active && `${mergedClsPrefix}-pagination-item--active`, type !== "page" && (type === "fast-backward" && this.showFastBackwardMenu || type === "fast-forward" && this.showFastForwardMenu) && `${mergedClsPrefix}-pagination-item--hover`, disabled && `${mergedClsPrefix}-pagination-item--disabled`, type === "page" && `${mergedClsPrefix}-pagination-item--clickable`],
+                  onClick: () => {
+                    handlePageItemClick(pageItem);
+                  },
+                  onMouseenter,
+                  onMouseleave
+                }, contentNode);
+                if (type === "page" && !pageItem.mayBeFastBackward && !pageItem.mayBeFastForward) {
+                  return itemNode;
+                } else {
+                  const key = pageItem.type === "page" ? pageItem.mayBeFastBackward ? "fast-backward" : "fast-forward" : pageItem.type;
+                  if (pageItem.type !== "page" && !pageItem.options) {
+                    return itemNode;
+                  }
+                  return h(NPopselect, {
+                    to: this.to,
+                    key,
+                    disabled,
+                    trigger: "hover",
+                    virtualScroll: true,
+                    style: {
+                      width: "60px"
+                    },
+                    theme: mergedTheme.peers.Popselect,
+                    themeOverrides: mergedTheme.peerOverrides.Popselect,
+                    builtinThemeOverrides: {
+                      peers: {
+                        InternalSelectMenu: {
+                          height: "calc(var(--n-option-height) * 4.6)"
+                        }
+                      }
+                    },
+                    nodeProps: () => ({
+                      style: {
+                        justifyContent: "center"
+                      }
+                    }),
+                    show: type === "page" ? false : type === "fast-backward" ? this.showFastBackwardMenu : this.showFastForwardMenu,
+                    onUpdateShow: (value) => {
+                      if (type === "page") return;
+                      if (value) {
+                        if (type === "fast-backward") {
+                          this.showFastBackwardMenu = value;
+                        } else {
+                          this.showFastForwardMenu = value;
+                        }
+                      } else {
+                        this.showFastBackwardMenu = false;
+                        this.showFastForwardMenu = false;
+                      }
+                    },
+                    options: pageItem.type !== "page" && pageItem.options ? pageItem.options : [],
+                    onUpdateValue: this.handleMenuSelect,
+                    scrollable: true,
+                    scrollbarProps: this.scrollbarProps,
+                    showCheckmark: false
+                  }, {
+                    default: () => itemNode
+                  });
+                }
+              }), h("div", {
+                class: [`${mergedClsPrefix}-pagination-item`, !renderNext && `${mergedClsPrefix}-pagination-item--button`, {
+                  [`${mergedClsPrefix}-pagination-item--disabled`]: mergedPage < 1 || mergedPage >= mergedPageCount || disabled
+                }],
+                onClick: handleForwardClick
+              }, renderNext ? renderNext({
+                page: mergedPage,
+                pageSize: mergedPageSize,
+                pageCount: mergedPageCount,
+                itemCount: this.mergedItemCount,
+                startIndex: this.startIndex,
+                endIndex: this.endIndex
+              }) : h(NBaseIcon, {
+                clsPrefix: mergedClsPrefix
+              }, {
+                default: () => this.rtlEnabled ? h(BackwardIcon, null) : h(ForwardIcon, null)
+              })));
+            case "size-picker": {
+              return !simple && showSizePicker ? h(NSelect, Object.assign({
+                consistentMenuWidth: false,
+                placeholder: "",
+                showCheckmark: false,
+                to: this.to
+              }, this.selectProps, {
+                size: selectSize,
+                options: pageSizeOptions,
+                value: mergedPageSize,
+                disabled,
+                scrollbarProps: this.scrollbarProps,
+                theme: mergedTheme.peers.Select,
+                themeOverrides: mergedTheme.peerOverrides.Select,
+                onUpdateValue: handleSizePickerChange
+              })) : null;
+            }
+            case "quick-jumper":
+              return !simple && showQuickJumper ? h("div", {
+                class: `${mergedClsPrefix}-pagination-quick-jumper`
+              }, goto ? goto() : resolveSlot(this.$slots.goto, () => [locale.goto]), h(NInput, {
+                value: jumperValue,
+                onUpdateValue: handleJumperInput,
+                size: inputSize,
+                placeholder: "",
+                disabled,
+                theme: mergedTheme.peers.Input,
+                themeOverrides: mergedTheme.peerOverrides.Input,
+                onChange: handleQuickJumperChange
+              })) : null;
+            default:
+              return null;
+          }
+        }), renderSuffix ? h("div", {
+          class: `${mergedClsPrefix}-pagination-suffix`
+        }, renderSuffix({
+          page: mergedPage,
+          pageSize: mergedPageSize,
+          pageCount: mergedPageCount,
+          startIndex: this.startIndex,
+          endIndex: this.endIndex,
+          itemCount: this.mergedItemCount
+        })) : null);
+      }
+    });
     const commonVariables$a = {
       padding: "4px 0",
       optionIconSizeSmall: "14px",
@@ -29092,7 +31258,7 @@ ${style2}
       optionIconPrefixWidthLarge: "40px",
       optionIconPrefixWidthHuge: "40px"
     };
-    function self$z(vars) {
+    function self$A(vars) {
       const {
         primaryColor,
         textColor2,
@@ -29151,6 +31317,14 @@ ${style2}
         optionOpacityDisabled: opacityDisabled
       });
     }
+    const dropdownLight = createTheme({
+      name: "Dropdown",
+      common: derived,
+      peers: {
+        Popover: popoverLight
+      },
+      self: self$A
+    });
     const dropdownDark = {
       name: "Dropdown",
       common: derived$1,
@@ -29163,7 +31337,7 @@ ${style2}
           primaryColor,
           popoverColor
         } = vars;
-        const commonSelf = self$z(vars);
+        const commonSelf = self$A(vars);
         commonSelf.colorInverted = popoverColor;
         commonSelf.optionColorActive = changeColor(primaryColor, {
           alpha: 0.15
@@ -29197,7 +31371,7 @@ ${style2}
         });
       }
     };
-    function self$y(vars) {
+    function self$z(vars) {
       const {
         borderRadius,
         boxShadow2,
@@ -29216,7 +31390,7 @@ ${style2}
       peers: {
         Popover: popoverLight
       },
-      self: self$y
+      self: self$z
     });
     const ellipsisDark = {
       name: "Ellipsis",
@@ -29225,6 +31399,13 @@ ${style2}
         Tooltip: tooltipDark
       }
     };
+    const ellipsisLight = createTheme({
+      name: "Ellipsis",
+      common: derived,
+      peers: {
+        Tooltip: tooltipLight
+      }
+    });
     const commonVariables$9 = {
       radioSizeSmall: "14px",
       radioSizeMedium: "16px",
@@ -29292,6 +31473,68 @@ ${style2}
           buttonBorderRadius: borderRadius
         });
       }
+    };
+    function self$y(vars) {
+      const {
+        borderColor,
+        primaryColor,
+        baseColor,
+        textColorDisabled,
+        inputColorDisabled,
+        textColor2,
+        opacityDisabled,
+        borderRadius,
+        fontSizeSmall,
+        fontSizeMedium,
+        fontSizeLarge,
+        heightSmall,
+        heightMedium,
+        heightLarge,
+        lineHeight: lineHeight2
+      } = vars;
+      return Object.assign(Object.assign({}, commonVariables$9), {
+        labelLineHeight: lineHeight2,
+        buttonHeightSmall: heightSmall,
+        buttonHeightMedium: heightMedium,
+        buttonHeightLarge: heightLarge,
+        fontSizeSmall,
+        fontSizeMedium,
+        fontSizeLarge,
+        boxShadow: `inset 0 0 0 1px ${borderColor}`,
+        boxShadowActive: `inset 0 0 0 1px ${primaryColor}`,
+        boxShadowFocus: `inset 0 0 0 1px ${primaryColor}, 0 0 0 2px ${changeColor(primaryColor, {
+          alpha: 0.2
+        })}`,
+        boxShadowHover: `inset 0 0 0 1px ${primaryColor}`,
+        boxShadowDisabled: `inset 0 0 0 1px ${borderColor}`,
+        color: baseColor,
+        colorDisabled: inputColorDisabled,
+        colorActive: "#0000",
+        textColor: textColor2,
+        textColorDisabled,
+        dotColorActive: primaryColor,
+        dotColorDisabled: borderColor,
+        buttonBorderColor: borderColor,
+        buttonBorderColorActive: primaryColor,
+        buttonBorderColorHover: borderColor,
+        buttonColor: baseColor,
+        buttonColorActive: baseColor,
+        buttonTextColor: textColor2,
+        buttonTextColorActive: primaryColor,
+        buttonTextColorHover: primaryColor,
+        opacityDisabled,
+        buttonBoxShadowFocus: `inset 0 0 0 1px ${primaryColor}, 0 0 0 2px ${changeColor(primaryColor, {
+          alpha: 0.3
+        })}`,
+        buttonBoxShadowHover: "inset 0 0 0 1px #0000",
+        buttonBoxShadow: "inset 0 0 0 1px #0000",
+        buttonBorderRadius: borderRadius
+      });
+    }
+    const radioLight = {
+      name: "Radio",
+      common: derived,
+      self: self$y
     };
     const commonVariables$8 = {
       thPaddingSmall: "8px",
@@ -29378,6 +31621,22 @@ ${style2}
         opacityLoading: opacityDisabled
       });
     }
+    const dataTableLight = createTheme({
+      name: "DataTable",
+      common: derived,
+      peers: {
+        Button: buttonLight,
+        Checkbox: checkboxLight,
+        Radio: radioLight,
+        Pagination: paginationLight,
+        Scrollbar: scrollbarLight,
+        Empty: emptyLight,
+        Popover: popoverLight,
+        Ellipsis: ellipsisLight,
+        Dropdown: dropdownLight
+      },
+      self: self$x
+    });
     const dataTableDark = {
       name: "DataTable",
       common: derived$1,
@@ -29399,6 +31658,962 @@ ${style2}
         return commonSelf;
       }
     };
+    const dataTableProps = Object.assign(Object.assign({}, useTheme.props), {
+      onUnstableColumnResize: Function,
+      pagination: {
+        type: [Object, Boolean],
+        default: false
+      },
+      paginateSinglePage: {
+        type: Boolean,
+        default: true
+      },
+      minHeight: [Number, String],
+      maxHeight: [Number, String],
+      // Use any type as row data to make prop data acceptable
+      columns: {
+        type: Array,
+        default: () => []
+      },
+      rowClassName: [String, Function],
+      rowProps: Function,
+      rowKey: Function,
+      summary: [Function],
+      data: {
+        type: Array,
+        default: () => []
+      },
+      loading: Boolean,
+      bordered: {
+        type: Boolean,
+        default: void 0
+      },
+      bottomBordered: {
+        type: Boolean,
+        default: void 0
+      },
+      striped: Boolean,
+      scrollX: [Number, String],
+      defaultCheckedRowKeys: {
+        type: Array,
+        default: () => []
+      },
+      checkedRowKeys: Array,
+      singleLine: {
+        type: Boolean,
+        default: true
+      },
+      singleColumn: Boolean,
+      size: String,
+      remote: Boolean,
+      defaultExpandedRowKeys: {
+        type: Array,
+        default: []
+      },
+      defaultExpandAll: Boolean,
+      expandedRowKeys: Array,
+      stickyExpandedRows: Boolean,
+      virtualScroll: Boolean,
+      virtualScrollX: Boolean,
+      virtualScrollHeader: Boolean,
+      headerHeight: {
+        type: Number,
+        default: 28
+      },
+      heightForRow: Function,
+      minRowHeight: {
+        type: Number,
+        default: 28
+      },
+      tableLayout: {
+        type: String,
+        default: "auto"
+      },
+      allowCheckingNotLoaded: Boolean,
+      cascade: {
+        type: Boolean,
+        default: true
+      },
+      childrenKey: {
+        type: String,
+        default: "children"
+      },
+      indent: {
+        type: Number,
+        default: 16
+      },
+      flexHeight: Boolean,
+      summaryPlacement: {
+        type: String,
+        default: "bottom"
+      },
+      paginationBehaviorOnFilter: {
+        type: String,
+        default: "current"
+      },
+      filterIconPopoverProps: Object,
+      scrollbarProps: Object,
+      renderCell: Function,
+      renderExpandIcon: Function,
+      spinProps: Object,
+      getCsvCell: Function,
+      getCsvHeader: Function,
+      onLoad: Function,
+      "onUpdate:page": [Function, Array],
+      onUpdatePage: [Function, Array],
+      "onUpdate:pageSize": [Function, Array],
+      onUpdatePageSize: [Function, Array],
+      "onUpdate:sorter": [Function, Array],
+      onUpdateSorter: [Function, Array],
+      "onUpdate:filters": [Function, Array],
+      onUpdateFilters: [Function, Array],
+      "onUpdate:checkedRowKeys": [Function, Array],
+      onUpdateCheckedRowKeys: [Function, Array],
+      "onUpdate:expandedRowKeys": [Function, Array],
+      onUpdateExpandedRowKeys: [Function, Array],
+      onScroll: Function,
+      // deprecated
+      onPageChange: [Function, Array],
+      onPageSizeChange: [Function, Array],
+      onSorterChange: [Function, Array],
+      onFiltersChange: [Function, Array],
+      onCheckedRowKeysChange: [Function, Array]
+    });
+    const dataTableInjectionKey = createInjectionKey("n-data-table");
+    const SELECTION_COL_WIDTH = 40;
+    const EXPAND_COL_WIDTH = 40;
+    function getNumberColWidth(col) {
+      if (col.type === "selection") {
+        return col.width === void 0 ? SELECTION_COL_WIDTH : depx(col.width);
+      }
+      if (col.type === "expand") {
+        return col.width === void 0 ? EXPAND_COL_WIDTH : depx(col.width);
+      }
+      if ("children" in col) return void 0;
+      if (typeof col.width === "string") {
+        return depx(col.width);
+      }
+      return col.width;
+    }
+    function getStringColWidth(col) {
+      var _a, _b;
+      if (col.type === "selection") {
+        return formatLength((_a = col.width) !== null && _a !== void 0 ? _a : SELECTION_COL_WIDTH);
+      }
+      if (col.type === "expand") {
+        return formatLength((_b = col.width) !== null && _b !== void 0 ? _b : EXPAND_COL_WIDTH);
+      }
+      if ("children" in col) {
+        return void 0;
+      }
+      return formatLength(col.width);
+    }
+    function getColKey(col) {
+      if (col.type === "selection") return "__n_selection__";
+      if (col.type === "expand") return "__n_expand__";
+      return col.key;
+    }
+    function createShallowClonedObject(object) {
+      if (!object) return object;
+      if (typeof object === "object") {
+        return Object.assign({}, object);
+      }
+      return object;
+    }
+    function getFlagOfOrder(order) {
+      if (order === "ascend") return 1;
+      else if (order === "descend") return -1;
+      return 0;
+    }
+    function clampValueFollowCSSRules(value, min, max) {
+      if (max !== void 0) {
+        value = Math.min(value, typeof max === "number" ? max : Number.parseFloat(max));
+      }
+      if (min !== void 0) {
+        value = Math.max(value, typeof min === "number" ? min : Number.parseFloat(min));
+      }
+      return value;
+    }
+    function createCustomWidthStyle(column, resizedWidth) {
+      if (resizedWidth !== void 0) {
+        return {
+          width: resizedWidth,
+          minWidth: resizedWidth,
+          maxWidth: resizedWidth
+        };
+      }
+      const width = getStringColWidth(column);
+      const {
+        minWidth,
+        maxWidth
+      } = column;
+      return {
+        width,
+        minWidth: formatLength(minWidth) || width,
+        maxWidth: formatLength(maxWidth)
+      };
+    }
+    function createRowClassName(row, index, rowClassName) {
+      if (typeof rowClassName === "function") return rowClassName(row, index);
+      return rowClassName || "";
+    }
+    function shouldUseArrayInSingleMode(column) {
+      return column.filterOptionValues !== void 0 || column.filterOptionValue === void 0 && column.defaultFilterOptionValues !== void 0;
+    }
+    function isColumnSortable(column) {
+      if ("children" in column) return false;
+      return !!column.sorter;
+    }
+    function isColumnResizable(column) {
+      if ("children" in column && !!column.children.length) return false;
+      return !!column.resizable;
+    }
+    function isColumnFilterable(column) {
+      if ("children" in column) return false;
+      return !!column.filter && (!!column.filterOptions || !!column.renderFilterMenu);
+    }
+    function getNextOrderOf(order) {
+      if (!order) return "descend";
+      else if (order === "descend") return "ascend";
+      return false;
+    }
+    function createNextSorter(column, currentSortState) {
+      if (column.sorter === void 0) return null;
+      const {
+        customNextSortOrder
+      } = column;
+      if (currentSortState === null || currentSortState.columnKey !== column.key) {
+        return {
+          columnKey: column.key,
+          sorter: column.sorter,
+          order: getNextOrderOf(false)
+        };
+      } else {
+        return Object.assign(Object.assign({}, currentSortState), {
+          order: (customNextSortOrder || getNextOrderOf)(currentSortState.order)
+        });
+      }
+    }
+    function isColumnSorting(column, mergedSortState) {
+      return mergedSortState.find((state) => state.columnKey === column.key && state.order) !== void 0;
+    }
+    function formatCsvCell(value) {
+      if (typeof value === "string") {
+        return value.replace(/,/g, "\\,");
+      } else if (value === null || value === void 0) {
+        return "";
+      } else {
+        return `${value}`.replace(/,/g, "\\,");
+      }
+    }
+    function generateCsv(columns, data, getCsvCell, getCsvHeader) {
+      const exportableColumns = columns.filter((column) => column.type !== "expand" && column.type !== "selection" && column.allowExport !== false);
+      const header = exportableColumns.map((col) => {
+        return getCsvHeader ? getCsvHeader(col) : col.title;
+      }).join(",");
+      const rows = data.map((row) => {
+        return exportableColumns.map((col) => {
+          return getCsvCell ? getCsvCell(row[col.key], row, col) : formatCsvCell(row[col.key]);
+        }).join(",");
+      });
+      return [header, ...rows].join("\n");
+    }
+    const RenderSafeCheckbox = /* @__PURE__ */ defineComponent({
+      name: "DataTableBodyCheckbox",
+      props: {
+        rowKey: {
+          type: [String, Number],
+          required: true
+        },
+        disabled: {
+          type: Boolean,
+          required: true
+        },
+        onUpdateChecked: {
+          type: Function,
+          required: true
+        }
+      },
+      setup(props) {
+        const {
+          mergedCheckedRowKeySetRef,
+          mergedInderminateRowKeySetRef
+        } = inject(dataTableInjectionKey);
+        return () => {
+          const {
+            rowKey
+          } = props;
+          return h(NCheckbox, {
+            privateInsideTable: true,
+            disabled: props.disabled,
+            indeterminate: mergedInderminateRowKeySetRef.value.has(rowKey),
+            checked: mergedCheckedRowKeySetRef.value.has(rowKey),
+            onUpdateChecked: props.onUpdateChecked
+          });
+        };
+      }
+    });
+    const style$c = cB("radio", `
+ line-height: var(--n-label-line-height);
+ outline: none;
+ position: relative;
+ user-select: none;
+ -webkit-user-select: none;
+ display: inline-flex;
+ align-items: flex-start;
+ flex-wrap: nowrap;
+ font-size: var(--n-font-size);
+ word-break: break-word;
+`, [cM("checked", [cE("dot", `
+ background-color: var(--n-color-active);
+ `)]), cE("dot-wrapper", `
+ position: relative;
+ flex-shrink: 0;
+ flex-grow: 0;
+ width: var(--n-radio-size);
+ `), cB("radio-input", `
+ position: absolute;
+ border: 0;
+ width: 0;
+ height: 0;
+ opacity: 0;
+ margin: 0;
+ `), cE("dot", `
+ position: absolute;
+ top: 50%;
+ left: 0;
+ transform: translateY(-50%);
+ height: var(--n-radio-size);
+ width: var(--n-radio-size);
+ background: var(--n-color);
+ box-shadow: var(--n-box-shadow);
+ border-radius: 50%;
+ transition:
+ background-color .3s var(--n-bezier),
+ box-shadow .3s var(--n-bezier);
+ `, [c$1("&::before", `
+ content: "";
+ opacity: 0;
+ position: absolute;
+ left: 4px;
+ top: 4px;
+ height: calc(100% - 8px);
+ width: calc(100% - 8px);
+ border-radius: 50%;
+ transform: scale(.8);
+ background: var(--n-dot-color-active);
+ transition: 
+ opacity .3s var(--n-bezier),
+ background-color .3s var(--n-bezier),
+ transform .3s var(--n-bezier);
+ `), cM("checked", {
+      boxShadow: "var(--n-box-shadow-active)"
+    }, [c$1("&::before", `
+ opacity: 1;
+ transform: scale(1);
+ `)])]), cE("label", `
+ color: var(--n-text-color);
+ padding: var(--n-label-padding);
+ font-weight: var(--n-label-font-weight);
+ display: inline-block;
+ transition: color .3s var(--n-bezier);
+ `), cNotM("disabled", `
+ cursor: pointer;
+ `, [c$1("&:hover", [cE("dot", {
+      boxShadow: "var(--n-box-shadow-hover)"
+    })]), cM("focus", [c$1("&:not(:active)", [cE("dot", {
+      boxShadow: "var(--n-box-shadow-focus)"
+    })])])]), cM("disabled", `
+ cursor: not-allowed;
+ `, [cE("dot", {
+      boxShadow: "var(--n-box-shadow-disabled)",
+      backgroundColor: "var(--n-color-disabled)"
+    }, [c$1("&::before", {
+      backgroundColor: "var(--n-dot-color-disabled)"
+    }), cM("checked", `
+ opacity: 1;
+ `)]), cE("label", {
+      color: "var(--n-text-color-disabled)"
+    }), cB("radio-input", `
+ cursor: not-allowed;
+ `)])]);
+    const radioBaseProps = {
+      name: String,
+      value: {
+        type: [String, Number, Boolean],
+        default: "on"
+      },
+      checked: {
+        type: Boolean,
+        default: void 0
+      },
+      defaultChecked: Boolean,
+      disabled: {
+        type: Boolean,
+        default: void 0
+      },
+      label: String,
+      size: String,
+      onUpdateChecked: [Function, Array],
+      "onUpdate:checked": [Function, Array],
+      // deprecated
+      checkedValue: {
+        type: Boolean,
+        default: void 0
+      }
+    };
+    const radioGroupInjectionKey = createInjectionKey("n-radio-group");
+    function setup(props) {
+      const NRadioGroup2 = inject(radioGroupInjectionKey, null);
+      const {
+        mergedClsPrefixRef,
+        mergedComponentPropsRef
+      } = useConfig(props);
+      const formItem = useFormItem(props, {
+        mergedSize(NFormItem) {
+          var _a, _b;
+          const {
+            size: size2
+          } = props;
+          if (size2 !== void 0) return size2;
+          if (NRadioGroup2) {
+            const {
+              mergedSizeRef: {
+                value: mergedSize
+              }
+            } = NRadioGroup2;
+            if (mergedSize !== void 0) {
+              return mergedSize;
+            }
+          }
+          if (NFormItem) {
+            return NFormItem.mergedSize.value;
+          }
+          const configSize = (_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Radio) === null || _b === void 0 ? void 0 : _b.size;
+          if (configSize) return configSize;
+          return "medium";
+        },
+        mergedDisabled(NFormItem) {
+          if (props.disabled) return true;
+          if (NRadioGroup2 === null || NRadioGroup2 === void 0 ? void 0 : NRadioGroup2.disabledRef.value) return true;
+          if (NFormItem === null || NFormItem === void 0 ? void 0 : NFormItem.disabled.value) return true;
+          return false;
+        }
+      });
+      const {
+        mergedSizeRef,
+        mergedDisabledRef
+      } = formItem;
+      const inputRef = /* @__PURE__ */ ref(null);
+      const labelRef = /* @__PURE__ */ ref(null);
+      const uncontrolledCheckedRef = /* @__PURE__ */ ref(props.defaultChecked);
+      const controlledCheckedRef = /* @__PURE__ */ toRef(props, "checked");
+      const mergedCheckedRef = useMergedState(controlledCheckedRef, uncontrolledCheckedRef);
+      const renderSafeCheckedRef = useMemo(() => {
+        if (NRadioGroup2) return NRadioGroup2.valueRef.value === props.value;
+        return mergedCheckedRef.value;
+      });
+      const mergedNameRef = useMemo(() => {
+        const {
+          name
+        } = props;
+        if (name !== void 0) return name;
+        if (NRadioGroup2) return NRadioGroup2.nameRef.value;
+      });
+      const focusRef = /* @__PURE__ */ ref(false);
+      function doUpdateChecked() {
+        if (NRadioGroup2) {
+          const {
+            doUpdateValue
+          } = NRadioGroup2;
+          const {
+            value
+          } = props;
+          call(doUpdateValue, value);
+        } else {
+          const {
+            onUpdateChecked,
+            "onUpdate:checked": _onUpdateChecked
+          } = props;
+          const {
+            nTriggerFormInput,
+            nTriggerFormChange
+          } = formItem;
+          if (onUpdateChecked) call(onUpdateChecked, true);
+          if (_onUpdateChecked) call(_onUpdateChecked, true);
+          nTriggerFormInput();
+          nTriggerFormChange();
+          uncontrolledCheckedRef.value = true;
+        }
+      }
+      function toggle() {
+        if (mergedDisabledRef.value) return;
+        if (!renderSafeCheckedRef.value) {
+          doUpdateChecked();
+        }
+      }
+      function handleRadioInputChange() {
+        toggle();
+        if (inputRef.value) {
+          inputRef.value.checked = renderSafeCheckedRef.value;
+        }
+      }
+      function handleRadioInputBlur() {
+        focusRef.value = false;
+      }
+      function handleRadioInputFocus() {
+        focusRef.value = true;
+      }
+      return {
+        mergedClsPrefix: NRadioGroup2 ? NRadioGroup2.mergedClsPrefixRef : mergedClsPrefixRef,
+        inputRef,
+        labelRef,
+        mergedName: mergedNameRef,
+        mergedDisabled: mergedDisabledRef,
+        renderSafeChecked: renderSafeCheckedRef,
+        focus: focusRef,
+        mergedSize: mergedSizeRef,
+        handleRadioInputChange,
+        handleRadioInputBlur,
+        handleRadioInputFocus
+      };
+    }
+    const radioProps = Object.assign(Object.assign({}, useTheme.props), radioBaseProps);
+    const NRadio = /* @__PURE__ */ defineComponent({
+      name: "Radio",
+      props: radioProps,
+      setup(props) {
+        const radio = setup(props);
+        const themeRef = useTheme("Radio", "-radio", style$c, radioLight, props, radio.mergedClsPrefix);
+        const cssVarsRef = computed(() => {
+          const {
+            mergedSize: {
+              value: size2
+            }
+          } = radio;
+          const {
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            },
+            self: {
+              boxShadow,
+              boxShadowActive,
+              boxShadowDisabled,
+              boxShadowFocus,
+              boxShadowHover,
+              color,
+              colorDisabled,
+              colorActive,
+              textColor,
+              textColorDisabled,
+              dotColorActive,
+              dotColorDisabled,
+              labelPadding,
+              labelLineHeight,
+              labelFontWeight,
+              [createKey("fontSize", size2)]: fontSize2,
+              [createKey("radioSize", size2)]: radioSize
+            }
+          } = themeRef.value;
+          return {
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-label-line-height": labelLineHeight,
+            "--n-label-font-weight": labelFontWeight,
+            "--n-box-shadow": boxShadow,
+            "--n-box-shadow-active": boxShadowActive,
+            "--n-box-shadow-disabled": boxShadowDisabled,
+            "--n-box-shadow-focus": boxShadowFocus,
+            "--n-box-shadow-hover": boxShadowHover,
+            "--n-color": color,
+            "--n-color-active": colorActive,
+            "--n-color-disabled": colorDisabled,
+            "--n-dot-color-active": dotColorActive,
+            "--n-dot-color-disabled": dotColorDisabled,
+            "--n-font-size": fontSize2,
+            "--n-radio-size": radioSize,
+            "--n-text-color": textColor,
+            "--n-text-color-disabled": textColorDisabled,
+            "--n-label-padding": labelPadding
+          };
+        });
+        const {
+          inlineThemeDisabled,
+          mergedClsPrefixRef,
+          mergedRtlRef
+        } = useConfig(props);
+        const rtlEnabledRef = useRtl("Radio", mergedRtlRef, mergedClsPrefixRef);
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("radio", computed(() => radio.mergedSize.value[0]), cssVarsRef, props) : void 0;
+        return Object.assign(radio, {
+          rtlEnabled: rtlEnabledRef,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender
+        });
+      },
+      render() {
+        const {
+          $slots,
+          mergedClsPrefix,
+          onRender,
+          label
+        } = this;
+        onRender === null || onRender === void 0 ? void 0 : onRender();
+        return h("label", {
+          class: [`${mergedClsPrefix}-radio`, this.themeClass, this.rtlEnabled && `${mergedClsPrefix}-radio--rtl`, this.mergedDisabled && `${mergedClsPrefix}-radio--disabled`, this.renderSafeChecked && `${mergedClsPrefix}-radio--checked`, this.focus && `${mergedClsPrefix}-radio--focus`],
+          style: this.cssVars
+        }, h("div", {
+          class: `${mergedClsPrefix}-radio__dot-wrapper`
+        }, " ", h("div", {
+          class: [`${mergedClsPrefix}-radio__dot`, this.renderSafeChecked && `${mergedClsPrefix}-radio__dot--checked`]
+        }), h("input", {
+          ref: "inputRef",
+          type: "radio",
+          class: `${mergedClsPrefix}-radio-input`,
+          value: this.value,
+          name: this.mergedName,
+          checked: this.renderSafeChecked,
+          disabled: this.mergedDisabled,
+          onChange: this.handleRadioInputChange,
+          onFocus: this.handleRadioInputFocus,
+          onBlur: this.handleRadioInputBlur
+        })), resolveWrappedSlot($slots.default, (children) => {
+          if (!children && !label) return null;
+          return h("div", {
+            ref: "labelRef",
+            class: `${mergedClsPrefix}-radio__label`
+          }, children || label);
+        }));
+      }
+    });
+    const style$b = cB("radio-group", `
+ display: inline-block;
+ font-size: var(--n-font-size);
+`, [cE("splitor", `
+ display: inline-block;
+ vertical-align: bottom;
+ width: 1px;
+ transition:
+ background-color .3s var(--n-bezier),
+ opacity .3s var(--n-bezier);
+ background: var(--n-button-border-color);
+ `, [cM("checked", {
+      backgroundColor: "var(--n-button-border-color-active)"
+    }), cM("disabled", {
+      opacity: "var(--n-opacity-disabled)"
+    })]), cM("button-group", `
+ white-space: nowrap;
+ height: var(--n-height);
+ line-height: var(--n-height);
+ `, [cB("radio-button", {
+      height: "var(--n-height)",
+      lineHeight: "var(--n-height)"
+    }), cE("splitor", {
+      height: "var(--n-height)"
+    })]), cB("radio-button", `
+ vertical-align: bottom;
+ outline: none;
+ position: relative;
+ user-select: none;
+ -webkit-user-select: none;
+ display: inline-block;
+ box-sizing: border-box;
+ padding-left: 14px;
+ padding-right: 14px;
+ white-space: nowrap;
+ transition:
+ background-color .3s var(--n-bezier),
+ opacity .3s var(--n-bezier),
+ border-color .3s var(--n-bezier),
+ color .3s var(--n-bezier);
+ background: var(--n-button-color);
+ color: var(--n-button-text-color);
+ border-top: 1px solid var(--n-button-border-color);
+ border-bottom: 1px solid var(--n-button-border-color);
+ `, [cB("radio-input", `
+ pointer-events: none;
+ position: absolute;
+ border: 0;
+ border-radius: inherit;
+ left: 0;
+ right: 0;
+ top: 0;
+ bottom: 0;
+ opacity: 0;
+ z-index: 1;
+ `), cE("state-border", `
+ z-index: 1;
+ pointer-events: none;
+ position: absolute;
+ box-shadow: var(--n-button-box-shadow);
+ transition: box-shadow .3s var(--n-bezier);
+ left: -1px;
+ bottom: -1px;
+ right: -1px;
+ top: -1px;
+ `), c$1("&:first-child", `
+ border-top-left-radius: var(--n-button-border-radius);
+ border-bottom-left-radius: var(--n-button-border-radius);
+ border-left: 1px solid var(--n-button-border-color);
+ `, [cE("state-border", `
+ border-top-left-radius: var(--n-button-border-radius);
+ border-bottom-left-radius: var(--n-button-border-radius);
+ `)]), c$1("&:last-child", `
+ border-top-right-radius: var(--n-button-border-radius);
+ border-bottom-right-radius: var(--n-button-border-radius);
+ border-right: 1px solid var(--n-button-border-color);
+ `, [cE("state-border", `
+ border-top-right-radius: var(--n-button-border-radius);
+ border-bottom-right-radius: var(--n-button-border-radius);
+ `)]), cNotM("disabled", `
+ cursor: pointer;
+ `, [c$1("&:hover", [cE("state-border", `
+ transition: box-shadow .3s var(--n-bezier);
+ box-shadow: var(--n-button-box-shadow-hover);
+ `), cNotM("checked", {
+      color: "var(--n-button-text-color-hover)"
+    })]), cM("focus", [c$1("&:not(:active)", [cE("state-border", {
+      boxShadow: "var(--n-button-box-shadow-focus)"
+    })])])]), cM("checked", `
+ background: var(--n-button-color-active);
+ color: var(--n-button-text-color-active);
+ border-color: var(--n-button-border-color-active);
+ `), cM("disabled", `
+ cursor: not-allowed;
+ opacity: var(--n-opacity-disabled);
+ `)])]);
+    function mapSlot(defaultSlot, value, clsPrefix) {
+      var _a;
+      const children = [];
+      let isButtonGroup = false;
+      for (let i = 0; i < defaultSlot.length; ++i) {
+        const wrappedInstance = defaultSlot[i];
+        const name = (_a = wrappedInstance.type) === null || _a === void 0 ? void 0 : _a.name;
+        if (name === "RadioButton") {
+          isButtonGroup = true;
+        }
+        const instanceProps = wrappedInstance.props;
+        if (name !== "RadioButton") {
+          children.push(wrappedInstance);
+          continue;
+        }
+        if (i === 0) {
+          children.push(wrappedInstance);
+        } else {
+          const lastInstanceProps = children[children.length - 1].props;
+          const lastInstanceChecked = value === lastInstanceProps.value;
+          const lastInstanceDisabled = lastInstanceProps.disabled;
+          const currentInstanceChecked = value === instanceProps.value;
+          const currentInstanceDisabled = instanceProps.disabled;
+          const lastInstancePriority = (lastInstanceChecked ? 2 : 0) + (!lastInstanceDisabled ? 1 : 0);
+          const currentInstancePriority = (currentInstanceChecked ? 2 : 0) + (!currentInstanceDisabled ? 1 : 0);
+          const lastInstanceClass = {
+            [`${clsPrefix}-radio-group__splitor--disabled`]: lastInstanceDisabled,
+            [`${clsPrefix}-radio-group__splitor--checked`]: lastInstanceChecked
+          };
+          const currentInstanceClass = {
+            [`${clsPrefix}-radio-group__splitor--disabled`]: currentInstanceDisabled,
+            [`${clsPrefix}-radio-group__splitor--checked`]: currentInstanceChecked
+          };
+          const splitorClass = lastInstancePriority < currentInstancePriority ? currentInstanceClass : lastInstanceClass;
+          children.push(h("div", {
+            class: [`${clsPrefix}-radio-group__splitor`, splitorClass]
+          }), wrappedInstance);
+        }
+      }
+      return {
+        children,
+        isButtonGroup
+      };
+    }
+    const radioGroupProps = Object.assign(Object.assign({}, useTheme.props), {
+      name: String,
+      value: [String, Number, Boolean],
+      defaultValue: {
+        type: [String, Number, Boolean],
+        default: null
+      },
+      size: String,
+      disabled: {
+        type: Boolean,
+        default: void 0
+      },
+      "onUpdate:value": [Function, Array],
+      onUpdateValue: [Function, Array]
+    });
+    const NRadioGroup = /* @__PURE__ */ defineComponent({
+      name: "RadioGroup",
+      props: radioGroupProps,
+      setup(props) {
+        const selfElRef = /* @__PURE__ */ ref(null);
+        const {
+          mergedSizeRef,
+          mergedDisabledRef,
+          nTriggerFormChange,
+          nTriggerFormInput,
+          nTriggerFormBlur,
+          nTriggerFormFocus
+        } = useFormItem(props);
+        const {
+          mergedClsPrefixRef,
+          inlineThemeDisabled,
+          mergedRtlRef
+        } = useConfig(props);
+        const themeRef = useTheme("Radio", "-radio-group", style$b, radioLight, props, mergedClsPrefixRef);
+        const uncontrolledValueRef = /* @__PURE__ */ ref(props.defaultValue);
+        const controlledValueRef = /* @__PURE__ */ toRef(props, "value");
+        const mergedValueRef = useMergedState(controlledValueRef, uncontrolledValueRef);
+        function doUpdateValue(value) {
+          const {
+            onUpdateValue,
+            "onUpdate:value": _onUpdateValue
+          } = props;
+          if (onUpdateValue) {
+            call(onUpdateValue, value);
+          }
+          if (_onUpdateValue) {
+            call(_onUpdateValue, value);
+          }
+          uncontrolledValueRef.value = value;
+          nTriggerFormChange();
+          nTriggerFormInput();
+        }
+        function handleFocusin(e) {
+          const {
+            value: selfEl
+          } = selfElRef;
+          if (!selfEl) return;
+          if (selfEl.contains(e.relatedTarget)) return;
+          nTriggerFormFocus();
+        }
+        function handleFocusout(e) {
+          const {
+            value: selfEl
+          } = selfElRef;
+          if (!selfEl) return;
+          if (selfEl.contains(e.relatedTarget)) return;
+          nTriggerFormBlur();
+        }
+        provide(radioGroupInjectionKey, {
+          mergedClsPrefixRef,
+          nameRef: /* @__PURE__ */ toRef(props, "name"),
+          valueRef: mergedValueRef,
+          disabledRef: mergedDisabledRef,
+          mergedSizeRef,
+          doUpdateValue
+        });
+        const rtlEnabledRef = useRtl("Radio", mergedRtlRef, mergedClsPrefixRef);
+        const cssVarsRef = computed(() => {
+          const {
+            value: size2
+          } = mergedSizeRef;
+          const {
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            },
+            self: {
+              buttonBorderColor,
+              buttonBorderColorActive,
+              buttonBorderRadius,
+              buttonBoxShadow,
+              buttonBoxShadowFocus,
+              buttonBoxShadowHover,
+              buttonColor,
+              buttonColorActive,
+              buttonTextColor,
+              buttonTextColorActive,
+              buttonTextColorHover,
+              opacityDisabled,
+              [createKey("buttonHeight", size2)]: height,
+              [createKey("fontSize", size2)]: fontSize2
+            }
+          } = themeRef.value;
+          return {
+            "--n-font-size": fontSize2,
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-button-border-color": buttonBorderColor,
+            "--n-button-border-color-active": buttonBorderColorActive,
+            "--n-button-border-radius": buttonBorderRadius,
+            "--n-button-box-shadow": buttonBoxShadow,
+            "--n-button-box-shadow-focus": buttonBoxShadowFocus,
+            "--n-button-box-shadow-hover": buttonBoxShadowHover,
+            "--n-button-color": buttonColor,
+            "--n-button-color-active": buttonColorActive,
+            "--n-button-text-color": buttonTextColor,
+            "--n-button-text-color-hover": buttonTextColorHover,
+            "--n-button-text-color-active": buttonTextColorActive,
+            "--n-height": height,
+            "--n-opacity-disabled": opacityDisabled
+          };
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("radio-group", computed(() => mergedSizeRef.value[0]), cssVarsRef, props) : void 0;
+        return {
+          selfElRef,
+          rtlEnabled: rtlEnabledRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          mergedValue: mergedValueRef,
+          handleFocusout,
+          handleFocusin,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender
+        };
+      },
+      render() {
+        var _a;
+        const {
+          mergedValue,
+          mergedClsPrefix,
+          handleFocusin,
+          handleFocusout
+        } = this;
+        const {
+          children,
+          isButtonGroup
+        } = mapSlot(flatten$2(getSlot(this)), mergedValue, mergedClsPrefix);
+        (_a = this.onRender) === null || _a === void 0 ? void 0 : _a.call(this);
+        return h("div", {
+          onFocusin: handleFocusin,
+          onFocusout: handleFocusout,
+          ref: "selfElRef",
+          class: [`${mergedClsPrefix}-radio-group`, this.rtlEnabled && `${mergedClsPrefix}-radio-group--rtl`, this.themeClass, isButtonGroup && `${mergedClsPrefix}-radio-group--button-group`],
+          style: this.cssVars
+        }, children);
+      }
+    });
+    const RenderSafeRadio = /* @__PURE__ */ defineComponent({
+      name: "DataTableBodyRadio",
+      props: {
+        rowKey: {
+          type: [String, Number],
+          required: true
+        },
+        disabled: {
+          type: Boolean,
+          required: true
+        },
+        onUpdateChecked: {
+          type: Function,
+          required: true
+        }
+      },
+      setup(props) {
+        const {
+          mergedCheckedRowKeySetRef,
+          componentId
+        } = inject(dataTableInjectionKey);
+        return () => {
+          const {
+            rowKey
+          } = props;
+          return h(NRadio, {
+            name: componentId,
+            disabled: props.disabled,
+            checked: mergedCheckedRowKeySetRef.value.has(rowKey),
+            onUpdateChecked: props.onUpdateChecked
+          });
+        };
+      }
+    });
     const tooltipProps = Object.assign(Object.assign({}, popoverBaseProps), useTheme.props);
     const NTooltip = /* @__PURE__ */ defineComponent({
       name: "Tooltip",
@@ -29441,6 +32656,951 @@ ${style2}
         }), this.$slots);
       }
     });
+    const style$a = cB("ellipsis", {
+      overflow: "hidden"
+    }, [cNotM("line-clamp", `
+ white-space: nowrap;
+ display: inline-block;
+ vertical-align: bottom;
+ max-width: 100%;
+ `), cM("line-clamp", `
+ display: -webkit-inline-box;
+ -webkit-box-orient: vertical;
+ `), cM("cursor-pointer", `
+ cursor: pointer;
+ `)]);
+    function createLineClampClass(clsPrefix) {
+      return `${clsPrefix}-ellipsis--line-clamp`;
+    }
+    function createCursorClass(clsPrefix, cursor) {
+      return `${clsPrefix}-ellipsis--cursor-${cursor}`;
+    }
+    const ellipsisProps = Object.assign(Object.assign({}, useTheme.props), {
+      expandTrigger: String,
+      lineClamp: [Number, String],
+      tooltip: {
+        type: [Boolean, Object],
+        default: true
+      }
+    });
+    const NEllipsis = /* @__PURE__ */ defineComponent({
+      name: "Ellipsis",
+      inheritAttrs: false,
+      props: ellipsisProps,
+      slots: Object,
+      setup(props, {
+        slots,
+        attrs
+      }) {
+        const mergedClsPrefixRef = useMergedClsPrefix();
+        const mergedTheme = useTheme("Ellipsis", "-ellipsis", style$a, ellipsisLight, props, mergedClsPrefixRef);
+        const triggerRef = /* @__PURE__ */ ref(null);
+        const triggerInnerRef = /* @__PURE__ */ ref(null);
+        const tooltipRef = /* @__PURE__ */ ref(null);
+        const expandedRef = /* @__PURE__ */ ref(false);
+        const ellipsisStyleRef = computed(() => {
+          const {
+            lineClamp
+          } = props;
+          const {
+            value: expanded
+          } = expandedRef;
+          if (lineClamp !== void 0) {
+            return {
+              textOverflow: "",
+              "-webkit-line-clamp": expanded ? "" : lineClamp
+            };
+          } else {
+            return {
+              textOverflow: expanded ? "" : "ellipsis",
+              "-webkit-line-clamp": ""
+            };
+          }
+        });
+        function getTooltipDisabled() {
+          let tooltipDisabled = false;
+          const {
+            value: expanded
+          } = expandedRef;
+          if (expanded) return true;
+          const {
+            value: trigger2
+          } = triggerRef;
+          if (trigger2) {
+            const {
+              lineClamp
+            } = props;
+            syncEllipsisStyle(trigger2);
+            if (lineClamp !== void 0) {
+              tooltipDisabled = trigger2.scrollHeight <= trigger2.offsetHeight;
+            } else {
+              const {
+                value: triggerInner
+              } = triggerInnerRef;
+              if (triggerInner) {
+                tooltipDisabled = triggerInner.getBoundingClientRect().width <= trigger2.getBoundingClientRect().width;
+              }
+            }
+            syncCursorStyle(trigger2, tooltipDisabled);
+          }
+          return tooltipDisabled;
+        }
+        const handleClickRef = computed(() => {
+          return props.expandTrigger === "click" ? () => {
+            var _a;
+            const {
+              value: expanded
+            } = expandedRef;
+            if (expanded) {
+              (_a = tooltipRef.value) === null || _a === void 0 ? void 0 : _a.setShow(false);
+            }
+            expandedRef.value = !expanded;
+          } : void 0;
+        });
+        onDeactivated(() => {
+          var _a;
+          if (props.tooltip) {
+            (_a = tooltipRef.value) === null || _a === void 0 ? void 0 : _a.setShow(false);
+          }
+        });
+        const renderTrigger = () => h("span", Object.assign({}, mergeProps(attrs, {
+          class: [`${mergedClsPrefixRef.value}-ellipsis`, props.lineClamp !== void 0 ? createLineClampClass(mergedClsPrefixRef.value) : void 0, props.expandTrigger === "click" ? createCursorClass(mergedClsPrefixRef.value, "pointer") : void 0],
+          style: ellipsisStyleRef.value
+        }), {
+          ref: "triggerRef",
+          onClick: handleClickRef.value,
+          onMouseenter: (
+            // get tooltip disabled will derive cursor style
+            props.expandTrigger === "click" ? getTooltipDisabled : void 0
+          )
+        }), props.lineClamp ? slots : h("span", {
+          ref: "triggerInnerRef"
+        }, slots));
+        function syncEllipsisStyle(trigger2) {
+          if (!trigger2) return;
+          const latestStyle = ellipsisStyleRef.value;
+          const lineClampClass = createLineClampClass(mergedClsPrefixRef.value);
+          if (props.lineClamp !== void 0) {
+            syncTriggerClass(trigger2, lineClampClass, "add");
+          } else {
+            syncTriggerClass(trigger2, lineClampClass, "remove");
+          }
+          for (const key in latestStyle) {
+            if (trigger2.style[key] !== latestStyle[key]) {
+              trigger2.style[key] = latestStyle[key];
+            }
+          }
+        }
+        function syncCursorStyle(trigger2, tooltipDisabled) {
+          const cursorClass = createCursorClass(mergedClsPrefixRef.value, "pointer");
+          if (props.expandTrigger === "click" && !tooltipDisabled) {
+            syncTriggerClass(trigger2, cursorClass, "add");
+          } else {
+            syncTriggerClass(trigger2, cursorClass, "remove");
+          }
+        }
+        function syncTriggerClass(trigger2, styleClass, action) {
+          if (action === "add") {
+            if (!trigger2.classList.contains(styleClass)) {
+              trigger2.classList.add(styleClass);
+            }
+          } else {
+            if (trigger2.classList.contains(styleClass)) {
+              trigger2.classList.remove(styleClass);
+            }
+          }
+        }
+        return {
+          mergedTheme,
+          triggerRef,
+          triggerInnerRef,
+          tooltipRef,
+          handleClick: handleClickRef,
+          renderTrigger,
+          getTooltipDisabled
+        };
+      },
+      render() {
+        var _a;
+        const {
+          tooltip,
+          renderTrigger,
+          $slots
+        } = this;
+        if (tooltip) {
+          const {
+            mergedTheme
+          } = this;
+          return h(NTooltip, Object.assign({
+            ref: "tooltipRef",
+            placement: "top"
+          }, tooltip, {
+            getDisabled: this.getTooltipDisabled,
+            theme: mergedTheme.peers.Tooltip,
+            themeOverrides: mergedTheme.peerOverrides.Tooltip
+          }), {
+            trigger: renderTrigger,
+            default: (_a = $slots.tooltip) !== null && _a !== void 0 ? _a : $slots.default
+          });
+        } else {
+          return renderTrigger();
+        }
+      }
+    });
+    const NPerformantEllipsis = /* @__PURE__ */ defineComponent({
+      name: "PerformantEllipsis",
+      props: ellipsisProps,
+      inheritAttrs: false,
+      setup(props, {
+        attrs,
+        slots
+      }) {
+        const mouseEnteredRef = /* @__PURE__ */ ref(false);
+        const mergedClsPrefixRef = useMergedClsPrefix();
+        useStyle("-ellipsis", style$a, mergedClsPrefixRef);
+        const renderTrigger = () => {
+          const {
+            lineClamp
+          } = props;
+          const mergedClsPrefix = mergedClsPrefixRef.value;
+          return h("span", Object.assign({}, mergeProps(attrs, {
+            class: [`${mergedClsPrefix}-ellipsis`, lineClamp !== void 0 ? createLineClampClass(mergedClsPrefix) : void 0, props.expandTrigger === "click" ? createCursorClass(mergedClsPrefix, "pointer") : void 0],
+            style: lineClamp === void 0 ? {
+              textOverflow: "ellipsis"
+            } : {
+              "-webkit-line-clamp": lineClamp
+            }
+          }), {
+            onMouseenter: () => {
+              mouseEnteredRef.value = true;
+            }
+          }), lineClamp ? slots : h("span", null, slots));
+        };
+        return {
+          mouseEntered: mouseEnteredRef,
+          renderTrigger
+        };
+      },
+      render() {
+        if (this.mouseEntered) {
+          return h(NEllipsis, mergeProps({}, this.$attrs, this.$props), this.$slots);
+        } else {
+          return this.renderTrigger();
+        }
+      }
+    });
+    const Cell = /* @__PURE__ */ defineComponent({
+      name: "DataTableCell",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        row: {
+          type: Object,
+          required: true
+        },
+        index: {
+          type: Number,
+          required: true
+        },
+        column: {
+          type: Object,
+          required: true
+        },
+        isSummary: Boolean,
+        mergedTheme: {
+          type: Object,
+          required: true
+        },
+        renderCell: Function
+      },
+      render() {
+        var _a;
+        const {
+          isSummary,
+          column,
+          row,
+          renderCell
+        } = this;
+        let cell;
+        const {
+          render: render2,
+          key,
+          ellipsis
+        } = column;
+        if (render2 && !isSummary) {
+          cell = render2(row, this.index);
+        } else {
+          if (isSummary) {
+            cell = (_a = row[key]) === null || _a === void 0 ? void 0 : _a.value;
+          } else {
+            cell = renderCell ? renderCell(get(row, key), row, column) : get(row, key);
+          }
+        }
+        if (ellipsis) {
+          if (typeof ellipsis === "object") {
+            const {
+              mergedTheme
+            } = this;
+            if (column.ellipsisComponent === "performant-ellipsis") {
+              return h(NPerformantEllipsis, Object.assign({}, ellipsis, {
+                theme: mergedTheme.peers.Ellipsis,
+                themeOverrides: mergedTheme.peerOverrides.Ellipsis
+              }), {
+                default: () => cell
+              });
+            }
+            return h(NEllipsis, Object.assign({}, ellipsis, {
+              theme: mergedTheme.peers.Ellipsis,
+              themeOverrides: mergedTheme.peerOverrides.Ellipsis
+            }), {
+              default: () => cell
+            });
+          } else {
+            return h("span", {
+              class: `${this.clsPrefix}-data-table-td__ellipsis`
+            }, cell);
+          }
+        }
+        return cell;
+      }
+    });
+    const ExpandTrigger = /* @__PURE__ */ defineComponent({
+      name: "DataTableExpandTrigger",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        expanded: Boolean,
+        loading: Boolean,
+        onClick: {
+          type: Function,
+          required: true
+        },
+        renderExpandIcon: {
+          type: Function
+        },
+        rowData: {
+          type: Object,
+          required: true
+        }
+      },
+      render() {
+        const {
+          clsPrefix
+        } = this;
+        return h("div", {
+          class: [`${clsPrefix}-data-table-expand-trigger`, this.expanded && `${clsPrefix}-data-table-expand-trigger--expanded`],
+          onClick: this.onClick,
+          onMousedown: (e) => {
+            e.preventDefault();
+          }
+        }, h(NIconSwitchTransition, null, {
+          default: () => {
+            return this.loading ? h(NBaseLoading, {
+              key: "loading",
+              clsPrefix: this.clsPrefix,
+              radius: 85,
+              strokeWidth: 15,
+              scale: 0.88
+            }) : this.renderExpandIcon ? this.renderExpandIcon({
+              expanded: this.expanded,
+              rowData: this.rowData
+            }) : h(NBaseIcon, {
+              clsPrefix,
+              key: "base-icon"
+            }, {
+              default: () => h(ChevronRightIcon, null)
+            });
+          }
+        }));
+      }
+    });
+    const NDataTableFilterMenu = /* @__PURE__ */ defineComponent({
+      name: "DataTableFilterMenu",
+      props: {
+        column: {
+          type: Object,
+          required: true
+        },
+        radioGroupName: {
+          type: String,
+          required: true
+        },
+        multiple: {
+          type: Boolean,
+          required: true
+        },
+        value: {
+          type: [Array, String, Number],
+          default: null
+        },
+        options: {
+          type: Array,
+          required: true
+        },
+        onConfirm: {
+          type: Function,
+          required: true
+        },
+        onClear: {
+          type: Function,
+          required: true
+        },
+        onChange: {
+          type: Function,
+          required: true
+        }
+      },
+      setup(props) {
+        const {
+          mergedClsPrefixRef: mergedClsPrefixRefRtl,
+          mergedRtlRef
+        } = useConfig(props);
+        const rtlEnabledRef = useRtl("DataTable", mergedRtlRef, mergedClsPrefixRefRtl);
+        const {
+          mergedClsPrefixRef,
+          mergedThemeRef,
+          localeRef
+        } = inject(dataTableInjectionKey);
+        const temporalValueRef = /* @__PURE__ */ ref(props.value);
+        const checkboxGroupValueRef = computed(() => {
+          const {
+            value: temporalValue
+          } = temporalValueRef;
+          if (!Array.isArray(temporalValue)) return null;
+          return temporalValue;
+        });
+        const radioGroupValueRef = computed(() => {
+          const {
+            value: temporalValue
+          } = temporalValueRef;
+          if (shouldUseArrayInSingleMode(props.column)) {
+            return Array.isArray(temporalValue) && temporalValue.length && temporalValue[0] || null;
+          }
+          if (!Array.isArray(temporalValue)) return temporalValue;
+          return null;
+        });
+        function doChange(value) {
+          props.onChange(value);
+        }
+        function handleChange(value) {
+          if (props.multiple && Array.isArray(value)) {
+            temporalValueRef.value = value;
+          } else if (shouldUseArrayInSingleMode(props.column) && !Array.isArray(value)) {
+            temporalValueRef.value = [value];
+          } else {
+            temporalValueRef.value = value;
+          }
+        }
+        function handleConfirmClick() {
+          doChange(temporalValueRef.value);
+          props.onConfirm();
+        }
+        function handleClearClick() {
+          if (props.multiple || shouldUseArrayInSingleMode(props.column)) {
+            doChange([]);
+          } else {
+            doChange(null);
+          }
+          props.onClear();
+        }
+        return {
+          mergedClsPrefix: mergedClsPrefixRef,
+          rtlEnabled: rtlEnabledRef,
+          mergedTheme: mergedThemeRef,
+          locale: localeRef,
+          checkboxGroupValue: checkboxGroupValueRef,
+          radioGroupValue: radioGroupValueRef,
+          handleChange,
+          handleConfirmClick,
+          handleClearClick
+        };
+      },
+      render() {
+        const {
+          mergedTheme,
+          locale,
+          mergedClsPrefix
+        } = this;
+        return h("div", {
+          class: [`${mergedClsPrefix}-data-table-filter-menu`, this.rtlEnabled && `${mergedClsPrefix}-data-table-filter-menu--rtl`]
+        }, h(Scrollbar, null, {
+          default: () => {
+            const {
+              checkboxGroupValue,
+              handleChange
+            } = this;
+            return this.multiple ? h(NCheckboxGroup, {
+              value: checkboxGroupValue,
+              class: `${mergedClsPrefix}-data-table-filter-menu__group`,
+              onUpdateValue: handleChange
+            }, {
+              default: () => this.options.map((option) => {
+                return h(NCheckbox, {
+                  key: option.value,
+                  theme: mergedTheme.peers.Checkbox,
+                  themeOverrides: mergedTheme.peerOverrides.Checkbox,
+                  value: option.value
+                }, {
+                  default: () => option.label
+                });
+              })
+            }) : h(NRadioGroup, {
+              name: this.radioGroupName,
+              class: `${mergedClsPrefix}-data-table-filter-menu__group`,
+              value: this.radioGroupValue,
+              onUpdateValue: this.handleChange
+            }, {
+              default: () => this.options.map((option) => h(NRadio, {
+                key: option.value,
+                value: option.value,
+                theme: mergedTheme.peers.Radio,
+                themeOverrides: mergedTheme.peerOverrides.Radio
+              }, {
+                default: () => option.label
+              }))
+            });
+          }
+        }), h("div", {
+          class: `${mergedClsPrefix}-data-table-filter-menu__action`
+        }, h(Button, {
+          size: "tiny",
+          theme: mergedTheme.peers.Button,
+          themeOverrides: mergedTheme.peerOverrides.Button,
+          onClick: this.handleClearClick
+        }, {
+          default: () => locale.clear
+        }), h(Button, {
+          theme: mergedTheme.peers.Button,
+          themeOverrides: mergedTheme.peerOverrides.Button,
+          type: "primary",
+          size: "tiny",
+          onClick: this.handleConfirmClick
+        }, {
+          default: () => locale.confirm
+        })));
+      }
+    });
+    const RenderFilter = /* @__PURE__ */ defineComponent({
+      name: "DataTableRenderFilter",
+      props: {
+        render: {
+          type: Function,
+          required: true
+        },
+        active: {
+          type: Boolean,
+          default: false
+        },
+        show: {
+          type: Boolean,
+          default: false
+        }
+      },
+      render() {
+        const {
+          render: render2,
+          active,
+          show
+        } = this;
+        return render2({
+          active,
+          show
+        });
+      }
+    });
+    function createFilterState(currentFilterState, columnKey, mergedFilterValue) {
+      const nextFilterState = Object.assign({}, currentFilterState);
+      nextFilterState[columnKey] = mergedFilterValue;
+      return nextFilterState;
+    }
+    const FilterButton = /* @__PURE__ */ defineComponent({
+      name: "DataTableFilterButton",
+      props: {
+        column: {
+          type: Object,
+          required: true
+        },
+        options: {
+          type: Array,
+          default: () => []
+        }
+      },
+      setup(props) {
+        const {
+          mergedComponentPropsRef
+        } = useConfig();
+        const {
+          mergedThemeRef,
+          mergedClsPrefixRef,
+          mergedFilterStateRef,
+          filterMenuCssVarsRef,
+          paginationBehaviorOnFilterRef,
+          doUpdatePage,
+          doUpdateFilters,
+          filterIconPopoverPropsRef
+        } = inject(dataTableInjectionKey);
+        const showPopoverRef = /* @__PURE__ */ ref(false);
+        const filterStateRef = mergedFilterStateRef;
+        const filterMultipleRef = computed(() => {
+          return props.column.filterMultiple !== false;
+        });
+        const mergedFilterValueRef = computed(() => {
+          const filterValue = filterStateRef.value[props.column.key];
+          if (filterValue === void 0) {
+            const {
+              value: multiple
+            } = filterMultipleRef;
+            if (multiple) return [];
+            else return null;
+          }
+          return filterValue;
+        });
+        const activeRef = computed(() => {
+          const {
+            value: filterValue
+          } = mergedFilterValueRef;
+          if (Array.isArray(filterValue)) {
+            return filterValue.length > 0;
+          }
+          return filterValue !== null;
+        });
+        const mergedRenderFilterRef = computed(() => {
+          var _a, _b;
+          return ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.DataTable) === null || _b === void 0 ? void 0 : _b.renderFilter) || props.column.renderFilter;
+        });
+        function handleFilterChange(mergedFilterValue) {
+          const nextFilterState = createFilterState(filterStateRef.value, props.column.key, mergedFilterValue);
+          doUpdateFilters(nextFilterState, props.column);
+          if (paginationBehaviorOnFilterRef.value === "first") {
+            doUpdatePage(1);
+          }
+        }
+        function handleFilterMenuCancel() {
+          showPopoverRef.value = false;
+        }
+        function handleFilterMenuConfirm() {
+          showPopoverRef.value = false;
+        }
+        return {
+          mergedTheme: mergedThemeRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          active: activeRef,
+          showPopover: showPopoverRef,
+          mergedRenderFilter: mergedRenderFilterRef,
+          filterIconPopoverProps: filterIconPopoverPropsRef,
+          filterMultiple: filterMultipleRef,
+          mergedFilterValue: mergedFilterValueRef,
+          filterMenuCssVars: filterMenuCssVarsRef,
+          handleFilterChange,
+          handleFilterMenuConfirm,
+          handleFilterMenuCancel
+        };
+      },
+      render() {
+        const {
+          mergedTheme,
+          mergedClsPrefix,
+          handleFilterMenuCancel,
+          filterIconPopoverProps
+        } = this;
+        return h(NPopover, Object.assign({
+          show: this.showPopover,
+          onUpdateShow: (v) => this.showPopover = v,
+          trigger: "click",
+          theme: mergedTheme.peers.Popover,
+          themeOverrides: mergedTheme.peerOverrides.Popover,
+          placement: "bottom"
+        }, filterIconPopoverProps, {
+          style: {
+            padding: 0
+          }
+        }), {
+          trigger: () => {
+            const {
+              mergedRenderFilter
+            } = this;
+            if (mergedRenderFilter) {
+              return h(RenderFilter, {
+                "data-data-table-filter": true,
+                render: mergedRenderFilter,
+                active: this.active,
+                show: this.showPopover
+              });
+            }
+            const {
+              renderFilterIcon
+            } = this.column;
+            return h("div", {
+              "data-data-table-filter": true,
+              class: [`${mergedClsPrefix}-data-table-filter`, {
+                [`${mergedClsPrefix}-data-table-filter--active`]: this.active,
+                [`${mergedClsPrefix}-data-table-filter--show`]: this.showPopover
+              }]
+            }, renderFilterIcon ? renderFilterIcon({
+              active: this.active,
+              show: this.showPopover
+            }) : h(NBaseIcon, {
+              clsPrefix: mergedClsPrefix
+            }, {
+              default: () => h(FilterIcon, null)
+            }));
+          },
+          default: () => {
+            const {
+              renderFilterMenu
+            } = this.column;
+            return renderFilterMenu ? renderFilterMenu({
+              hide: handleFilterMenuCancel
+            }) : h(NDataTableFilterMenu, {
+              style: this.filterMenuCssVars,
+              radioGroupName: String(this.column.key),
+              multiple: this.filterMultiple,
+              value: this.mergedFilterValue,
+              options: this.options,
+              column: this.column,
+              onChange: this.handleFilterChange,
+              onClear: this.handleFilterMenuCancel,
+              onConfirm: this.handleFilterMenuConfirm
+            });
+          }
+        });
+      }
+    });
+    const ResizeButton = /* @__PURE__ */ defineComponent({
+      name: "ColumnResizeButton",
+      props: {
+        onResizeStart: Function,
+        onResize: Function,
+        onResizeEnd: Function
+      },
+      setup(props) {
+        const {
+          mergedClsPrefixRef
+        } = inject(dataTableInjectionKey);
+        const activeRef = /* @__PURE__ */ ref(false);
+        let startX = 0;
+        function getMouseX(e) {
+          return e.clientX;
+        }
+        function handleMousedown(e) {
+          var _a;
+          e.preventDefault();
+          const alreadyStarted = activeRef.value;
+          startX = getMouseX(e);
+          activeRef.value = true;
+          if (!alreadyStarted) {
+            on("mousemove", window, handleMousemove);
+            on("mouseup", window, handleMouseup);
+            (_a = props.onResizeStart) === null || _a === void 0 ? void 0 : _a.call(props);
+          }
+        }
+        function handleMousemove(e) {
+          var _a;
+          (_a = props.onResize) === null || _a === void 0 ? void 0 : _a.call(props, getMouseX(e) - startX);
+        }
+        function handleMouseup() {
+          var _a;
+          activeRef.value = false;
+          (_a = props.onResizeEnd) === null || _a === void 0 ? void 0 : _a.call(props);
+          off("mousemove", window, handleMousemove);
+          off("mouseup", window, handleMouseup);
+        }
+        onBeforeUnmount(() => {
+          off("mousemove", window, handleMousemove);
+          off("mouseup", window, handleMouseup);
+        });
+        return {
+          mergedClsPrefix: mergedClsPrefixRef,
+          active: activeRef,
+          handleMousedown
+        };
+      },
+      render() {
+        const {
+          mergedClsPrefix
+        } = this;
+        return h("span", {
+          "data-data-table-resizable": true,
+          class: [`${mergedClsPrefix}-data-table-resize-button`, this.active && `${mergedClsPrefix}-data-table-resize-button--active`],
+          onMousedown: this.handleMousedown
+        });
+      }
+    });
+    const RenderSorter = /* @__PURE__ */ defineComponent({
+      name: "DataTableRenderSorter",
+      props: {
+        render: {
+          type: Function,
+          required: true
+        },
+        order: {
+          // asc, desc
+          type: [String, Boolean],
+          default: false
+        }
+      },
+      render() {
+        const {
+          render: render2,
+          order
+        } = this;
+        return render2({
+          order
+        });
+      }
+    });
+    const SortButton = /* @__PURE__ */ defineComponent({
+      name: "SortIcon",
+      props: {
+        column: {
+          type: Object,
+          required: true
+        }
+      },
+      setup(props) {
+        const {
+          mergedComponentPropsRef
+        } = useConfig();
+        const {
+          mergedSortStateRef,
+          mergedClsPrefixRef
+        } = inject(dataTableInjectionKey);
+        const sortStateRef = computed(() => mergedSortStateRef.value.find((state) => state.columnKey === props.column.key));
+        const activeRef = computed(() => {
+          return sortStateRef.value !== void 0;
+        });
+        const mergedSortOrderRef = computed(() => {
+          const {
+            value: sortState
+          } = sortStateRef;
+          if (sortState && activeRef.value) {
+            return sortState.order;
+          }
+          return false;
+        });
+        const mergedRenderSorterRef = computed(() => {
+          var _a, _b;
+          return ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.DataTable) === null || _b === void 0 ? void 0 : _b.renderSorter) || props.column.renderSorter;
+        });
+        return {
+          mergedClsPrefix: mergedClsPrefixRef,
+          active: activeRef,
+          mergedSortOrder: mergedSortOrderRef,
+          mergedRenderSorter: mergedRenderSorterRef
+        };
+      },
+      render() {
+        const {
+          mergedRenderSorter,
+          mergedSortOrder,
+          mergedClsPrefix
+        } = this;
+        const {
+          renderSorterIcon
+        } = this.column;
+        return mergedRenderSorter ? h(RenderSorter, {
+          render: mergedRenderSorter,
+          order: mergedSortOrder
+        }) : h("span", {
+          class: [`${mergedClsPrefix}-data-table-sorter`, mergedSortOrder === "ascend" && `${mergedClsPrefix}-data-table-sorter--asc`, mergedSortOrder === "descend" && `${mergedClsPrefix}-data-table-sorter--desc`]
+        }, renderSorterIcon ? renderSorterIcon({
+          order: mergedSortOrder
+        }) : h(NBaseIcon, {
+          clsPrefix: mergedClsPrefix
+        }, {
+          default: () => h(ArrowDownIcon, null)
+        }));
+      }
+    });
+    const dropdownMenuInjectionKey = createInjectionKey("n-dropdown-menu");
+    const dropdownInjectionKey = createInjectionKey("n-dropdown");
+    const dropdownOptionInjectionKey = createInjectionKey("n-dropdown-option");
+    const NDropdownDivider = /* @__PURE__ */ defineComponent({
+      name: "DropdownDivider",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        }
+      },
+      render() {
+        return h("div", {
+          class: `${this.clsPrefix}-dropdown-divider`
+        });
+      }
+    });
+    const NDropdownGroupHeader = /* @__PURE__ */ defineComponent({
+      name: "DropdownGroupHeader",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        tmNode: {
+          type: Object,
+          required: true
+        }
+      },
+      setup() {
+        const {
+          showIconRef,
+          hasSubmenuRef
+        } = inject(dropdownMenuInjectionKey);
+        const {
+          renderLabelRef,
+          labelFieldRef,
+          nodePropsRef,
+          renderOptionRef
+        } = inject(dropdownInjectionKey);
+        return {
+          labelField: labelFieldRef,
+          showIcon: showIconRef,
+          hasSubmenu: hasSubmenuRef,
+          renderLabel: renderLabelRef,
+          nodeProps: nodePropsRef,
+          renderOption: renderOptionRef
+        };
+      },
+      render() {
+        var _a;
+        const {
+          clsPrefix,
+          hasSubmenu,
+          showIcon,
+          nodeProps,
+          renderLabel,
+          renderOption
+        } = this;
+        const {
+          rawNode
+        } = this.tmNode;
+        const node = h("div", Object.assign({
+          class: `${clsPrefix}-dropdown-option`
+        }, nodeProps === null || nodeProps === void 0 ? void 0 : nodeProps(rawNode)), h("div", {
+          class: `${clsPrefix}-dropdown-option-body ${clsPrefix}-dropdown-option-body--group`
+        }, h("div", {
+          "data-dropdown-option": true,
+          class: [`${clsPrefix}-dropdown-option-body__prefix`, showIcon && `${clsPrefix}-dropdown-option-body__prefix--show-icon`]
+        }, render(rawNode.icon)), h("div", {
+          class: `${clsPrefix}-dropdown-option-body__label`,
+          "data-dropdown-option": true
+        }, renderLabel ? renderLabel(rawNode) : render((_a = rawNode.title) !== null && _a !== void 0 ? _a : rawNode[this.labelField])), h("div", {
+          class: [`${clsPrefix}-dropdown-option-body__suffix`, hasSubmenu && `${clsPrefix}-dropdown-option-body__suffix--has-submenu`],
+          "data-dropdown-option": true
+        })));
+        if (renderOption) {
+          return renderOption({
+            node,
+            option: rawNode
+          });
+        }
+        return node;
+      }
+    });
     function self$w(vars) {
       const {
         textColorBase,
@@ -29468,7 +33628,7 @@ ${style2}
       common: derived$1,
       self: self$w
     };
-    const style$7 = cB("icon", `
+    const style$9 = cB("icon", `
  height: 1em;
  width: 1em;
  line-height: 1em;
@@ -29503,7 +33663,7 @@ ${style2}
           mergedClsPrefixRef,
           inlineThemeDisabled
         } = useConfig(props);
-        const themeRef = useTheme("Icon", "-icon", style$7, iconLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Icon", "-icon", style$9, iconLight, props, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const {
             depth
@@ -29571,6 +33731,4294 @@ ${style2}
           }],
           style: [this.cssVars, this.mergedStyle]
         }), component ? h(component) : this.$slots);
+      }
+    });
+    function isSubmenuNode(rawNode, childrenField) {
+      return rawNode.type === "submenu" || rawNode.type === void 0 && rawNode[childrenField] !== void 0;
+    }
+    function isGroupNode(rawNode) {
+      return rawNode.type === "group";
+    }
+    function isDividerNode(rawNode) {
+      return rawNode.type === "divider";
+    }
+    function isRenderNode(rawNode) {
+      return rawNode.type === "render";
+    }
+    const NDropdownOption = /* @__PURE__ */ defineComponent({
+      name: "DropdownOption",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        tmNode: {
+          type: Object,
+          required: true
+        },
+        parentKey: {
+          type: [String, Number],
+          default: null
+        },
+        placement: {
+          type: String,
+          default: "right-start"
+        },
+        props: Object,
+        scrollable: Boolean
+      },
+      setup(props) {
+        const NDropdown2 = inject(dropdownInjectionKey);
+        const {
+          hoverKeyRef,
+          keyboardKeyRef,
+          lastToggledSubmenuKeyRef,
+          pendingKeyPathRef,
+          activeKeyPathRef,
+          animatedRef,
+          mergedShowRef,
+          renderLabelRef,
+          renderIconRef,
+          labelFieldRef,
+          childrenFieldRef,
+          renderOptionRef,
+          nodePropsRef,
+          menuPropsRef
+        } = NDropdown2;
+        const NDropdownOption2 = inject(dropdownOptionInjectionKey, null);
+        const NDropdownMenu2 = inject(dropdownMenuInjectionKey);
+        const NPopoverBody2 = inject(popoverBodyInjectionKey);
+        const rawNodeRef = computed(() => props.tmNode.rawNode);
+        const hasSubmenuRef = computed(() => {
+          const {
+            value: childrenField
+          } = childrenFieldRef;
+          return isSubmenuNode(props.tmNode.rawNode, childrenField);
+        });
+        const mergedDisabledRef = computed(() => {
+          const {
+            disabled
+          } = props.tmNode;
+          return disabled;
+        });
+        const showSubmenuRef = computed(() => {
+          if (!hasSubmenuRef.value) return false;
+          const {
+            key,
+            disabled
+          } = props.tmNode;
+          if (disabled) return false;
+          const {
+            value: hoverKey
+          } = hoverKeyRef;
+          const {
+            value: keyboardKey
+          } = keyboardKeyRef;
+          const {
+            value: lastToggledSubmenuKey
+          } = lastToggledSubmenuKeyRef;
+          const {
+            value: pendingKeyPath
+          } = pendingKeyPathRef;
+          if (hoverKey !== null) return pendingKeyPath.includes(key);
+          if (keyboardKey !== null) {
+            return pendingKeyPath.includes(key) && pendingKeyPath[pendingKeyPath.length - 1] !== key;
+          }
+          if (lastToggledSubmenuKey !== null) return pendingKeyPath.includes(key);
+          return false;
+        });
+        const shouldDelayRef = computed(() => {
+          return keyboardKeyRef.value === null && !animatedRef.value;
+        });
+        const deferredShowSubmenuRef = useDeferredTrue(showSubmenuRef, 300, shouldDelayRef);
+        const parentEnteringSubmenuRef = computed(() => {
+          return !!(NDropdownOption2 === null || NDropdownOption2 === void 0 ? void 0 : NDropdownOption2.enteringSubmenuRef.value);
+        });
+        const enteringSubmenuRef = /* @__PURE__ */ ref(false);
+        provide(dropdownOptionInjectionKey, {
+          enteringSubmenuRef
+        });
+        function handleSubmenuBeforeEnter() {
+          enteringSubmenuRef.value = true;
+        }
+        function handleSubmenuAfterEnter() {
+          enteringSubmenuRef.value = false;
+        }
+        function handleMouseEnter() {
+          const {
+            parentKey,
+            tmNode
+          } = props;
+          if (tmNode.disabled) return;
+          if (!mergedShowRef.value) return;
+          lastToggledSubmenuKeyRef.value = parentKey;
+          keyboardKeyRef.value = null;
+          hoverKeyRef.value = tmNode.key;
+        }
+        function handleMouseMove() {
+          const {
+            tmNode
+          } = props;
+          if (tmNode.disabled) return;
+          if (!mergedShowRef.value) return;
+          if (hoverKeyRef.value === tmNode.key) return;
+          handleMouseEnter();
+        }
+        function handleMouseLeave(e) {
+          if (props.tmNode.disabled) return;
+          if (!mergedShowRef.value) return;
+          const {
+            relatedTarget
+          } = e;
+          if (relatedTarget && !happensIn({
+            target: relatedTarget
+          }, "dropdownOption") && !happensIn({
+            target: relatedTarget
+          }, "scrollbarRail")) {
+            hoverKeyRef.value = null;
+          }
+        }
+        function handleClick2() {
+          const {
+            value: hasSubmenu
+          } = hasSubmenuRef;
+          const {
+            tmNode
+          } = props;
+          if (!mergedShowRef.value) return;
+          if (!hasSubmenu && !tmNode.disabled) {
+            NDropdown2.doSelect(tmNode.key, tmNode.rawNode);
+            NDropdown2.doUpdateShow(false);
+          }
+        }
+        return {
+          labelField: labelFieldRef,
+          renderLabel: renderLabelRef,
+          renderIcon: renderIconRef,
+          siblingHasIcon: NDropdownMenu2.showIconRef,
+          siblingHasSubmenu: NDropdownMenu2.hasSubmenuRef,
+          menuProps: menuPropsRef,
+          popoverBody: NPopoverBody2,
+          animated: animatedRef,
+          mergedShowSubmenu: computed(() => {
+            return deferredShowSubmenuRef.value && !parentEnteringSubmenuRef.value;
+          }),
+          rawNode: rawNodeRef,
+          hasSubmenu: hasSubmenuRef,
+          pending: useMemo(() => {
+            const {
+              value: pendingKeyPath
+            } = pendingKeyPathRef;
+            const {
+              key
+            } = props.tmNode;
+            return pendingKeyPath.includes(key);
+          }),
+          childActive: useMemo(() => {
+            const {
+              value: activeKeyPath
+            } = activeKeyPathRef;
+            const {
+              key
+            } = props.tmNode;
+            const index = activeKeyPath.findIndex((k) => key === k);
+            if (index === -1) return false;
+            return index < activeKeyPath.length - 1;
+          }),
+          active: useMemo(() => {
+            const {
+              value: activeKeyPath
+            } = activeKeyPathRef;
+            const {
+              key
+            } = props.tmNode;
+            const index = activeKeyPath.findIndex((k) => key === k);
+            if (index === -1) return false;
+            return index === activeKeyPath.length - 1;
+          }),
+          mergedDisabled: mergedDisabledRef,
+          renderOption: renderOptionRef,
+          nodeProps: nodePropsRef,
+          handleClick: handleClick2,
+          handleMouseMove,
+          handleMouseEnter,
+          handleMouseLeave,
+          handleSubmenuBeforeEnter,
+          handleSubmenuAfterEnter
+        };
+      },
+      render() {
+        var _a, _b;
+        const {
+          animated,
+          rawNode,
+          mergedShowSubmenu,
+          clsPrefix,
+          siblingHasIcon,
+          siblingHasSubmenu,
+          renderLabel,
+          renderIcon,
+          renderOption,
+          nodeProps,
+          props,
+          scrollable
+        } = this;
+        let submenuVNode = null;
+        if (mergedShowSubmenu) {
+          const submenuNodeProps = (_a = this.menuProps) === null || _a === void 0 ? void 0 : _a.call(this, rawNode, rawNode.children);
+          submenuVNode = h(NDropdownMenu, Object.assign({}, submenuNodeProps, {
+            clsPrefix,
+            scrollable: this.scrollable,
+            tmNodes: this.tmNode.children,
+            parentKey: this.tmNode.key
+          }));
+        }
+        const builtinProps = {
+          class: [`${clsPrefix}-dropdown-option-body`, this.pending && `${clsPrefix}-dropdown-option-body--pending`, this.active && `${clsPrefix}-dropdown-option-body--active`, this.childActive && `${clsPrefix}-dropdown-option-body--child-active`, this.mergedDisabled && `${clsPrefix}-dropdown-option-body--disabled`],
+          onMousemove: this.handleMouseMove,
+          onMouseenter: this.handleMouseEnter,
+          onMouseleave: this.handleMouseLeave,
+          onClick: this.handleClick
+        };
+        const optionNodeProps = nodeProps === null || nodeProps === void 0 ? void 0 : nodeProps(rawNode);
+        const node = h("div", Object.assign({
+          class: [`${clsPrefix}-dropdown-option`, optionNodeProps === null || optionNodeProps === void 0 ? void 0 : optionNodeProps.class],
+          "data-dropdown-option": true
+        }, optionNodeProps), h("div", mergeProps(builtinProps, props), [h("div", {
+          class: [`${clsPrefix}-dropdown-option-body__prefix`, siblingHasIcon && `${clsPrefix}-dropdown-option-body__prefix--show-icon`]
+        }, [renderIcon ? renderIcon(rawNode) : render(rawNode.icon)]), h("div", {
+          "data-dropdown-option": true,
+          class: `${clsPrefix}-dropdown-option-body__label`
+        }, renderLabel ? renderLabel(rawNode) : render((_b = rawNode[this.labelField]) !== null && _b !== void 0 ? _b : rawNode.title)), h("div", {
+          "data-dropdown-option": true,
+          class: [`${clsPrefix}-dropdown-option-body__suffix`, siblingHasSubmenu && `${clsPrefix}-dropdown-option-body__suffix--has-submenu`]
+        }, this.hasSubmenu ? h(NIcon, null, {
+          default: () => h(ChevronRightIcon, null)
+        }) : null)]), this.hasSubmenu ? h(Binder, null, {
+          default: () => [h(VTarget, null, {
+            default: () => h("div", {
+              class: `${clsPrefix}-dropdown-offset-container`
+            }, h(VFollower, {
+              show: this.mergedShowSubmenu,
+              placement: this.placement,
+              to: scrollable ? this.popoverBody || void 0 : void 0,
+              teleportDisabled: !scrollable
+            }, {
+              default: () => {
+                return h("div", {
+                  class: `${clsPrefix}-dropdown-menu-wrapper`
+                }, animated ? h(Transition, {
+                  onBeforeEnter: this.handleSubmenuBeforeEnter,
+                  onAfterEnter: this.handleSubmenuAfterEnter,
+                  name: "fade-in-scale-up-transition",
+                  appear: true
+                }, {
+                  default: () => submenuVNode
+                }) : submenuVNode);
+              }
+            }))
+          })]
+        }) : null);
+        if (renderOption) {
+          return renderOption({
+            node,
+            option: rawNode
+          });
+        }
+        return node;
+      }
+    });
+    const NDropdownGroup = /* @__PURE__ */ defineComponent({
+      name: "NDropdownGroup",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        tmNode: {
+          type: Object,
+          required: true
+        },
+        parentKey: {
+          type: [String, Number],
+          default: null
+        }
+      },
+      render() {
+        const {
+          tmNode,
+          parentKey,
+          clsPrefix
+        } = this;
+        const {
+          children
+        } = tmNode;
+        return h(Fragment, null, h(NDropdownGroupHeader, {
+          clsPrefix,
+          tmNode,
+          key: tmNode.key
+        }), children === null || children === void 0 ? void 0 : children.map((child) => {
+          const {
+            rawNode
+          } = child;
+          if (rawNode.show === false) return null;
+          if (isDividerNode(rawNode)) {
+            return h(NDropdownDivider, {
+              clsPrefix,
+              key: child.key
+            });
+          }
+          if (child.isGroup) {
+            warn("dropdown", "`group` node is not allowed to be put in `group` node.");
+            return null;
+          }
+          return h(NDropdownOption, {
+            clsPrefix,
+            tmNode: child,
+            parentKey,
+            key: child.key
+          });
+        }));
+      }
+    });
+    const NDropdownRenderOption = /* @__PURE__ */ defineComponent({
+      name: "DropdownRenderOption",
+      props: {
+        tmNode: {
+          type: Object,
+          required: true
+        }
+      },
+      render() {
+        const {
+          rawNode: {
+            render: render2,
+            props
+          }
+        } = this.tmNode;
+        return h("div", props, [render2 === null || render2 === void 0 ? void 0 : render2()]);
+      }
+    });
+    const NDropdownMenu = /* @__PURE__ */ defineComponent({
+      name: "DropdownMenu",
+      props: {
+        scrollable: Boolean,
+        showArrow: Boolean,
+        arrowStyle: [String, Object],
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        tmNodes: {
+          type: Array,
+          default: () => []
+        },
+        parentKey: {
+          type: [String, Number],
+          default: null
+        }
+      },
+      setup(props) {
+        const {
+          renderIconRef,
+          childrenFieldRef
+        } = inject(dropdownInjectionKey);
+        provide(dropdownMenuInjectionKey, {
+          showIconRef: computed(() => {
+            const renderIcon = renderIconRef.value;
+            return props.tmNodes.some((tmNode) => {
+              var _a;
+              if (tmNode.isGroup) {
+                return (_a = tmNode.children) === null || _a === void 0 ? void 0 : _a.some(({
+                  rawNode: rawChild
+                }) => renderIcon ? renderIcon(rawChild) : rawChild.icon);
+              }
+              const {
+                rawNode
+              } = tmNode;
+              return renderIcon ? renderIcon(rawNode) : rawNode.icon;
+            });
+          }),
+          hasSubmenuRef: computed(() => {
+            const {
+              value: childrenField
+            } = childrenFieldRef;
+            return props.tmNodes.some((tmNode) => {
+              var _a;
+              if (tmNode.isGroup) {
+                return (_a = tmNode.children) === null || _a === void 0 ? void 0 : _a.some(({
+                  rawNode: rawChild
+                }) => isSubmenuNode(rawChild, childrenField));
+              }
+              const {
+                rawNode
+              } = tmNode;
+              return isSubmenuNode(rawNode, childrenField);
+            });
+          })
+        });
+        const bodyRef = /* @__PURE__ */ ref(null);
+        provide(modalBodyInjectionKey, null);
+        provide(drawerBodyInjectionKey, null);
+        provide(popoverBodyInjectionKey, bodyRef);
+        return {
+          bodyRef
+        };
+      },
+      render() {
+        const {
+          parentKey,
+          clsPrefix,
+          scrollable
+        } = this;
+        const menuOptionsNode = this.tmNodes.map((tmNode) => {
+          const {
+            rawNode
+          } = tmNode;
+          if (rawNode.show === false) return null;
+          if (isRenderNode(rawNode)) {
+            return h(NDropdownRenderOption, {
+              tmNode,
+              key: tmNode.key
+            });
+          }
+          if (isDividerNode(rawNode)) {
+            return h(NDropdownDivider, {
+              clsPrefix,
+              key: tmNode.key
+            });
+          }
+          if (isGroupNode(rawNode)) {
+            return h(NDropdownGroup, {
+              clsPrefix,
+              tmNode,
+              parentKey,
+              key: tmNode.key
+            });
+          }
+          return h(NDropdownOption, {
+            clsPrefix,
+            tmNode,
+            parentKey,
+            key: tmNode.key,
+            props: rawNode.props,
+            scrollable
+          });
+        });
+        return h("div", {
+          class: [`${clsPrefix}-dropdown-menu`, scrollable && `${clsPrefix}-dropdown-menu--scrollable`],
+          ref: "bodyRef"
+        }, scrollable ? h(XScrollbar, {
+          contentClass: `${clsPrefix}-dropdown-menu__content`
+        }, {
+          default: () => menuOptionsNode
+        }) : menuOptionsNode, this.showArrow ? renderArrow({
+          clsPrefix,
+          arrowStyle: this.arrowStyle,
+          arrowClass: void 0,
+          arrowWrapperClass: void 0,
+          arrowWrapperStyle: void 0
+        }) : null);
+      }
+    });
+    const style$8 = cB("dropdown-menu", `
+ transform-origin: var(--v-transform-origin);
+ background-color: var(--n-color);
+ border-radius: var(--n-border-radius);
+ box-shadow: var(--n-box-shadow);
+ position: relative;
+ transition:
+ background-color .3s var(--n-bezier),
+ box-shadow .3s var(--n-bezier);
+`, [fadeInScaleUpTransition(), cB("dropdown-option", `
+ position: relative;
+ `, [c$1("a", `
+ text-decoration: none;
+ color: inherit;
+ outline: none;
+ `, [c$1("&::before", `
+ content: "";
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: 0;
+ bottom: 0;
+ `)]), cB("dropdown-option-body", `
+ display: flex;
+ cursor: pointer;
+ position: relative;
+ height: var(--n-option-height);
+ line-height: var(--n-option-height);
+ font-size: var(--n-font-size);
+ color: var(--n-option-text-color);
+ transition: color .3s var(--n-bezier);
+ `, [c$1("&::before", `
+ content: "";
+ position: absolute;
+ top: 0;
+ bottom: 0;
+ left: 4px;
+ right: 4px;
+ transition: background-color .3s var(--n-bezier);
+ border-radius: var(--n-border-radius);
+ `), cNotM("disabled", [cM("pending", `
+ color: var(--n-option-text-color-hover);
+ `, [cE("prefix, suffix", `
+ color: var(--n-option-text-color-hover);
+ `), c$1("&::before", "background-color: var(--n-option-color-hover);")]), cM("active", `
+ color: var(--n-option-text-color-active);
+ `, [cE("prefix, suffix", `
+ color: var(--n-option-text-color-active);
+ `), c$1("&::before", "background-color: var(--n-option-color-active);")]), cM("child-active", `
+ color: var(--n-option-text-color-child-active);
+ `, [cE("prefix, suffix", `
+ color: var(--n-option-text-color-child-active);
+ `)])]), cM("disabled", `
+ cursor: not-allowed;
+ opacity: var(--n-option-opacity-disabled);
+ `), cM("group", `
+ font-size: calc(var(--n-font-size) - 1px);
+ color: var(--n-group-header-text-color);
+ `, [cE("prefix", `
+ width: calc(var(--n-option-prefix-width) / 2);
+ `, [cM("show-icon", `
+ width: calc(var(--n-option-icon-prefix-width) / 2);
+ `)])]), cE("prefix", `
+ width: var(--n-option-prefix-width);
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ color: var(--n-prefix-color);
+ transition: color .3s var(--n-bezier);
+ z-index: 1;
+ `, [cM("show-icon", `
+ width: var(--n-option-icon-prefix-width);
+ `), cB("icon", `
+ font-size: var(--n-option-icon-size);
+ `)]), cE("label", `
+ white-space: nowrap;
+ flex: 1;
+ z-index: 1;
+ `), cE("suffix", `
+ box-sizing: border-box;
+ flex-grow: 0;
+ flex-shrink: 0;
+ display: flex;
+ justify-content: flex-end;
+ align-items: center;
+ min-width: var(--n-option-suffix-width);
+ padding: 0 8px;
+ transition: color .3s var(--n-bezier);
+ color: var(--n-suffix-color);
+ z-index: 1;
+ `, [cM("has-submenu", `
+ width: var(--n-option-icon-suffix-width);
+ `), cB("icon", `
+ font-size: var(--n-option-icon-size);
+ `)]), cB("dropdown-menu", "pointer-events: all;")]), cB("dropdown-offset-container", `
+ pointer-events: none;
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: -4px;
+ bottom: -4px;
+ `)]), cB("dropdown-divider", `
+ transition: background-color .3s var(--n-bezier);
+ background-color: var(--n-divider-color);
+ height: 1px;
+ margin: 4px 0;
+ `), cB("dropdown-menu-wrapper", `
+ transform-origin: var(--v-transform-origin);
+ width: fit-content;
+ `), c$1(">", [cB("scrollbar", `
+ height: inherit;
+ max-height: inherit;
+ `)]), cNotM("scrollable", `
+ padding: var(--n-padding);
+ `), cM("scrollable", [cE("content", `
+ padding: var(--n-padding);
+ `)])]);
+    const dropdownBaseProps = {
+      animated: {
+        type: Boolean,
+        default: true
+      },
+      keyboard: {
+        type: Boolean,
+        default: true
+      },
+      size: String,
+      inverted: Boolean,
+      placement: {
+        type: String,
+        default: "bottom"
+      },
+      onSelect: [Function, Array],
+      options: {
+        type: Array,
+        default: () => []
+      },
+      menuProps: Function,
+      showArrow: Boolean,
+      renderLabel: Function,
+      renderIcon: Function,
+      renderOption: Function,
+      nodeProps: Function,
+      labelField: {
+        type: String,
+        default: "label"
+      },
+      keyField: {
+        type: String,
+        default: "key"
+      },
+      childrenField: {
+        type: String,
+        default: "children"
+      },
+      // for menu, not documented
+      value: [String, Number]
+    };
+    const popoverPropKeys = Object.keys(popoverBaseProps);
+    const dropdownProps = Object.assign(Object.assign(Object.assign({}, popoverBaseProps), dropdownBaseProps), useTheme.props);
+    const NDropdown = /* @__PURE__ */ defineComponent({
+      name: "Dropdown",
+      inheritAttrs: false,
+      props: dropdownProps,
+      setup(props) {
+        const uncontrolledShowRef = /* @__PURE__ */ ref(false);
+        const mergedShowRef = useMergedState(/* @__PURE__ */ toRef(props, "show"), uncontrolledShowRef);
+        const treemateRef = computed(() => {
+          const {
+            keyField,
+            childrenField
+          } = props;
+          return createTreeMate(props.options, {
+            getKey(node) {
+              return node[keyField];
+            },
+            getDisabled(node) {
+              return node.disabled === true;
+            },
+            getIgnored(node) {
+              return node.type === "divider" || node.type === "render";
+            },
+            getChildren(node) {
+              return node[childrenField];
+            }
+          });
+        });
+        const tmNodesRef = computed(() => {
+          return treemateRef.value.treeNodes;
+        });
+        const hoverKeyRef = /* @__PURE__ */ ref(null);
+        const keyboardKeyRef = /* @__PURE__ */ ref(null);
+        const lastToggledSubmenuKeyRef = /* @__PURE__ */ ref(null);
+        const pendingKeyRef = computed(() => {
+          var _a, _b, _c;
+          return (_c = (_b = (_a = hoverKeyRef.value) !== null && _a !== void 0 ? _a : keyboardKeyRef.value) !== null && _b !== void 0 ? _b : lastToggledSubmenuKeyRef.value) !== null && _c !== void 0 ? _c : null;
+        });
+        const pendingKeyPathRef = computed(() => treemateRef.value.getPath(pendingKeyRef.value).keyPath);
+        const activeKeyPathRef = computed(() => treemateRef.value.getPath(props.value).keyPath);
+        const keyboardEnabledRef = useMemo(() => {
+          return props.keyboard && mergedShowRef.value;
+        });
+        useKeyboard({
+          keydown: {
+            ArrowUp: {
+              prevent: true,
+              handler: handleKeydownUp
+            },
+            ArrowRight: {
+              prevent: true,
+              handler: handleKeydownRight
+            },
+            ArrowDown: {
+              prevent: true,
+              handler: handleKeydownDown
+            },
+            ArrowLeft: {
+              prevent: true,
+              handler: handleKeydownLeft
+            },
+            Enter: {
+              prevent: true,
+              handler: handleKeydownEnter
+            },
+            Escape: handleKeydownEsc
+          }
+        }, keyboardEnabledRef);
+        const {
+          mergedClsPrefixRef,
+          inlineThemeDisabled,
+          mergedComponentPropsRef
+        } = useConfig(props);
+        const mergedSizeRef = computed(() => {
+          var _a, _b;
+          return props.size || ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Dropdown) === null || _b === void 0 ? void 0 : _b.size) || "medium";
+        });
+        const themeRef = useTheme("Dropdown", "-dropdown", style$8, dropdownLight, props, mergedClsPrefixRef);
+        provide(dropdownInjectionKey, {
+          labelFieldRef: /* @__PURE__ */ toRef(props, "labelField"),
+          childrenFieldRef: /* @__PURE__ */ toRef(props, "childrenField"),
+          renderLabelRef: /* @__PURE__ */ toRef(props, "renderLabel"),
+          renderIconRef: /* @__PURE__ */ toRef(props, "renderIcon"),
+          hoverKeyRef,
+          keyboardKeyRef,
+          lastToggledSubmenuKeyRef,
+          pendingKeyPathRef,
+          activeKeyPathRef,
+          animatedRef: /* @__PURE__ */ toRef(props, "animated"),
+          mergedShowRef,
+          nodePropsRef: /* @__PURE__ */ toRef(props, "nodeProps"),
+          renderOptionRef: /* @__PURE__ */ toRef(props, "renderOption"),
+          menuPropsRef: /* @__PURE__ */ toRef(props, "menuProps"),
+          doSelect,
+          doUpdateShow
+        });
+        watch(mergedShowRef, (value) => {
+          if (!props.animated && !value) {
+            clearPendingState();
+          }
+        });
+        function doSelect(key, node) {
+          const {
+            onSelect
+          } = props;
+          if (onSelect) call(onSelect, key, node);
+        }
+        function doUpdateShow(value) {
+          const {
+            "onUpdate:show": _onUpdateShow,
+            onUpdateShow
+          } = props;
+          if (_onUpdateShow) call(_onUpdateShow, value);
+          if (onUpdateShow) call(onUpdateShow, value);
+          uncontrolledShowRef.value = value;
+        }
+        function clearPendingState() {
+          hoverKeyRef.value = null;
+          keyboardKeyRef.value = null;
+          lastToggledSubmenuKeyRef.value = null;
+        }
+        function handleKeydownEsc() {
+          doUpdateShow(false);
+        }
+        function handleKeydownLeft() {
+          handleKeydown("left");
+        }
+        function handleKeydownRight() {
+          handleKeydown("right");
+        }
+        function handleKeydownUp() {
+          handleKeydown("up");
+        }
+        function handleKeydownDown() {
+          handleKeydown("down");
+        }
+        function handleKeydownEnter() {
+          const pendingNode = getPendingNode();
+          if ((pendingNode === null || pendingNode === void 0 ? void 0 : pendingNode.isLeaf) && mergedShowRef.value) {
+            doSelect(pendingNode.key, pendingNode.rawNode);
+            doUpdateShow(false);
+          }
+        }
+        function getPendingNode() {
+          var _a;
+          const {
+            value: treeMate
+          } = treemateRef;
+          const {
+            value: pendingKey
+          } = pendingKeyRef;
+          if (!treeMate || pendingKey === null) return null;
+          return (_a = treeMate.getNode(pendingKey)) !== null && _a !== void 0 ? _a : null;
+        }
+        function handleKeydown(direction) {
+          const {
+            value: pendingKey
+          } = pendingKeyRef;
+          const {
+            value: {
+              getFirstAvailableNode: getFirstAvailableNode2
+            }
+          } = treemateRef;
+          let nextKeyboardKey = null;
+          if (pendingKey === null) {
+            const firstNode = getFirstAvailableNode2();
+            if (firstNode !== null) {
+              nextKeyboardKey = firstNode.key;
+            }
+          } else {
+            const currentNode = getPendingNode();
+            if (currentNode) {
+              let nextNode;
+              switch (direction) {
+                case "down":
+                  nextNode = currentNode.getNext();
+                  break;
+                case "up":
+                  nextNode = currentNode.getPrev();
+                  break;
+                case "right":
+                  nextNode = currentNode.getChild();
+                  break;
+                case "left":
+                  nextNode = currentNode.getParent();
+                  break;
+              }
+              if (nextNode) nextKeyboardKey = nextNode.key;
+            }
+          }
+          if (nextKeyboardKey !== null) {
+            hoverKeyRef.value = null;
+            keyboardKeyRef.value = nextKeyboardKey;
+          }
+        }
+        const cssVarsRef = computed(() => {
+          const {
+            inverted
+          } = props;
+          const size2 = mergedSizeRef.value;
+          const {
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            },
+            self: self2
+          } = themeRef.value;
+          const {
+            padding,
+            dividerColor,
+            borderRadius,
+            optionOpacityDisabled,
+            [createKey("optionIconSuffixWidth", size2)]: optionIconSuffixWidth,
+            [createKey("optionSuffixWidth", size2)]: optionSuffixWidth,
+            [createKey("optionIconPrefixWidth", size2)]: optionIconPrefixWidth,
+            [createKey("optionPrefixWidth", size2)]: optionPrefixWidth,
+            [createKey("fontSize", size2)]: fontSize2,
+            [createKey("optionHeight", size2)]: optionHeight,
+            [createKey("optionIconSize", size2)]: optionIconSize
+          } = self2;
+          const vars = {
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-font-size": fontSize2,
+            "--n-padding": padding,
+            "--n-border-radius": borderRadius,
+            "--n-option-height": optionHeight,
+            "--n-option-prefix-width": optionPrefixWidth,
+            "--n-option-icon-prefix-width": optionIconPrefixWidth,
+            "--n-option-suffix-width": optionSuffixWidth,
+            "--n-option-icon-suffix-width": optionIconSuffixWidth,
+            "--n-option-icon-size": optionIconSize,
+            "--n-divider-color": dividerColor,
+            "--n-option-opacity-disabled": optionOpacityDisabled
+          };
+          if (inverted) {
+            vars["--n-color"] = self2.colorInverted;
+            vars["--n-option-color-hover"] = self2.optionColorHoverInverted;
+            vars["--n-option-color-active"] = self2.optionColorActiveInverted;
+            vars["--n-option-text-color"] = self2.optionTextColorInverted;
+            vars["--n-option-text-color-hover"] = self2.optionTextColorHoverInverted;
+            vars["--n-option-text-color-active"] = self2.optionTextColorActiveInverted;
+            vars["--n-option-text-color-child-active"] = self2.optionTextColorChildActiveInverted;
+            vars["--n-prefix-color"] = self2.prefixColorInverted;
+            vars["--n-suffix-color"] = self2.suffixColorInverted;
+            vars["--n-group-header-text-color"] = self2.groupHeaderTextColorInverted;
+          } else {
+            vars["--n-color"] = self2.color;
+            vars["--n-option-color-hover"] = self2.optionColorHover;
+            vars["--n-option-color-active"] = self2.optionColorActive;
+            vars["--n-option-text-color"] = self2.optionTextColor;
+            vars["--n-option-text-color-hover"] = self2.optionTextColorHover;
+            vars["--n-option-text-color-active"] = self2.optionTextColorActive;
+            vars["--n-option-text-color-child-active"] = self2.optionTextColorChildActive;
+            vars["--n-prefix-color"] = self2.prefixColor;
+            vars["--n-suffix-color"] = self2.suffixColor;
+            vars["--n-group-header-text-color"] = self2.groupHeaderTextColor;
+          }
+          return vars;
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("dropdown", computed(() => `${mergedSizeRef.value[0]}${props.inverted ? "i" : ""}`), cssVarsRef, props) : void 0;
+        return {
+          mergedClsPrefix: mergedClsPrefixRef,
+          mergedTheme: themeRef,
+          mergedSize: mergedSizeRef,
+          // data
+          tmNodes: tmNodesRef,
+          // show
+          mergedShow: mergedShowRef,
+          // methods
+          handleAfterLeave: () => {
+            if (!props.animated) return;
+            clearPendingState();
+          },
+          doUpdateShow,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender
+        };
+      },
+      render() {
+        const renderPopoverBody = (className, ref2, style2, onMouseenter, onMouseleave) => {
+          var _a;
+          const {
+            mergedClsPrefix,
+            menuProps
+          } = this;
+          (_a = this.onRender) === null || _a === void 0 ? void 0 : _a.call(this);
+          const menuNodeProps = (menuProps === null || menuProps === void 0 ? void 0 : menuProps(void 0, this.tmNodes.map((v) => v.rawNode))) || {};
+          const dropdownProps2 = {
+            ref: createRefSetter(ref2),
+            class: [className, `${mergedClsPrefix}-dropdown`, `${mergedClsPrefix}-dropdown--${this.mergedSize}-size`, this.themeClass],
+            clsPrefix: mergedClsPrefix,
+            tmNodes: this.tmNodes,
+            style: [...style2, this.cssVars],
+            showArrow: this.showArrow,
+            arrowStyle: this.arrowStyle,
+            scrollable: this.scrollable,
+            onMouseenter,
+            onMouseleave
+          };
+          return h(NDropdownMenu, mergeProps(this.$attrs, dropdownProps2, menuNodeProps));
+        };
+        const {
+          mergedTheme
+        } = this;
+        const popoverProps2 = {
+          show: this.mergedShow,
+          theme: mergedTheme.peers.Popover,
+          themeOverrides: mergedTheme.peerOverrides.Popover,
+          internalOnAfterLeave: this.handleAfterLeave,
+          internalRenderBody: renderPopoverBody,
+          onUpdateShow: this.doUpdateShow,
+          "onUpdate:show": void 0
+        };
+        return h(NPopover, Object.assign({}, keep(this.$props, popoverPropKeys), popoverProps2), {
+          trigger: () => {
+            var _a, _b;
+            return (_b = (_a = this.$slots).default) === null || _b === void 0 ? void 0 : _b.call(_a);
+          }
+        });
+      }
+    });
+    const allKey = "_n_all__";
+    const noneKey = "_n_none__";
+    function createSelectHandler(options, rawPaginatedDataRef, doCheckAll, doUncheckAll) {
+      if (!options) return () => {
+      };
+      return (key) => {
+        for (const option of options) {
+          switch (key) {
+            case allKey:
+              doCheckAll(true);
+              return;
+            case noneKey:
+              doUncheckAll(true);
+              return;
+            default:
+              if (typeof option === "object" && option.key === key) {
+                option.onSelect(rawPaginatedDataRef.value);
+                return;
+              }
+          }
+        }
+      };
+    }
+    function createDropdownOptions(options, localeRef) {
+      if (!options) return [];
+      return options.map((option) => {
+        switch (option) {
+          case "all":
+            return {
+              label: localeRef.checkTableAll,
+              key: allKey
+            };
+          case "none":
+            return {
+              label: localeRef.uncheckTableAll,
+              key: noneKey
+            };
+          default:
+            return option;
+        }
+      });
+    }
+    const SelectionMenu = /* @__PURE__ */ defineComponent({
+      name: "DataTableSelectionMenu",
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        }
+      },
+      setup(props) {
+        const {
+          props: dataTableProps2,
+          localeRef,
+          checkOptionsRef,
+          rawPaginatedDataRef,
+          doCheckAll,
+          doUncheckAll
+        } = inject(dataTableInjectionKey);
+        const handleSelectRef = computed(() => createSelectHandler(checkOptionsRef.value, rawPaginatedDataRef, doCheckAll, doUncheckAll));
+        const optionsRef = computed(() => createDropdownOptions(checkOptionsRef.value, localeRef.value));
+        return () => {
+          var _a, _b, _c, _d;
+          const {
+            clsPrefix
+          } = props;
+          return h(NDropdown, {
+            theme: (_b = (_a = dataTableProps2.theme) === null || _a === void 0 ? void 0 : _a.peers) === null || _b === void 0 ? void 0 : _b.Dropdown,
+            themeOverrides: (_d = (_c = dataTableProps2.themeOverrides) === null || _c === void 0 ? void 0 : _c.peers) === null || _d === void 0 ? void 0 : _d.Dropdown,
+            options: optionsRef.value,
+            onSelect: handleSelectRef.value
+          }, {
+            default: () => h(NBaseIcon, {
+              clsPrefix,
+              class: `${clsPrefix}-data-table-check-extra`
+            }, {
+              default: () => h(ChevronDownIcon, null)
+            })
+          });
+        };
+      }
+    });
+    function renderTitle(column) {
+      return typeof column.title === "function" ? column.title(column) : column.title;
+    }
+    const VirtualListItemWrapper$1 = /* @__PURE__ */ defineComponent({
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        id: {
+          type: String,
+          required: true
+        },
+        cols: {
+          type: Array,
+          required: true
+        },
+        width: String
+      },
+      render() {
+        const {
+          clsPrefix,
+          id,
+          cols,
+          width
+        } = this;
+        return h("table", {
+          style: {
+            tableLayout: "fixed",
+            width
+          },
+          class: `${clsPrefix}-data-table-table`
+        }, h("colgroup", null, cols.map((col) => h("col", {
+          key: col.key,
+          style: col.style
+        }))), h("thead", {
+          "data-n-id": id,
+          class: `${clsPrefix}-data-table-thead`
+        }, this.$slots));
+      }
+    });
+    const TableHeader = /* @__PURE__ */ defineComponent({
+      name: "DataTableHeader",
+      props: {
+        discrete: {
+          type: Boolean,
+          default: true
+        }
+      },
+      setup() {
+        const {
+          mergedClsPrefixRef,
+          scrollXRef,
+          fixedColumnLeftMapRef,
+          fixedColumnRightMapRef,
+          mergedCurrentPageRef,
+          allRowsCheckedRef,
+          someRowsCheckedRef,
+          rowsRef,
+          colsRef,
+          mergedThemeRef,
+          checkOptionsRef,
+          mergedSortStateRef,
+          componentId,
+          mergedTableLayoutRef,
+          headerCheckboxDisabledRef,
+          virtualScrollHeaderRef,
+          headerHeightRef,
+          onUnstableColumnResize,
+          doUpdateResizableWidth,
+          handleTableHeaderScroll,
+          deriveNextSorter,
+          doUncheckAll,
+          doCheckAll
+        } = inject(dataTableInjectionKey);
+        const virtualListRef = /* @__PURE__ */ ref();
+        const cellElsRef = /* @__PURE__ */ ref({});
+        function getCellActualWidth(key) {
+          const element = cellElsRef.value[key];
+          return element === null || element === void 0 ? void 0 : element.getBoundingClientRect().width;
+        }
+        function handleCheckboxUpdateChecked() {
+          if (allRowsCheckedRef.value) {
+            doUncheckAll();
+          } else {
+            doCheckAll();
+          }
+        }
+        function handleColHeaderClick(e, column) {
+          if (happensIn(e, "dataTableFilter") || happensIn(e, "dataTableResizable")) {
+            return;
+          }
+          if (!isColumnSortable(column)) return;
+          const activeSorter = mergedSortStateRef.value.find((state) => state.columnKey === column.key) || null;
+          const nextSorter = createNextSorter(column, activeSorter);
+          deriveNextSorter(nextSorter);
+        }
+        const resizeStartWidthMap = /* @__PURE__ */ new Map();
+        function handleColumnResizeStart(column) {
+          resizeStartWidthMap.set(column.key, getCellActualWidth(column.key));
+        }
+        function handleColumnResize(column, displacementX) {
+          const startWidth = resizeStartWidthMap.get(column.key);
+          if (startWidth === void 0) {
+            return;
+          }
+          const widthAfterResize = startWidth + displacementX;
+          const limitWidth = clampValueFollowCSSRules(widthAfterResize, column.minWidth, column.maxWidth);
+          onUnstableColumnResize(widthAfterResize, limitWidth, column, getCellActualWidth);
+          doUpdateResizableWidth(column, limitWidth);
+        }
+        return {
+          cellElsRef,
+          componentId,
+          mergedSortState: mergedSortStateRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          scrollX: scrollXRef,
+          fixedColumnLeftMap: fixedColumnLeftMapRef,
+          fixedColumnRightMap: fixedColumnRightMapRef,
+          currentPage: mergedCurrentPageRef,
+          allRowsChecked: allRowsCheckedRef,
+          someRowsChecked: someRowsCheckedRef,
+          rows: rowsRef,
+          cols: colsRef,
+          mergedTheme: mergedThemeRef,
+          checkOptions: checkOptionsRef,
+          mergedTableLayout: mergedTableLayoutRef,
+          headerCheckboxDisabled: headerCheckboxDisabledRef,
+          headerHeight: headerHeightRef,
+          virtualScrollHeader: virtualScrollHeaderRef,
+          virtualListRef,
+          handleCheckboxUpdateChecked,
+          handleColHeaderClick,
+          handleTableHeaderScroll,
+          handleColumnResizeStart,
+          handleColumnResize
+        };
+      },
+      render() {
+        const {
+          cellElsRef,
+          mergedClsPrefix,
+          fixedColumnLeftMap,
+          fixedColumnRightMap,
+          currentPage,
+          allRowsChecked,
+          someRowsChecked,
+          rows,
+          cols,
+          mergedTheme,
+          checkOptions,
+          componentId,
+          discrete,
+          mergedTableLayout,
+          headerCheckboxDisabled,
+          mergedSortState,
+          virtualScrollHeader,
+          handleColHeaderClick,
+          handleCheckboxUpdateChecked,
+          handleColumnResizeStart,
+          handleColumnResize
+        } = this;
+        const renderRow = (row, getLeft, headerHeightPx) => row.map(({
+          column,
+          colIndex,
+          colSpan,
+          rowSpan,
+          isLast
+        }) => {
+          var _a, _b;
+          const key = getColKey(column);
+          const {
+            ellipsis
+          } = column;
+          const createColumnVNode = () => {
+            if (column.type === "selection") {
+              return column.multiple !== false ? h(Fragment, null, h(NCheckbox, {
+                key: currentPage,
+                privateInsideTable: true,
+                checked: allRowsChecked,
+                indeterminate: someRowsChecked,
+                disabled: headerCheckboxDisabled,
+                onUpdateChecked: handleCheckboxUpdateChecked
+              }), checkOptions ? h(SelectionMenu, {
+                clsPrefix: mergedClsPrefix
+              }) : null) : null;
+            }
+            return h(Fragment, null, h("div", {
+              class: `${mergedClsPrefix}-data-table-th__title-wrapper`
+            }, h("div", {
+              class: `${mergedClsPrefix}-data-table-th__title`
+            }, ellipsis === true || ellipsis && !ellipsis.tooltip ? h("div", {
+              class: `${mergedClsPrefix}-data-table-th__ellipsis`
+            }, renderTitle(column)) : ellipsis && typeof ellipsis === "object" ? h(NEllipsis, Object.assign({}, ellipsis, {
+              theme: mergedTheme.peers.Ellipsis,
+              themeOverrides: mergedTheme.peerOverrides.Ellipsis
+            }), {
+              default: () => renderTitle(column)
+            }) : renderTitle(column)), isColumnSortable(column) ? h(SortButton, {
+              column
+            }) : null), isColumnFilterable(column) ? h(FilterButton, {
+              column,
+              options: column.filterOptions
+            }) : null, isColumnResizable(column) ? h(ResizeButton, {
+              onResizeStart: () => {
+                handleColumnResizeStart(column);
+              },
+              onResize: (displacementX) => {
+                handleColumnResize(column, displacementX);
+              }
+            }) : null);
+          };
+          const leftFixed = key in fixedColumnLeftMap;
+          const rightFixed = key in fixedColumnRightMap;
+          const CellComponent = getLeft && !column.fixed ? "div" : "th";
+          return h(CellComponent, {
+            ref: (el) => cellElsRef[key] = el,
+            key,
+            style: [getLeft && !column.fixed ? {
+              position: "absolute",
+              left: pxfy(getLeft(colIndex)),
+              top: 0,
+              bottom: 0
+            } : {
+              left: pxfy((_a = fixedColumnLeftMap[key]) === null || _a === void 0 ? void 0 : _a.start),
+              right: pxfy((_b = fixedColumnRightMap[key]) === null || _b === void 0 ? void 0 : _b.start)
+            }, {
+              width: pxfy(column.width),
+              textAlign: column.titleAlign || column.align,
+              height: headerHeightPx
+            }],
+            colspan: colSpan,
+            rowspan: rowSpan,
+            "data-col-key": key,
+            class: [`${mergedClsPrefix}-data-table-th`, (leftFixed || rightFixed) && `${mergedClsPrefix}-data-table-th--fixed-${leftFixed ? "left" : "right"}`, {
+              [`${mergedClsPrefix}-data-table-th--sorting`]: isColumnSorting(column, mergedSortState),
+              [`${mergedClsPrefix}-data-table-th--filterable`]: isColumnFilterable(column),
+              [`${mergedClsPrefix}-data-table-th--sortable`]: isColumnSortable(column),
+              [`${mergedClsPrefix}-data-table-th--selection`]: column.type === "selection",
+              [`${mergedClsPrefix}-data-table-th--last`]: isLast
+            }, column.className],
+            onClick: column.type !== "selection" && column.type !== "expand" && !("children" in column) ? (e) => {
+              handleColHeaderClick(e, column);
+            } : void 0
+          }, createColumnVNode());
+        });
+        if (virtualScrollHeader) {
+          const {
+            headerHeight
+          } = this;
+          let leftFixedColsCount = 0;
+          let rightFixedColsCount = 0;
+          cols.forEach((col) => {
+            if (col.column.fixed === "left") {
+              leftFixedColsCount++;
+            } else if (col.column.fixed === "right") {
+              rightFixedColsCount++;
+            }
+          });
+          return h(VVirtualList, {
+            ref: "virtualListRef",
+            class: `${mergedClsPrefix}-data-table-base-table-header`,
+            style: {
+              height: pxfy(headerHeight)
+            },
+            onScroll: this.handleTableHeaderScroll,
+            columns: cols,
+            itemSize: headerHeight,
+            showScrollbar: false,
+            items: [{}],
+            itemResizable: false,
+            visibleItemsTag: VirtualListItemWrapper$1,
+            visibleItemsProps: {
+              clsPrefix: mergedClsPrefix,
+              id: componentId,
+              cols,
+              width: formatLength(this.scrollX)
+            },
+            renderItemWithCols: ({
+              startColIndex,
+              endColIndex,
+              getLeft
+            }) => {
+              const row = cols.map((col, index) => {
+                return {
+                  column: col.column,
+                  isLast: index === cols.length - 1,
+                  colIndex: col.index,
+                  colSpan: 1,
+                  rowSpan: 1
+                };
+              }).filter(({
+                column
+              }, index) => {
+                if (startColIndex <= index && index <= endColIndex) {
+                  return true;
+                }
+                if (column.fixed) {
+                  return true;
+                }
+                return false;
+              });
+              const cells = renderRow(row, getLeft, pxfy(headerHeight));
+              cells.splice(leftFixedColsCount, 0, h("th", {
+                colspan: cols.length - leftFixedColsCount - rightFixedColsCount,
+                style: {
+                  pointerEvents: "none",
+                  visibility: "hidden",
+                  height: 0
+                }
+              }));
+              return h("tr", {
+                style: {
+                  position: "relative"
+                }
+              }, cells);
+            }
+          }, {
+            default: ({
+              renderedItemWithCols
+            }) => renderedItemWithCols
+          });
+        }
+        const theadVNode = h("thead", {
+          class: `${mergedClsPrefix}-data-table-thead`,
+          "data-n-id": componentId
+        }, rows.map((row) => {
+          return h("tr", {
+            class: `${mergedClsPrefix}-data-table-tr`
+          }, renderRow(row, null, void 0));
+        }));
+        if (!discrete) {
+          return theadVNode;
+        }
+        const {
+          handleTableHeaderScroll,
+          scrollX
+        } = this;
+        return h("div", {
+          class: `${mergedClsPrefix}-data-table-base-table-header`,
+          onScroll: handleTableHeaderScroll
+        }, h("table", {
+          class: `${mergedClsPrefix}-data-table-table`,
+          style: {
+            minWidth: formatLength(scrollX),
+            tableLayout: mergedTableLayout
+          }
+        }, h("colgroup", null, cols.map((col) => h("col", {
+          key: col.key,
+          style: col.style
+        }))), theadVNode));
+      }
+    });
+    function flatten(rowInfos, expandedRowKeys) {
+      const fRows = [];
+      function traverse2(rs, rootIndex) {
+        rs.forEach((r) => {
+          if (r.children && expandedRowKeys.has(r.key)) {
+            fRows.push({
+              tmNode: r,
+              striped: false,
+              key: r.key,
+              index: rootIndex
+            });
+            traverse2(r.children, rootIndex);
+          } else {
+            fRows.push({
+              key: r.key,
+              tmNode: r,
+              striped: false,
+              index: rootIndex
+            });
+          }
+        });
+      }
+      rowInfos.forEach((rowInfo) => {
+        fRows.push(rowInfo);
+        const {
+          children
+        } = rowInfo.tmNode;
+        if (children && expandedRowKeys.has(rowInfo.key)) {
+          traverse2(children, rowInfo.index);
+        }
+      });
+      return fRows;
+    }
+    const VirtualListItemWrapper = /* @__PURE__ */ defineComponent({
+      props: {
+        clsPrefix: {
+          type: String,
+          required: true
+        },
+        id: {
+          type: String,
+          required: true
+        },
+        cols: {
+          type: Array,
+          required: true
+        },
+        onMouseenter: Function,
+        onMouseleave: Function
+      },
+      render() {
+        const {
+          clsPrefix,
+          id,
+          cols,
+          onMouseenter,
+          onMouseleave
+        } = this;
+        return h("table", {
+          style: {
+            tableLayout: "fixed"
+          },
+          class: `${clsPrefix}-data-table-table`,
+          onMouseenter,
+          onMouseleave
+        }, h("colgroup", null, cols.map((col) => h("col", {
+          key: col.key,
+          style: col.style
+        }))), h("tbody", {
+          "data-n-id": id,
+          class: `${clsPrefix}-data-table-tbody`
+        }, this.$slots));
+      }
+    });
+    const TableBody = /* @__PURE__ */ defineComponent({
+      name: "DataTableBody",
+      props: {
+        onResize: Function,
+        showHeader: Boolean,
+        flexHeight: Boolean,
+        bodyStyle: Object
+      },
+      setup(props) {
+        const {
+          slots: dataTableSlots,
+          bodyWidthRef,
+          mergedExpandedRowKeysRef,
+          mergedClsPrefixRef,
+          mergedThemeRef,
+          scrollXRef,
+          colsRef,
+          paginatedDataRef,
+          rawPaginatedDataRef,
+          fixedColumnLeftMapRef,
+          fixedColumnRightMapRef,
+          mergedCurrentPageRef,
+          rowClassNameRef,
+          leftActiveFixedColKeyRef,
+          leftActiveFixedChildrenColKeysRef,
+          rightActiveFixedColKeyRef,
+          rightActiveFixedChildrenColKeysRef,
+          renderExpandRef,
+          hoverKeyRef,
+          summaryRef,
+          mergedSortStateRef,
+          virtualScrollRef,
+          virtualScrollXRef,
+          heightForRowRef,
+          minRowHeightRef,
+          componentId,
+          mergedTableLayoutRef,
+          childTriggerColIndexRef,
+          indentRef,
+          rowPropsRef,
+          stripedRef,
+          loadingRef,
+          onLoadRef,
+          loadingKeySetRef,
+          expandableRef,
+          stickyExpandedRowsRef,
+          renderExpandIconRef,
+          summaryPlacementRef,
+          treeMateRef,
+          scrollbarPropsRef,
+          setHeaderScrollLeft,
+          doUpdateExpandedRowKeys,
+          handleTableBodyScroll,
+          doCheck,
+          doUncheck,
+          renderCell,
+          xScrollableRef,
+          explicitlyScrollableRef
+        } = inject(dataTableInjectionKey);
+        const NConfigProvider2 = inject(configProviderInjectionKey);
+        const scrollbarInstRef = /* @__PURE__ */ ref(null);
+        const virtualListRef = /* @__PURE__ */ ref(null);
+        const emptyElRef = /* @__PURE__ */ ref(null);
+        const mergedRenderEmptyRef = computed(() => {
+          var _a, _b;
+          return (_b = (_a = NConfigProvider2 === null || NConfigProvider2 === void 0 ? void 0 : NConfigProvider2.mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.DataTable) === null || _b === void 0 ? void 0 : _b.renderEmpty;
+        });
+        const emptyRef = useMemo(() => paginatedDataRef.value.length === 0);
+        const shouldDisplayVirtualListRef = useMemo(() => virtualScrollRef.value && !emptyRef.value);
+        let lastSelectedKey = "";
+        const mergedExpandedRowKeySetRef = computed(() => {
+          return new Set(mergedExpandedRowKeysRef.value);
+        });
+        function getRowInfo(key) {
+          var _a;
+          return (_a = treeMateRef.value.getNode(key)) === null || _a === void 0 ? void 0 : _a.rawNode;
+        }
+        function handleCheckboxUpdateChecked(tmNode, checked, shiftKey) {
+          const rowInfo = getRowInfo(tmNode.key);
+          if (!rowInfo) {
+            warn("data-table", `fail to get row data with key ${tmNode.key}`);
+            return;
+          }
+          if (shiftKey) {
+            const lastIndex = paginatedDataRef.value.findIndex((item) => item.key === lastSelectedKey);
+            if (lastIndex !== -1) {
+              const currentIndex = paginatedDataRef.value.findIndex((item) => item.key === tmNode.key);
+              const start = Math.min(lastIndex, currentIndex);
+              const end = Math.max(lastIndex, currentIndex);
+              const rowKeysToCheck = [];
+              paginatedDataRef.value.slice(start, end + 1).forEach((r) => {
+                if (!r.disabled) {
+                  rowKeysToCheck.push(r.key);
+                }
+              });
+              if (checked) {
+                doCheck(rowKeysToCheck, false, rowInfo);
+              } else {
+                doUncheck(rowKeysToCheck, rowInfo);
+              }
+              lastSelectedKey = tmNode.key;
+              return;
+            }
+          }
+          if (checked) {
+            doCheck(tmNode.key, false, rowInfo);
+          } else {
+            doUncheck(tmNode.key, rowInfo);
+          }
+          lastSelectedKey = tmNode.key;
+        }
+        function handleRadioUpdateChecked(tmNode) {
+          const rowInfo = getRowInfo(tmNode.key);
+          if (!rowInfo) {
+            warn("data-table", `fail to get row data with key ${tmNode.key}`);
+            return;
+          }
+          doCheck(tmNode.key, true, rowInfo);
+        }
+        function getScrollContainer() {
+          if (shouldDisplayVirtualListRef.value) {
+            return virtualListContainer();
+          }
+          const {
+            value
+          } = scrollbarInstRef;
+          if (value) return value.containerRef;
+          return null;
+        }
+        function handleUpdateExpanded(key, tmNode) {
+          var _a;
+          if (loadingKeySetRef.value.has(key)) return;
+          const {
+            value: mergedExpandedRowKeys
+          } = mergedExpandedRowKeysRef;
+          const index = mergedExpandedRowKeys.indexOf(key);
+          const nextExpandedKeys = Array.from(mergedExpandedRowKeys);
+          if (~index) {
+            nextExpandedKeys.splice(index, 1);
+            doUpdateExpandedRowKeys(nextExpandedKeys);
+          } else {
+            if (tmNode && !tmNode.isLeaf && !tmNode.shallowLoaded) {
+              loadingKeySetRef.value.add(key);
+              void ((_a = onLoadRef.value) === null || _a === void 0 ? void 0 : _a.call(onLoadRef, tmNode.rawNode).then(() => {
+                const {
+                  value: futureMergedExpandedRowKeys
+                } = mergedExpandedRowKeysRef;
+                const futureNextExpandedKeys = Array.from(futureMergedExpandedRowKeys);
+                const index2 = futureNextExpandedKeys.indexOf(key);
+                if (!~index2) {
+                  futureNextExpandedKeys.push(key);
+                }
+                doUpdateExpandedRowKeys(futureNextExpandedKeys);
+              }).finally(() => {
+                loadingKeySetRef.value.delete(key);
+              }));
+            } else {
+              nextExpandedKeys.push(key);
+              doUpdateExpandedRowKeys(nextExpandedKeys);
+            }
+          }
+        }
+        function handleMouseleaveTable() {
+          hoverKeyRef.value = null;
+        }
+        function virtualListContainer() {
+          const {
+            value
+          } = virtualListRef;
+          return (value === null || value === void 0 ? void 0 : value.listElRef) || null;
+        }
+        function virtualListContent() {
+          const {
+            value
+          } = virtualListRef;
+          return (value === null || value === void 0 ? void 0 : value.itemsElRef) || null;
+        }
+        function handleVirtualListScroll(e) {
+          var _a;
+          handleTableBodyScroll(e);
+          (_a = scrollbarInstRef.value) === null || _a === void 0 ? void 0 : _a.sync();
+        }
+        function handleVirtualListResize(e) {
+          var _a;
+          const {
+            onResize
+          } = props;
+          if (onResize) onResize(e);
+          (_a = scrollbarInstRef.value) === null || _a === void 0 ? void 0 : _a.sync();
+        }
+        const exposedMethods = {
+          getScrollContainer,
+          scrollTo(arg0, arg1) {
+            var _a, _b;
+            if (virtualScrollRef.value) {
+              (_a = virtualListRef.value) === null || _a === void 0 ? void 0 : _a.scrollTo(arg0, arg1);
+            } else {
+              (_b = scrollbarInstRef.value) === null || _b === void 0 ? void 0 : _b.scrollTo(arg0, arg1);
+            }
+          }
+        };
+        const style2 = c$1([({
+          props: cProps
+        }) => {
+          const createActiveLeftFixedStyle = (leftActiveFixedColKey) => {
+            if (leftActiveFixedColKey === null) return null;
+            return c$1(`[data-n-id="${cProps.componentId}"] [data-col-key="${leftActiveFixedColKey}"]::after`, {
+              boxShadow: "var(--n-box-shadow-after)"
+            });
+          };
+          const createActiveRightFixedStyle = (rightActiveFixedColKey) => {
+            if (rightActiveFixedColKey === null) return null;
+            return c$1(`[data-n-id="${cProps.componentId}"] [data-col-key="${rightActiveFixedColKey}"]::before`, {
+              boxShadow: "var(--n-box-shadow-before)"
+            });
+          };
+          return c$1([createActiveLeftFixedStyle(cProps.leftActiveFixedColKey), createActiveRightFixedStyle(cProps.rightActiveFixedColKey), cProps.leftActiveFixedChildrenColKeys.map((leftActiveFixedColKey) => createActiveLeftFixedStyle(leftActiveFixedColKey)), cProps.rightActiveFixedChildrenColKeys.map((rightActiveFixedColKey) => createActiveRightFixedStyle(rightActiveFixedColKey))]);
+        }]);
+        let fixedStyleMounted = false;
+        watchEffect(() => {
+          const {
+            value: leftActiveFixedColKey
+          } = leftActiveFixedColKeyRef;
+          const {
+            value: leftActiveFixedChildrenColKeys
+          } = leftActiveFixedChildrenColKeysRef;
+          const {
+            value: rightActiveFixedColKey
+          } = rightActiveFixedColKeyRef;
+          const {
+            value: rightActiveFixedChildrenColKeys
+          } = rightActiveFixedChildrenColKeysRef;
+          if (!fixedStyleMounted && leftActiveFixedColKey === null && rightActiveFixedColKey === null) {
+            return;
+          }
+          const cProps = {
+            leftActiveFixedColKey,
+            leftActiveFixedChildrenColKeys,
+            rightActiveFixedColKey,
+            rightActiveFixedChildrenColKeys,
+            componentId
+          };
+          style2.mount({
+            id: `n-${componentId}`,
+            force: true,
+            props: cProps,
+            anchorMetaName: cssrAnchorMetaName,
+            parent: NConfigProvider2 === null || NConfigProvider2 === void 0 ? void 0 : NConfigProvider2.styleMountTarget
+          });
+          fixedStyleMounted = true;
+        });
+        onUnmounted(() => {
+          style2.unmount({
+            id: `n-${componentId}`,
+            parent: NConfigProvider2 === null || NConfigProvider2 === void 0 ? void 0 : NConfigProvider2.styleMountTarget
+          });
+        });
+        return Object.assign({
+          bodyWidth: bodyWidthRef,
+          summaryPlacement: summaryPlacementRef,
+          dataTableSlots,
+          componentId,
+          scrollbarInstRef,
+          virtualListRef,
+          emptyElRef,
+          summary: summaryRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          mergedTheme: mergedThemeRef,
+          mergedRenderEmpty: mergedRenderEmptyRef,
+          scrollX: scrollXRef,
+          cols: colsRef,
+          loading: loadingRef,
+          shouldDisplayVirtualList: shouldDisplayVirtualListRef,
+          empty: emptyRef,
+          paginatedDataAndInfo: computed(() => {
+            const {
+              value: striped
+            } = stripedRef;
+            let hasChildren = false;
+            const data = paginatedDataRef.value.map(striped ? (tmNode, index) => {
+              if (!tmNode.isLeaf) hasChildren = true;
+              return {
+                tmNode,
+                key: tmNode.key,
+                striped: index % 2 === 1,
+                index
+              };
+            } : (tmNode, index) => {
+              if (!tmNode.isLeaf) hasChildren = true;
+              return {
+                tmNode,
+                key: tmNode.key,
+                striped: false,
+                index
+              };
+            });
+            return {
+              data,
+              hasChildren
+            };
+          }),
+          rawPaginatedData: rawPaginatedDataRef,
+          fixedColumnLeftMap: fixedColumnLeftMapRef,
+          fixedColumnRightMap: fixedColumnRightMapRef,
+          currentPage: mergedCurrentPageRef,
+          rowClassName: rowClassNameRef,
+          renderExpand: renderExpandRef,
+          mergedExpandedRowKeySet: mergedExpandedRowKeySetRef,
+          hoverKey: hoverKeyRef,
+          mergedSortState: mergedSortStateRef,
+          virtualScroll: virtualScrollRef,
+          virtualScrollX: virtualScrollXRef,
+          heightForRow: heightForRowRef,
+          minRowHeight: minRowHeightRef,
+          mergedTableLayout: mergedTableLayoutRef,
+          childTriggerColIndex: childTriggerColIndexRef,
+          indent: indentRef,
+          rowProps: rowPropsRef,
+          loadingKeySet: loadingKeySetRef,
+          expandable: expandableRef,
+          stickyExpandedRows: stickyExpandedRowsRef,
+          renderExpandIcon: renderExpandIconRef,
+          scrollbarProps: scrollbarPropsRef,
+          setHeaderScrollLeft,
+          handleVirtualListScroll,
+          handleVirtualListResize,
+          handleMouseleaveTable,
+          virtualListContainer,
+          virtualListContent,
+          handleTableBodyScroll,
+          handleCheckboxUpdateChecked,
+          handleRadioUpdateChecked,
+          handleUpdateExpanded,
+          renderCell,
+          explicitlyScrollable: explicitlyScrollableRef,
+          xScrollable: xScrollableRef
+        }, exposedMethods);
+      },
+      render() {
+        const {
+          mergedTheme,
+          scrollX,
+          mergedClsPrefix,
+          explicitlyScrollable,
+          xScrollable,
+          loadingKeySet,
+          onResize,
+          setHeaderScrollLeft,
+          empty,
+          shouldDisplayVirtualList
+        } = this;
+        const contentStyle = {
+          minWidth: formatLength(scrollX) || "100%"
+        };
+        if (scrollX) contentStyle.width = "100%";
+        const createEmptyNode = () => h("div", {
+          class: [`${mergedClsPrefix}-data-table-empty`, this.loading && `${mergedClsPrefix}-data-table-empty--hide`],
+          style: [this.bodyStyle, xScrollable ? "position: sticky; left: 0; width: var(--n-scrollbar-current-width);" : void 0],
+          ref: "emptyElRef"
+        }, resolveSlot(this.dataTableSlots.empty, () => {
+          var _a;
+          return [((_a = this.mergedRenderEmpty) === null || _a === void 0 ? void 0 : _a.call(this)) || h(NEmpty, {
+            theme: this.mergedTheme.peers.Empty,
+            themeOverrides: this.mergedTheme.peerOverrides.Empty
+          })];
+        }));
+        const tableNode = h(Scrollbar, Object.assign({}, this.scrollbarProps, {
+          ref: "scrollbarInstRef",
+          scrollable: explicitlyScrollable || xScrollable,
+          class: `${mergedClsPrefix}-data-table-base-table-body`,
+          style: !empty ? this.bodyStyle : "height: initial;",
+          theme: mergedTheme.peers.Scrollbar,
+          themeOverrides: mergedTheme.peerOverrides.Scrollbar,
+          contentStyle,
+          container: shouldDisplayVirtualList ? this.virtualListContainer : void 0,
+          content: shouldDisplayVirtualList ? this.virtualListContent : void 0,
+          horizontalRailStyle: {
+            zIndex: 3
+          },
+          verticalRailStyle: {
+            zIndex: 3
+          },
+          internalExposeWidthCssVar: xScrollable && empty,
+          xScrollable,
+          onScroll: shouldDisplayVirtualList ? void 0 : this.handleTableBodyScroll,
+          internalOnUpdateScrollLeft: setHeaderScrollLeft,
+          onResize
+        }), {
+          default: () => {
+            if (this.empty && !this.showHeader && (this.explicitlyScrollable || this.xScrollable)) {
+              return createEmptyNode();
+            }
+            const cordToPass = {};
+            const cordKey = {};
+            const {
+              cols,
+              paginatedDataAndInfo,
+              mergedTheme: mergedTheme2,
+              fixedColumnLeftMap,
+              fixedColumnRightMap,
+              currentPage,
+              rowClassName,
+              mergedSortState,
+              mergedExpandedRowKeySet,
+              stickyExpandedRows,
+              componentId,
+              childTriggerColIndex,
+              expandable,
+              rowProps,
+              handleMouseleaveTable,
+              renderExpand,
+              summary,
+              handleCheckboxUpdateChecked,
+              handleRadioUpdateChecked,
+              handleUpdateExpanded,
+              heightForRow,
+              minRowHeight,
+              virtualScrollX
+            } = this;
+            const {
+              length: colCount
+            } = cols;
+            let mergedData;
+            const {
+              data: paginatedData,
+              hasChildren
+            } = paginatedDataAndInfo;
+            const mergedPaginationData = hasChildren ? flatten(paginatedData, mergedExpandedRowKeySet) : paginatedData;
+            if (summary) {
+              const summaryRows = summary(this.rawPaginatedData);
+              if (Array.isArray(summaryRows)) {
+                const summaryRowData = summaryRows.map((row, i) => ({
+                  isSummaryRow: true,
+                  key: `__n_summary__${i}`,
+                  tmNode: {
+                    rawNode: row,
+                    disabled: true
+                  },
+                  index: -1
+                }));
+                mergedData = this.summaryPlacement === "top" ? [...summaryRowData, ...mergedPaginationData] : [...mergedPaginationData, ...summaryRowData];
+              } else {
+                const summaryRowData = {
+                  isSummaryRow: true,
+                  key: "__n_summary__",
+                  tmNode: {
+                    rawNode: summaryRows,
+                    disabled: true
+                  },
+                  index: -1
+                };
+                mergedData = this.summaryPlacement === "top" ? [summaryRowData, ...mergedPaginationData] : [...mergedPaginationData, summaryRowData];
+              }
+            } else {
+              mergedData = mergedPaginationData;
+            }
+            const indentStyle = hasChildren ? {
+              width: pxfy(this.indent)
+            } : void 0;
+            const displayedData = [];
+            mergedData.forEach((rowInfo) => {
+              if (renderExpand && mergedExpandedRowKeySet.has(rowInfo.key) && (!expandable || expandable(rowInfo.tmNode.rawNode))) {
+                displayedData.push(rowInfo, {
+                  isExpandedRow: true,
+                  key: `${rowInfo.key}-expand`,
+                  // solve key repeat of the expanded row
+                  tmNode: rowInfo.tmNode,
+                  index: rowInfo.index
+                });
+              } else {
+                displayedData.push(rowInfo);
+              }
+            });
+            const {
+              length: rowCount
+            } = displayedData;
+            const rowIndexToKey = {};
+            paginatedData.forEach(({
+              tmNode
+            }, rowIndex) => {
+              rowIndexToKey[rowIndex] = tmNode.key;
+            });
+            const bodyWidth = stickyExpandedRows ? this.bodyWidth : null;
+            const bodyWidthPx = bodyWidth === null ? void 0 : `${bodyWidth}px`;
+            const CellComponent = this.virtualScrollX ? "div" : "td";
+            let leftFixedColsCount = 0;
+            let rightFixedColsCount = 0;
+            if (virtualScrollX) {
+              cols.forEach((col) => {
+                if (col.column.fixed === "left") {
+                  leftFixedColsCount++;
+                } else if (col.column.fixed === "right") {
+                  rightFixedColsCount++;
+                }
+              });
+            }
+            const renderRow = ({
+              // Normal
+              rowInfo,
+              displayedRowIndex,
+              isVirtual,
+              // Virtual X
+              isVirtualX,
+              startColIndex,
+              endColIndex,
+              getLeft
+            }) => {
+              const {
+                index: actualRowIndex
+              } = rowInfo;
+              if ("isExpandedRow" in rowInfo) {
+                const {
+                  tmNode: {
+                    key,
+                    rawNode
+                  }
+                } = rowInfo;
+                return h("tr", {
+                  class: `${mergedClsPrefix}-data-table-tr ${mergedClsPrefix}-data-table-tr--expanded`,
+                  key: `${key}__expand`
+                }, h("td", {
+                  class: [`${mergedClsPrefix}-data-table-td`, `${mergedClsPrefix}-data-table-td--last-col`, displayedRowIndex + 1 === rowCount && `${mergedClsPrefix}-data-table-td--last-row`],
+                  colspan: colCount
+                }, stickyExpandedRows ? h("div", {
+                  class: `${mergedClsPrefix}-data-table-expand`,
+                  style: {
+                    width: bodyWidthPx
+                  }
+                }, renderExpand(rawNode, actualRowIndex)) : renderExpand(rawNode, actualRowIndex)));
+              }
+              const isSummary = "isSummaryRow" in rowInfo;
+              const striped = !isSummary && rowInfo.striped;
+              const {
+                tmNode,
+                key: rowKey
+              } = rowInfo;
+              const {
+                rawNode: rowData
+              } = tmNode;
+              const expanded = mergedExpandedRowKeySet.has(rowKey);
+              const props = rowProps ? rowProps(rowData, actualRowIndex) : void 0;
+              const mergedRowClassName = typeof rowClassName === "string" ? rowClassName : createRowClassName(rowData, actualRowIndex, rowClassName);
+              const iteratedCols = isVirtualX ? cols.filter((col, index) => {
+                if (startColIndex <= index && index <= endColIndex) return true;
+                if (col.column.fixed) {
+                  return true;
+                }
+                return false;
+              }) : cols;
+              const virtualXRowHeight = isVirtualX ? pxfy((heightForRow === null || heightForRow === void 0 ? void 0 : heightForRow(rowData, actualRowIndex)) || minRowHeight) : void 0;
+              const cells = iteratedCols.map((col) => {
+                var _a, _b, _c, _d, _e;
+                const colIndex = col.index;
+                if (displayedRowIndex in cordToPass) {
+                  const cordOfRowToPass = cordToPass[displayedRowIndex];
+                  const indexInCordOfRowToPass = cordOfRowToPass.indexOf(colIndex);
+                  if (~indexInCordOfRowToPass) {
+                    cordOfRowToPass.splice(indexInCordOfRowToPass, 1);
+                    return null;
+                  }
+                }
+                const {
+                  column
+                } = col;
+                const colKey = getColKey(col);
+                const {
+                  rowSpan,
+                  colSpan
+                } = column;
+                const mergedColSpan = isSummary ? ((_a = rowInfo.tmNode.rawNode[colKey]) === null || _a === void 0 ? void 0 : _a.colSpan) || 1 : colSpan ? colSpan(rowData, actualRowIndex) : 1;
+                const mergedRowSpan = isSummary ? ((_b = rowInfo.tmNode.rawNode[colKey]) === null || _b === void 0 ? void 0 : _b.rowSpan) || 1 : rowSpan ? rowSpan(rowData, actualRowIndex) : 1;
+                const isLastCol = colIndex + mergedColSpan === colCount;
+                const isLastRow = displayedRowIndex + mergedRowSpan === rowCount;
+                const isCrossRowTd = mergedRowSpan > 1;
+                if (isCrossRowTd) {
+                  cordKey[displayedRowIndex] = {
+                    [colIndex]: []
+                  };
+                }
+                if (mergedColSpan > 1 || isCrossRowTd) {
+                  for (let i = displayedRowIndex; i < displayedRowIndex + mergedRowSpan; ++i) {
+                    if (isCrossRowTd) {
+                      cordKey[displayedRowIndex][colIndex].push(rowIndexToKey[i]);
+                    }
+                    for (let j = colIndex; j < colIndex + mergedColSpan; ++j) {
+                      if (i === displayedRowIndex && j === colIndex) {
+                        continue;
+                      }
+                      if (!(i in cordToPass)) {
+                        cordToPass[i] = [j];
+                      } else {
+                        cordToPass[i].push(j);
+                      }
+                    }
+                  }
+                }
+                const hoverKey = isCrossRowTd ? this.hoverKey : null;
+                const {
+                  cellProps
+                } = column;
+                const resolvedCellProps = cellProps === null || cellProps === void 0 ? void 0 : cellProps(rowData, actualRowIndex);
+                const indentOffsetStyle = {
+                  "--indent-offset": ""
+                };
+                const FinalCellComponent = column.fixed ? "td" : CellComponent;
+                return h(FinalCellComponent, Object.assign({}, resolvedCellProps, {
+                  key: colKey,
+                  style: [{
+                    textAlign: column.align || void 0,
+                    width: pxfy(column.width)
+                  }, isVirtualX && {
+                    height: virtualXRowHeight
+                  }, isVirtualX && !column.fixed ? {
+                    position: "absolute",
+                    left: pxfy(getLeft(colIndex)),
+                    top: 0,
+                    bottom: 0
+                  } : {
+                    left: pxfy((_c = fixedColumnLeftMap[colKey]) === null || _c === void 0 ? void 0 : _c.start),
+                    right: pxfy((_d = fixedColumnRightMap[colKey]) === null || _d === void 0 ? void 0 : _d.start)
+                  }, indentOffsetStyle, (resolvedCellProps === null || resolvedCellProps === void 0 ? void 0 : resolvedCellProps.style) || ""],
+                  colspan: mergedColSpan,
+                  rowspan: isVirtual ? void 0 : mergedRowSpan,
+                  "data-col-key": colKey,
+                  class: [`${mergedClsPrefix}-data-table-td`, column.className, resolvedCellProps === null || resolvedCellProps === void 0 ? void 0 : resolvedCellProps.class, isSummary && `${mergedClsPrefix}-data-table-td--summary`, hoverKey !== null && cordKey[displayedRowIndex][colIndex].includes(hoverKey) && `${mergedClsPrefix}-data-table-td--hover`, isColumnSorting(column, mergedSortState) && `${mergedClsPrefix}-data-table-td--sorting`, column.fixed && `${mergedClsPrefix}-data-table-td--fixed-${column.fixed}`, column.align && `${mergedClsPrefix}-data-table-td--${column.align}-align`, column.type === "selection" && `${mergedClsPrefix}-data-table-td--selection`, column.type === "expand" && `${mergedClsPrefix}-data-table-td--expand`, isLastCol && `${mergedClsPrefix}-data-table-td--last-col`, isLastRow && `${mergedClsPrefix}-data-table-td--last-row`]
+                }), hasChildren && colIndex === childTriggerColIndex ? [repeat(indentOffsetStyle["--indent-offset"] = isSummary ? 0 : rowInfo.tmNode.level, h("div", {
+                  class: `${mergedClsPrefix}-data-table-indent`,
+                  style: indentStyle
+                })), isSummary || rowInfo.tmNode.isLeaf ? h("div", {
+                  class: `${mergedClsPrefix}-data-table-expand-placeholder`
+                }) : h(ExpandTrigger, {
+                  class: `${mergedClsPrefix}-data-table-expand-trigger`,
+                  clsPrefix: mergedClsPrefix,
+                  expanded,
+                  rowData,
+                  renderExpandIcon: this.renderExpandIcon,
+                  loading: loadingKeySet.has(rowInfo.key),
+                  onClick: () => {
+                    handleUpdateExpanded(rowKey, rowInfo.tmNode);
+                  }
+                })] : null, column.type === "selection" ? !isSummary ? column.multiple === false ? h(RenderSafeRadio, {
+                  key: currentPage,
+                  rowKey,
+                  disabled: rowInfo.tmNode.disabled,
+                  onUpdateChecked: () => {
+                    handleRadioUpdateChecked(rowInfo.tmNode);
+                  }
+                }) : h(RenderSafeCheckbox, {
+                  key: currentPage,
+                  rowKey,
+                  disabled: rowInfo.tmNode.disabled,
+                  onUpdateChecked: (checked, e) => {
+                    handleCheckboxUpdateChecked(rowInfo.tmNode, checked, e.shiftKey);
+                  }
+                }) : null : column.type === "expand" ? !isSummary ? !column.expandable || ((_e = column.expandable) === null || _e === void 0 ? void 0 : _e.call(column, rowData)) ? h(ExpandTrigger, {
+                  clsPrefix: mergedClsPrefix,
+                  rowData,
+                  expanded,
+                  renderExpandIcon: this.renderExpandIcon,
+                  onClick: () => {
+                    handleUpdateExpanded(rowKey, null);
+                  }
+                }) : null : null : h(Cell, {
+                  clsPrefix: mergedClsPrefix,
+                  index: actualRowIndex,
+                  row: rowData,
+                  column,
+                  isSummary,
+                  mergedTheme: mergedTheme2,
+                  renderCell: this.renderCell
+                }));
+              });
+              if (isVirtualX) {
+                if (leftFixedColsCount && rightFixedColsCount) {
+                  cells.splice(leftFixedColsCount, 0, h("td", {
+                    colspan: cols.length - leftFixedColsCount - rightFixedColsCount,
+                    style: {
+                      pointerEvents: "none",
+                      visibility: "hidden",
+                      height: 0
+                    }
+                  }));
+                }
+              }
+              const row = h("tr", Object.assign({}, props, {
+                onMouseenter: (e) => {
+                  var _a;
+                  this.hoverKey = rowKey;
+                  (_a = props === null || props === void 0 ? void 0 : props.onMouseenter) === null || _a === void 0 ? void 0 : _a.call(props, e);
+                },
+                key: rowKey,
+                class: [`${mergedClsPrefix}-data-table-tr`, isSummary && `${mergedClsPrefix}-data-table-tr--summary`, striped && `${mergedClsPrefix}-data-table-tr--striped`, expanded && `${mergedClsPrefix}-data-table-tr--expanded`, mergedRowClassName, props === null || props === void 0 ? void 0 : props.class],
+                style: [props === null || props === void 0 ? void 0 : props.style, isVirtualX && {
+                  height: virtualXRowHeight
+                }]
+              }), cells);
+              return row;
+            };
+            if (!this.shouldDisplayVirtualList) {
+              return h(Fragment, null, h("table", {
+                class: `${mergedClsPrefix}-data-table-table`,
+                onMouseleave: handleMouseleaveTable,
+                style: {
+                  tableLayout: this.mergedTableLayout
+                }
+              }, h("colgroup", null, cols.map((col) => h("col", {
+                key: col.key,
+                style: col.style
+              }))), this.showHeader ? h(TableHeader, {
+                discrete: false
+              }) : null, !this.empty ? h("tbody", {
+                "data-n-id": componentId,
+                class: `${mergedClsPrefix}-data-table-tbody`
+              }, displayedData.map((rowInfo, displayedRowIndex) => {
+                return renderRow({
+                  rowInfo,
+                  displayedRowIndex,
+                  isVirtual: false,
+                  isVirtualX: false,
+                  startColIndex: -1,
+                  endColIndex: -1,
+                  getLeft(_index) {
+                    return -1;
+                  }
+                });
+              })) : null), this.empty && this.xScrollable ? createEmptyNode() : null);
+            } else {
+              return h(VVirtualList, {
+                ref: "virtualListRef",
+                items: displayedData,
+                itemSize: this.minRowHeight,
+                visibleItemsTag: VirtualListItemWrapper,
+                visibleItemsProps: {
+                  clsPrefix: mergedClsPrefix,
+                  id: componentId,
+                  cols,
+                  onMouseleave: handleMouseleaveTable
+                },
+                showScrollbar: false,
+                onResize: this.handleVirtualListResize,
+                onScroll: this.handleVirtualListScroll,
+                itemsStyle: contentStyle,
+                itemResizable: !virtualScrollX,
+                columns: cols,
+                renderItemWithCols: virtualScrollX ? ({
+                  itemIndex,
+                  item,
+                  startColIndex,
+                  endColIndex,
+                  getLeft
+                }) => {
+                  return renderRow({
+                    displayedRowIndex: itemIndex,
+                    isVirtual: true,
+                    isVirtualX: true,
+                    rowInfo: item,
+                    startColIndex,
+                    endColIndex,
+                    getLeft
+                  });
+                } : void 0
+              }, {
+                default: ({
+                  item,
+                  index,
+                  renderedItemWithCols
+                }) => {
+                  if (renderedItemWithCols) return renderedItemWithCols;
+                  return renderRow({
+                    rowInfo: item,
+                    displayedRowIndex: index,
+                    isVirtual: true,
+                    isVirtualX: false,
+                    startColIndex: 0,
+                    endColIndex: 0,
+                    getLeft(_index) {
+                      return 0;
+                    }
+                  });
+                }
+              });
+            }
+          }
+        });
+        if (this.empty) {
+          if (this.explicitlyScrollable || this.xScrollable) {
+            return tableNode;
+          } else {
+            return h(VResizeObserver, {
+              onResize: this.onResize
+            }, {
+              default: createEmptyNode
+            });
+          }
+        }
+        return tableNode;
+      }
+    });
+    const MainTable = /* @__PURE__ */ defineComponent({
+      name: "MainTable",
+      setup() {
+        const {
+          mergedClsPrefixRef,
+          rightFixedColumnsRef,
+          leftFixedColumnsRef,
+          bodyWidthRef,
+          maxHeightRef,
+          minHeightRef,
+          flexHeightRef,
+          virtualScrollHeaderRef,
+          syncScrollState,
+          scrollXRef
+        } = inject(dataTableInjectionKey);
+        const headerInstRef = /* @__PURE__ */ ref(null);
+        const bodyInstRef = /* @__PURE__ */ ref(null);
+        const selfElRef = /* @__PURE__ */ ref(null);
+        const fixedStateInitializedRef = /* @__PURE__ */ ref(!(leftFixedColumnsRef.value.length || rightFixedColumnsRef.value.length));
+        const bodyStyleRef = computed(() => {
+          return {
+            maxHeight: formatLength(maxHeightRef.value),
+            minHeight: formatLength(minHeightRef.value)
+          };
+        });
+        function handleBodyResize(entry) {
+          bodyWidthRef.value = entry.contentRect.width;
+          syncScrollState();
+          if (!fixedStateInitializedRef.value) {
+            fixedStateInitializedRef.value = true;
+          }
+        }
+        function getHeaderElement() {
+          var _a;
+          const {
+            value
+          } = headerInstRef;
+          if (value) {
+            if (virtualScrollHeaderRef.value) {
+              return ((_a = value.virtualListRef) === null || _a === void 0 ? void 0 : _a.listElRef) || null;
+            } else {
+              return value.$el;
+            }
+          }
+          return null;
+        }
+        function getBodyElement() {
+          const {
+            value
+          } = bodyInstRef;
+          if (value) {
+            return value.getScrollContainer();
+          }
+          return null;
+        }
+        const exposedMethods = {
+          getBodyElement,
+          getHeaderElement,
+          scrollTo(arg0, arg1) {
+            var _a;
+            (_a = bodyInstRef.value) === null || _a === void 0 ? void 0 : _a.scrollTo(arg0, arg1);
+          }
+        };
+        watchEffect(() => {
+          const {
+            value: selfEl
+          } = selfElRef;
+          if (!selfEl) return;
+          const transitionDisabledClass = `${mergedClsPrefixRef.value}-data-table-base-table--transition-disabled`;
+          if (fixedStateInitializedRef.value) {
+            setTimeout(() => {
+              selfEl.classList.remove(transitionDisabledClass);
+            }, 0);
+          } else {
+            selfEl.classList.add(transitionDisabledClass);
+          }
+        });
+        return Object.assign({
+          maxHeight: maxHeightRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          selfElRef,
+          headerInstRef,
+          bodyInstRef,
+          bodyStyle: bodyStyleRef,
+          flexHeight: flexHeightRef,
+          handleBodyResize,
+          scrollX: scrollXRef
+        }, exposedMethods);
+      },
+      render() {
+        const {
+          mergedClsPrefix,
+          maxHeight,
+          flexHeight
+        } = this;
+        const headerInBody = maxHeight === void 0 && !flexHeight;
+        return h("div", {
+          class: `${mergedClsPrefix}-data-table-base-table`,
+          ref: "selfElRef"
+        }, headerInBody ? null : h(TableHeader, {
+          ref: "headerInstRef"
+        }), h(TableBody, {
+          ref: "bodyInstRef",
+          bodyStyle: this.bodyStyle,
+          showHeader: headerInBody,
+          flexHeight,
+          onResize: this.handleBodyResize
+        }));
+      }
+    });
+    const fixedColumnStyle = createFixedColumnStyle();
+    const style$7 = c$1([cB("data-table", `
+ width: 100%;
+ font-size: var(--n-font-size);
+ display: flex;
+ flex-direction: column;
+ position: relative;
+ --n-merged-th-color: var(--n-th-color);
+ --n-merged-td-color: var(--n-td-color);
+ --n-merged-border-color: var(--n-border-color);
+ --n-merged-th-color-hover: var(--n-th-color-hover);
+ --n-merged-th-color-sorting: var(--n-th-color-sorting);
+ --n-merged-td-color-hover: var(--n-td-color-hover);
+ --n-merged-td-color-sorting: var(--n-td-color-sorting);
+ --n-merged-td-color-striped: var(--n-td-color-striped);
+ `, [cB("data-table-wrapper", `
+ flex-grow: 1;
+ display: flex;
+ flex-direction: column;
+ `), cM("flex-height", [c$1(">", [cB("data-table-wrapper", [c$1(">", [cB("data-table-base-table", `
+ display: flex;
+ flex-direction: column;
+ flex-grow: 1;
+ `, [c$1(">", [cB("data-table-base-table-body", "flex-basis: 0;", [
+      // last-child means there is no empty icon
+      // body is a scrollbar, we need to override height 100%
+      c$1("&:last-child", "flex-grow: 1;")
+    ])])])])])])]), c$1(">", [cB("data-table-loading-wrapper", `
+ color: var(--n-loading-color);
+ font-size: var(--n-loading-size);
+ position: absolute;
+ left: 50%;
+ top: 50%;
+ transform: translateX(-50%) translateY(-50%);
+ transition: color .3s var(--n-bezier);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ `, [fadeInScaleUpTransition({
+      originalTransform: "translateX(-50%) translateY(-50%)"
+    })])]), cB("data-table-expand-placeholder", `
+ margin-right: 8px;
+ display: inline-block;
+ width: 16px;
+ height: 1px;
+ `), cB("data-table-indent", `
+ display: inline-block;
+ height: 1px;
+ `), cB("data-table-expand-trigger", `
+ display: inline-flex;
+ margin-right: 8px;
+ cursor: pointer;
+ font-size: 16px;
+ vertical-align: -0.2em;
+ position: relative;
+ width: 16px;
+ height: 16px;
+ color: var(--n-td-text-color);
+ transition: color .3s var(--n-bezier);
+ `, [cM("expanded", [cB("icon", "transform: rotate(90deg);", [iconSwitchTransition({
+      originalTransform: "rotate(90deg)"
+    })]), cB("base-icon", "transform: rotate(90deg);", [iconSwitchTransition({
+      originalTransform: "rotate(90deg)"
+    })])]), cB("base-loading", `
+ color: var(--n-loading-color);
+ transition: color .3s var(--n-bezier);
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: 0;
+ bottom: 0;
+ `, [iconSwitchTransition()]), cB("icon", `
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: 0;
+ bottom: 0;
+ `, [iconSwitchTransition()]), cB("base-icon", `
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: 0;
+ bottom: 0;
+ `, [iconSwitchTransition()])]), cB("data-table-thead", `
+ transition: background-color .3s var(--n-bezier);
+ background-color: var(--n-merged-th-color);
+ `), cB("data-table-tr", `
+ position: relative;
+ box-sizing: border-box;
+ background-clip: padding-box;
+ transition: background-color .3s var(--n-bezier);
+ `, [cB("data-table-expand", `
+ position: sticky;
+ left: 0;
+ overflow: hidden;
+ margin: calc(var(--n-th-padding) * -1);
+ padding: var(--n-th-padding);
+ box-sizing: border-box;
+ `), cM("striped", "background-color: var(--n-merged-td-color-striped);", [cB("data-table-td", "background-color: var(--n-merged-td-color-striped);")]), cNotM("summary", [c$1("&:hover", "background-color: var(--n-merged-td-color-hover);", [c$1(">", [cB("data-table-td", "background-color: var(--n-merged-td-color-hover);")])])])]), cB("data-table-th", `
+ padding: var(--n-th-padding);
+ position: relative;
+ text-align: start;
+ box-sizing: border-box;
+ background-color: var(--n-merged-th-color);
+ border-color: var(--n-merged-border-color);
+ border-bottom: 1px solid var(--n-merged-border-color);
+ color: var(--n-th-text-color);
+ transition:
+ border-color .3s var(--n-bezier),
+ color .3s var(--n-bezier),
+ background-color .3s var(--n-bezier);
+ font-weight: var(--n-th-font-weight);
+ `, [cM("filterable", `
+ padding-right: 36px;
+ `, [cM("sortable", `
+ padding-right: calc(var(--n-th-padding) + 36px);
+ `)]), fixedColumnStyle, cM("selection", `
+ padding: 0;
+ text-align: center;
+ line-height: 0;
+ z-index: 3;
+ `), cE("title-wrapper", `
+ display: flex;
+ align-items: center;
+ flex-wrap: nowrap;
+ max-width: 100%;
+ `, [cE("title", `
+ flex: 1;
+ min-width: 0;
+ `)]), cE("ellipsis", `
+ display: inline-block;
+ vertical-align: bottom;
+ text-overflow: ellipsis;
+ overflow: hidden;
+ white-space: nowrap;
+ max-width: 100%;
+ `), cM("hover", `
+ background-color: var(--n-merged-th-color-hover);
+ `), cM("sorting", `
+ background-color: var(--n-merged-th-color-sorting);
+ `), cM("sortable", `
+ cursor: pointer;
+ `, [cE("ellipsis", `
+ max-width: calc(100% - 18px);
+ `), c$1("&:hover", `
+ background-color: var(--n-merged-th-color-hover);
+ `)]), cB("data-table-sorter", `
+ height: var(--n-sorter-size);
+ width: var(--n-sorter-size);
+ margin-left: 4px;
+ position: relative;
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ vertical-align: -0.2em;
+ color: var(--n-th-icon-color);
+ transition: color .3s var(--n-bezier);
+ `, [cB("base-icon", "transition: transform .3s var(--n-bezier)"), cM("desc", [cB("base-icon", `
+ transform: rotate(0deg);
+ `)]), cM("asc", [cB("base-icon", `
+ transform: rotate(-180deg);
+ `)]), cM("asc, desc", `
+ color: var(--n-th-icon-color-active);
+ `)]), cB("data-table-resize-button", `
+ width: var(--n-resizable-container-size);
+ position: absolute;
+ top: 0;
+ right: calc(var(--n-resizable-container-size) / 2);
+ bottom: 0;
+ cursor: col-resize;
+ user-select: none;
+ `, [c$1("&::after", `
+ width: var(--n-resizable-size);
+ height: 50%;
+ position: absolute;
+ top: 50%;
+ left: calc(var(--n-resizable-container-size) / 2);
+ bottom: 0;
+ background-color: var(--n-merged-border-color);
+ transform: translateY(-50%);
+ transition: background-color .3s var(--n-bezier);
+ z-index: 1;
+ content: '';
+ `), cM("active", [c$1("&::after", ` 
+ background-color: var(--n-th-icon-color-active);
+ `)]), c$1("&:hover::after", `
+ background-color: var(--n-th-icon-color-active);
+ `)]), cB("data-table-filter", `
+ position: absolute;
+ z-index: auto;
+ right: 0;
+ width: 36px;
+ top: 0;
+ bottom: 0;
+ cursor: pointer;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ transition:
+ background-color .3s var(--n-bezier),
+ color .3s var(--n-bezier);
+ font-size: var(--n-filter-size);
+ color: var(--n-th-icon-color);
+ `, [c$1("&:hover", `
+ background-color: var(--n-th-button-color-hover);
+ `), cM("show", `
+ background-color: var(--n-th-button-color-hover);
+ `), cM("active", `
+ background-color: var(--n-th-button-color-hover);
+ color: var(--n-th-icon-color-active);
+ `)])]), cB("data-table-td", `
+ padding: var(--n-td-padding);
+ text-align: start;
+ box-sizing: border-box;
+ border: none;
+ background-color: var(--n-merged-td-color);
+ color: var(--n-td-text-color);
+ border-bottom: 1px solid var(--n-merged-border-color);
+ transition:
+ box-shadow .3s var(--n-bezier),
+ background-color .3s var(--n-bezier),
+ border-color .3s var(--n-bezier),
+ color .3s var(--n-bezier);
+ `, [cM("expand", [cB("data-table-expand-trigger", `
+ margin-right: 0;
+ `)]), cM("last-row", `
+ border-bottom: 0 solid var(--n-merged-border-color);
+ `, [
+      // make sure there is no overlap between bottom border and
+      // fixed column box shadow
+      c$1("&::after", `
+ bottom: 0 !important;
+ `),
+      c$1("&::before", `
+ bottom: 0 !important;
+ `)
+    ]), cM("summary", `
+ background-color: var(--n-merged-th-color);
+ `), cM("hover", `
+ background-color: var(--n-merged-td-color-hover);
+ `), cM("sorting", `
+ background-color: var(--n-merged-td-color-sorting);
+ `), cE("ellipsis", `
+ display: inline-block;
+ text-overflow: ellipsis;
+ overflow: hidden;
+ white-space: nowrap;
+ max-width: 100%;
+ vertical-align: bottom;
+ max-width: calc(100% - var(--indent-offset, -1.5) * 16px - 24px);
+ `), cM("selection, expand", `
+ text-align: center;
+ padding: 0;
+ line-height: 0;
+ `), fixedColumnStyle]), cB("data-table-empty", `
+ box-sizing: border-box;
+ padding: var(--n-empty-padding);
+ flex-grow: 1;
+ flex-shrink: 0;
+ opacity: 1;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transition: opacity .3s var(--n-bezier);
+ `, [cM("hide", `
+ opacity: 0;
+ `)]), cE("pagination", `
+ margin: var(--n-pagination-margin);
+ display: flex;
+ justify-content: flex-end;
+ `), cB("data-table-wrapper", `
+ position: relative;
+ opacity: 1;
+ transition: opacity .3s var(--n-bezier), border-color .3s var(--n-bezier);
+ border-top-left-radius: var(--n-border-radius);
+ border-top-right-radius: var(--n-border-radius);
+ line-height: var(--n-line-height);
+ `), cM("loading", [cB("data-table-wrapper", `
+ opacity: var(--n-opacity-loading);
+ pointer-events: none;
+ `)]), cM("single-column", [cB("data-table-td", `
+ border-bottom: 0 solid var(--n-merged-border-color);
+ `, [c$1("&::after, &::before", `
+ bottom: 0 !important;
+ `)])]), cNotM("single-line", [cB("data-table-th", `
+ border-right: 1px solid var(--n-merged-border-color);
+ `, [cM("last", `
+ border-right: 0 solid var(--n-merged-border-color);
+ `)]), cB("data-table-td", `
+ border-right: 1px solid var(--n-merged-border-color);
+ `, [cM("last-col", `
+ border-right: 0 solid var(--n-merged-border-color);
+ `)])]), cM("bordered", [cB("data-table-wrapper", `
+ border: 1px solid var(--n-merged-border-color);
+ border-bottom-left-radius: var(--n-border-radius);
+ border-bottom-right-radius: var(--n-border-radius);
+ overflow: hidden;
+ `)]), cB("data-table-base-table", [cM("transition-disabled", [cB("data-table-th", [c$1("&::after, &::before", "transition: none;")]), cB("data-table-td", [c$1("&::after, &::before", "transition: none;")])])]), cM("bottom-bordered", [cB("data-table-td", [cM("last-row", `
+ border-bottom: 1px solid var(--n-merged-border-color);
+ `)])]), cB("data-table-table", `
+ font-variant-numeric: tabular-nums;
+ width: 100%;
+ word-break: break-word;
+ transition: background-color .3s var(--n-bezier);
+ border-collapse: separate;
+ border-spacing: 0;
+ background-color: var(--n-merged-td-color);
+ `), cB("data-table-base-table-header", `
+ border-top-left-radius: calc(var(--n-border-radius) - 1px);
+ border-top-right-radius: calc(var(--n-border-radius) - 1px);
+ z-index: 3;
+ overflow: scroll;
+ flex-shrink: 0;
+ transition: border-color .3s var(--n-bezier);
+ scrollbar-width: none;
+ `, [c$1("&::-webkit-scrollbar, &::-webkit-scrollbar-track-piece, &::-webkit-scrollbar-thumb", `
+ display: none;
+ width: 0;
+ height: 0;
+ `)]), cB("data-table-check-extra", `
+ transition: color .3s var(--n-bezier);
+ color: var(--n-th-icon-color);
+ position: absolute;
+ font-size: 14px;
+ right: -4px;
+ top: 50%;
+ transform: translateY(-50%);
+ z-index: 1;
+ `)]), cB("data-table-filter-menu", [cB("scrollbar", `
+ max-height: 240px;
+ `), cE("group", `
+ display: flex;
+ flex-direction: column;
+ padding: 12px 12px 0 12px;
+ `, [cB("checkbox", `
+ margin-bottom: 12px;
+ margin-right: 0;
+ `), cB("radio", `
+ margin-bottom: 12px;
+ margin-right: 0;
+ `)]), cE("action", `
+ padding: var(--n-action-padding);
+ display: flex;
+ flex-wrap: nowrap;
+ justify-content: space-evenly;
+ border-top: 1px solid var(--n-action-divider-color);
+ `, [cB("button", [c$1("&:not(:last-child)", `
+ margin: var(--n-action-button-margin);
+ `), c$1("&:last-child", `
+ margin-right: 0;
+ `)])]), cB("divider", `
+ margin: 0 !important;
+ `)]), insideModal(cB("data-table", `
+ --n-merged-th-color: var(--n-th-color-modal);
+ --n-merged-td-color: var(--n-td-color-modal);
+ --n-merged-border-color: var(--n-border-color-modal);
+ --n-merged-th-color-hover: var(--n-th-color-hover-modal);
+ --n-merged-td-color-hover: var(--n-td-color-hover-modal);
+ --n-merged-th-color-sorting: var(--n-th-color-hover-modal);
+ --n-merged-td-color-sorting: var(--n-td-color-hover-modal);
+ --n-merged-td-color-striped: var(--n-td-color-striped-modal);
+ `)), insidePopover(cB("data-table", `
+ --n-merged-th-color: var(--n-th-color-popover);
+ --n-merged-td-color: var(--n-td-color-popover);
+ --n-merged-border-color: var(--n-border-color-popover);
+ --n-merged-th-color-hover: var(--n-th-color-hover-popover);
+ --n-merged-td-color-hover: var(--n-td-color-hover-popover);
+ --n-merged-th-color-sorting: var(--n-th-color-hover-popover);
+ --n-merged-td-color-sorting: var(--n-td-color-hover-popover);
+ --n-merged-td-color-striped: var(--n-td-color-striped-popover);
+ `))]);
+    function createFixedColumnStyle() {
+      return [cM("fixed-left", `
+ left: 0;
+ position: sticky;
+ z-index: 2;
+ `, [c$1("&::after", `
+ pointer-events: none;
+ content: "";
+ width: 36px;
+ display: inline-block;
+ position: absolute;
+ top: 0;
+ bottom: -1px;
+ transition: box-shadow .2s var(--n-bezier);
+ right: -36px;
+ `)]), cM("fixed-right", `
+ right: 0;
+ position: sticky;
+ z-index: 1;
+ `, [c$1("&::before", `
+ pointer-events: none;
+ content: "";
+ width: 36px;
+ display: inline-block;
+ position: absolute;
+ top: 0;
+ bottom: -1px;
+ transition: box-shadow .2s var(--n-bezier);
+ left: -36px;
+ `)])];
+    }
+    function useCheck(props, data) {
+      const {
+        paginatedDataRef,
+        treeMateRef,
+        selectionColumnRef
+      } = data;
+      const uncontrolledCheckedRowKeysRef = /* @__PURE__ */ ref(props.defaultCheckedRowKeys);
+      const mergedCheckState = computed(() => {
+        var _a;
+        const {
+          checkedRowKeys
+        } = props;
+        const sourceKeys = checkedRowKeys === void 0 ? uncontrolledCheckedRowKeysRef.value : checkedRowKeys;
+        if (((_a = selectionColumnRef.value) === null || _a === void 0 ? void 0 : _a.multiple) === false) {
+          return {
+            checkedKeys: sourceKeys.slice(0, 1),
+            indeterminateKeys: []
+          };
+        }
+        return treeMateRef.value.getCheckedKeys(sourceKeys, {
+          cascade: props.cascade,
+          allowNotLoaded: props.allowCheckingNotLoaded
+        });
+      });
+      const mergedCheckedRowKeysRef = computed(() => mergedCheckState.value.checkedKeys);
+      const mergedInderminateRowKeysRef = computed(() => mergedCheckState.value.indeterminateKeys);
+      const mergedCheckedRowKeySetRef = computed(() => {
+        return new Set(mergedCheckedRowKeysRef.value);
+      });
+      const mergedInderminateRowKeySetRef = computed(() => {
+        return new Set(mergedInderminateRowKeysRef.value);
+      });
+      const countOfCurrentPageCheckedRowsRef = computed(() => {
+        const {
+          value: mergedCheckedRowKeySet
+        } = mergedCheckedRowKeySetRef;
+        return paginatedDataRef.value.reduce((total, tmNode) => {
+          const {
+            key,
+            disabled
+          } = tmNode;
+          return total + (!disabled && mergedCheckedRowKeySet.has(key) ? 1 : 0);
+        }, 0);
+      });
+      const countOfCurrentPageDisabledRowsRef = computed(() => {
+        return paginatedDataRef.value.filter((item) => item.disabled).length;
+      });
+      const someRowsCheckedRef = computed(() => {
+        const {
+          length
+        } = paginatedDataRef.value;
+        const {
+          value: mergedInderminateRowKeySet
+        } = mergedInderminateRowKeySetRef;
+        return countOfCurrentPageCheckedRowsRef.value > 0 && countOfCurrentPageCheckedRowsRef.value < length - countOfCurrentPageDisabledRowsRef.value || paginatedDataRef.value.some((rowData) => mergedInderminateRowKeySet.has(rowData.key));
+      });
+      const allRowsCheckedRef = computed(() => {
+        const {
+          length
+        } = paginatedDataRef.value;
+        return countOfCurrentPageCheckedRowsRef.value !== 0 && countOfCurrentPageCheckedRowsRef.value === length - countOfCurrentPageDisabledRowsRef.value;
+      });
+      const headerCheckboxDisabledRef = computed(() => {
+        return paginatedDataRef.value.length === 0;
+      });
+      function doUpdateCheckedRowKeys(keys2, row, action) {
+        const {
+          "onUpdate:checkedRowKeys": _onUpdateCheckedRowKeys,
+          onUpdateCheckedRowKeys,
+          onCheckedRowKeysChange
+        } = props;
+        const rows = [];
+        const {
+          value: {
+            getNode
+          }
+        } = treeMateRef;
+        keys2.forEach((key) => {
+          var _a;
+          const row2 = (_a = getNode(key)) === null || _a === void 0 ? void 0 : _a.rawNode;
+          rows.push(row2);
+        });
+        if (_onUpdateCheckedRowKeys) {
+          call(_onUpdateCheckedRowKeys, keys2, rows, {
+            row,
+            action
+          });
+        }
+        if (onUpdateCheckedRowKeys) {
+          call(onUpdateCheckedRowKeys, keys2, rows, {
+            row,
+            action
+          });
+        }
+        if (onCheckedRowKeysChange) {
+          call(onCheckedRowKeysChange, keys2, rows, {
+            row,
+            action
+          });
+        }
+        uncontrolledCheckedRowKeysRef.value = keys2;
+      }
+      function doCheck(rowKey, single = false, rowInfo) {
+        if (props.loading) return;
+        if (single) {
+          doUpdateCheckedRowKeys(Array.isArray(rowKey) ? rowKey.slice(0, 1) : [rowKey], rowInfo, "check");
+          return;
+        }
+        doUpdateCheckedRowKeys(treeMateRef.value.check(rowKey, mergedCheckedRowKeysRef.value, {
+          cascade: props.cascade,
+          allowNotLoaded: props.allowCheckingNotLoaded
+        }).checkedKeys, rowInfo, "check");
+      }
+      function doUncheck(rowKey, rowInfo) {
+        if (props.loading) return;
+        doUpdateCheckedRowKeys(treeMateRef.value.uncheck(rowKey, mergedCheckedRowKeysRef.value, {
+          cascade: props.cascade,
+          allowNotLoaded: props.allowCheckingNotLoaded
+        }).checkedKeys, rowInfo, "uncheck");
+      }
+      function doCheckAll(checkWholeTable = false) {
+        const {
+          value: column
+        } = selectionColumnRef;
+        if (!column || props.loading) return;
+        const rowKeysToCheck = [];
+        (checkWholeTable ? treeMateRef.value.treeNodes : paginatedDataRef.value).forEach((tmNode) => {
+          if (!tmNode.disabled) {
+            rowKeysToCheck.push(tmNode.key);
+          }
+        });
+        doUpdateCheckedRowKeys(treeMateRef.value.check(rowKeysToCheck, mergedCheckedRowKeysRef.value, {
+          cascade: true,
+          allowNotLoaded: props.allowCheckingNotLoaded
+        }).checkedKeys, void 0, "checkAll");
+      }
+      function doUncheckAll(checkWholeTable = false) {
+        const {
+          value: column
+        } = selectionColumnRef;
+        if (!column || props.loading) return;
+        const rowKeysToUncheck = [];
+        (checkWholeTable ? treeMateRef.value.treeNodes : paginatedDataRef.value).forEach((tmNode) => {
+          if (!tmNode.disabled) {
+            rowKeysToUncheck.push(tmNode.key);
+          }
+        });
+        doUpdateCheckedRowKeys(treeMateRef.value.uncheck(rowKeysToUncheck, mergedCheckedRowKeysRef.value, {
+          cascade: true,
+          allowNotLoaded: props.allowCheckingNotLoaded
+        }).checkedKeys, void 0, "uncheckAll");
+      }
+      return {
+        mergedCheckedRowKeySetRef,
+        mergedCheckedRowKeysRef,
+        mergedInderminateRowKeySetRef,
+        someRowsCheckedRef,
+        allRowsCheckedRef,
+        headerCheckboxDisabledRef,
+        doUpdateCheckedRowKeys,
+        doCheckAll,
+        doUncheckAll,
+        doCheck,
+        doUncheck
+      };
+    }
+    function useExpand(props, treeMateRef) {
+      const renderExpandRef = useMemo(() => {
+        for (const col of props.columns) {
+          if (col.type === "expand") {
+            return col.renderExpand;
+          }
+        }
+      });
+      const expandableRef = useMemo(() => {
+        let expandable;
+        for (const col of props.columns) {
+          if (col.type === "expand") {
+            expandable = col.expandable;
+            break;
+          }
+        }
+        return expandable;
+      });
+      const uncontrolledExpandedRowKeysRef = /* @__PURE__ */ ref(props.defaultExpandAll ? (renderExpandRef === null || renderExpandRef === void 0 ? void 0 : renderExpandRef.value) ? (() => {
+        const expandedKeys = [];
+        treeMateRef.value.treeNodes.forEach((tmNode) => {
+          var _a;
+          if ((_a = expandableRef.value) === null || _a === void 0 ? void 0 : _a.call(expandableRef, tmNode.rawNode)) {
+            expandedKeys.push(tmNode.key);
+          }
+        });
+        return expandedKeys;
+      })() : treeMateRef.value.getNonLeafKeys() : props.defaultExpandedRowKeys);
+      const controlledExpandedRowKeysRef = /* @__PURE__ */ toRef(props, "expandedRowKeys");
+      const stickyExpandedRowsRef = /* @__PURE__ */ toRef(props, "stickyExpandedRows");
+      const mergedExpandedRowKeysRef = useMergedState(controlledExpandedRowKeysRef, uncontrolledExpandedRowKeysRef);
+      function doUpdateExpandedRowKeys(expandedKeys) {
+        const {
+          onUpdateExpandedRowKeys,
+          "onUpdate:expandedRowKeys": _onUpdateExpandedRowKeys
+        } = props;
+        if (onUpdateExpandedRowKeys) {
+          call(onUpdateExpandedRowKeys, expandedKeys);
+        }
+        if (_onUpdateExpandedRowKeys) {
+          call(_onUpdateExpandedRowKeys, expandedKeys);
+        }
+        uncontrolledExpandedRowKeysRef.value = expandedKeys;
+      }
+      return {
+        stickyExpandedRowsRef,
+        mergedExpandedRowKeysRef,
+        renderExpandRef,
+        expandableRef,
+        doUpdateExpandedRowKeys
+      };
+    }
+    function getRowsAndCols(columns, getResizableWidth) {
+      const rows = [];
+      const cols = [];
+      const dataRelatedCols = [];
+      const rowItemMap = /* @__PURE__ */ new WeakMap();
+      let maxDepth = -1;
+      let totalRowSpan = 0;
+      let hasEllipsis = false;
+      let currentLeafIndex = 0;
+      function ensureMaxDepth(columns2, currentDepth) {
+        if (currentDepth > maxDepth) {
+          rows[currentDepth] = [];
+          maxDepth = currentDepth;
+        }
+        columns2.forEach((column) => {
+          if ("children" in column) {
+            ensureMaxDepth(column.children, currentDepth + 1);
+          } else {
+            const key = "key" in column ? column.key : void 0;
+            cols.push({
+              key: getColKey(column),
+              style: createCustomWidthStyle(column, key !== void 0 ? formatLength(getResizableWidth(key)) : void 0),
+              column,
+              index: currentLeafIndex++,
+              // The width property is only applied to horizontally virtual scroll table
+              width: column.width === void 0 ? 128 : Number(column.width)
+            });
+            totalRowSpan += 1;
+            if (!hasEllipsis) {
+              hasEllipsis = !!column.ellipsis;
+            }
+            dataRelatedCols.push(column);
+          }
+        });
+      }
+      ensureMaxDepth(columns, 0);
+      currentLeafIndex = 0;
+      function ensureColLayout(columns2, currentDepth) {
+        let hideUntilIndex = 0;
+        columns2.forEach((column) => {
+          var _a;
+          if ("children" in column) {
+            const cachedCurrentLeafIndex = currentLeafIndex;
+            const rowItem = {
+              column,
+              colIndex: currentLeafIndex,
+              colSpan: 0,
+              rowSpan: 1,
+              isLast: false
+            };
+            ensureColLayout(column.children, currentDepth + 1);
+            column.children.forEach((childColumn) => {
+              var _a2, _b;
+              rowItem.colSpan += (_b = (_a2 = rowItemMap.get(childColumn)) === null || _a2 === void 0 ? void 0 : _a2.colSpan) !== null && _b !== void 0 ? _b : 0;
+            });
+            if (cachedCurrentLeafIndex + rowItem.colSpan === totalRowSpan) {
+              rowItem.isLast = true;
+            }
+            rowItemMap.set(column, rowItem);
+            rows[currentDepth].push(rowItem);
+          } else {
+            if (currentLeafIndex < hideUntilIndex) {
+              currentLeafIndex += 1;
+              return;
+            }
+            let colSpan = 1;
+            if ("titleColSpan" in column) {
+              colSpan = (_a = column.titleColSpan) !== null && _a !== void 0 ? _a : 1;
+            }
+            if (colSpan > 1) {
+              hideUntilIndex = currentLeafIndex + colSpan;
+            }
+            const isLast = currentLeafIndex + colSpan === totalRowSpan;
+            const rowItem = {
+              column,
+              colSpan,
+              colIndex: currentLeafIndex,
+              rowSpan: maxDepth - currentDepth + 1,
+              isLast
+            };
+            rowItemMap.set(column, rowItem);
+            rows[currentDepth].push(rowItem);
+            currentLeafIndex += 1;
+          }
+        });
+      }
+      ensureColLayout(columns, 0);
+      return {
+        hasEllipsis,
+        rows,
+        cols,
+        dataRelatedCols
+      };
+    }
+    function useGroupHeader(props, getResizableWidth) {
+      const rowsAndCols = computed(() => getRowsAndCols(props.columns, getResizableWidth));
+      return {
+        rowsRef: computed(() => rowsAndCols.value.rows),
+        colsRef: computed(() => rowsAndCols.value.cols),
+        hasEllipsisRef: computed(() => rowsAndCols.value.hasEllipsis),
+        dataRelatedColsRef: computed(() => rowsAndCols.value.dataRelatedCols)
+      };
+    }
+    function useResizable() {
+      const resizableWidthsRef = /* @__PURE__ */ ref({});
+      function getResizableWidth(key) {
+        return resizableWidthsRef.value[key];
+      }
+      function doUpdateResizableWidth(column, width) {
+        if (isColumnResizable(column) && "key" in column) {
+          resizableWidthsRef.value[column.key] = width;
+        }
+      }
+      function clearResizableWidth() {
+        resizableWidthsRef.value = {};
+      }
+      return {
+        getResizableWidth,
+        doUpdateResizableWidth,
+        clearResizableWidth
+      };
+    }
+    function useScroll(props, {
+      mainTableInstRef,
+      mergedCurrentPageRef,
+      bodyWidthRef,
+      maxHeightRef,
+      mergedTableLayoutRef
+    }) {
+      const explicitlyScrollableRef = computed(() => props.scrollX !== void 0 || maxHeightRef.value !== void 0 || props.flexHeight);
+      const xScrollableRef = computed(() => {
+        const isBasicAutoLayout = !explicitlyScrollableRef.value && mergedTableLayoutRef.value === "auto";
+        return props.scrollX !== void 0 || isBasicAutoLayout;
+      });
+      let lastScrollLeft = 0;
+      const scrollPartRef = /* @__PURE__ */ ref();
+      const leftActiveFixedColKeyRef = /* @__PURE__ */ ref(null);
+      const leftActiveFixedChildrenColKeysRef = /* @__PURE__ */ ref([]);
+      const rightActiveFixedColKeyRef = /* @__PURE__ */ ref(null);
+      const rightActiveFixedChildrenColKeysRef = /* @__PURE__ */ ref([]);
+      const styleScrollXRef = computed(() => {
+        return formatLength(props.scrollX);
+      });
+      const leftFixedColumnsRef = computed(() => {
+        return props.columns.filter((column) => column.fixed === "left");
+      });
+      const rightFixedColumnsRef = computed(() => {
+        return props.columns.filter((column) => column.fixed === "right");
+      });
+      const fixedColumnLeftMapRef = computed(() => {
+        const columns = {};
+        let left = 0;
+        function traverse2(cols) {
+          cols.forEach((col) => {
+            const positionInfo = {
+              start: left,
+              end: 0
+            };
+            columns[getColKey(col)] = positionInfo;
+            if ("children" in col) {
+              traverse2(col.children);
+              positionInfo.end = left;
+            } else {
+              left += getNumberColWidth(col) || 0;
+              positionInfo.end = left;
+            }
+          });
+        }
+        traverse2(leftFixedColumnsRef.value);
+        return columns;
+      });
+      const fixedColumnRightMapRef = computed(() => {
+        const columns = {};
+        let right = 0;
+        function traverse2(cols) {
+          for (let i = cols.length - 1; i >= 0; --i) {
+            const col = cols[i];
+            const positionInfo = {
+              start: right,
+              end: 0
+            };
+            columns[getColKey(col)] = positionInfo;
+            if ("children" in col) {
+              traverse2(col.children);
+              positionInfo.end = right;
+            } else {
+              right += getNumberColWidth(col) || 0;
+              positionInfo.end = right;
+            }
+          }
+        }
+        traverse2(rightFixedColumnsRef.value);
+        return columns;
+      });
+      function deriveActiveLeftFixedColumn() {
+        var _a, _b;
+        const {
+          value: leftFixedColumns
+        } = leftFixedColumnsRef;
+        let leftWidth = 0;
+        const {
+          value: fixedColumnLeftMap
+        } = fixedColumnLeftMapRef;
+        let leftActiveFixedColKey = null;
+        for (let i = 0; i < leftFixedColumns.length; ++i) {
+          const key = getColKey(leftFixedColumns[i]);
+          if (lastScrollLeft > (((_a = fixedColumnLeftMap[key]) === null || _a === void 0 ? void 0 : _a.start) || 0) - leftWidth) {
+            leftActiveFixedColKey = key;
+            leftWidth = ((_b = fixedColumnLeftMap[key]) === null || _b === void 0 ? void 0 : _b.end) || 0;
+          } else {
+            break;
+          }
+        }
+        leftActiveFixedColKeyRef.value = leftActiveFixedColKey;
+      }
+      function deriveActiveLeftFixedChildrenColumns() {
+        leftActiveFixedChildrenColKeysRef.value = [];
+        let activeLeftFixedColumn = props.columns.find((col) => getColKey(col) === leftActiveFixedColKeyRef.value);
+        while (activeLeftFixedColumn && "children" in activeLeftFixedColumn) {
+          const length = activeLeftFixedColumn.children.length;
+          if (length === 0) break;
+          const nextActiveLeftFixedColumn = activeLeftFixedColumn.children[length - 1];
+          leftActiveFixedChildrenColKeysRef.value.push(getColKey(nextActiveLeftFixedColumn));
+          activeLeftFixedColumn = nextActiveLeftFixedColumn;
+        }
+      }
+      function deriveActiveRightFixedColumn() {
+        var _a, _b;
+        const {
+          value: rightFixedColumns
+        } = rightFixedColumnsRef;
+        const scrollWidth = Number(props.scrollX);
+        const {
+          value: tableWidth
+        } = bodyWidthRef;
+        if (tableWidth === null) return;
+        let rightWidth = 0;
+        let rightActiveFixedColKey = null;
+        const {
+          value: fixedColumnRightMap
+        } = fixedColumnRightMapRef;
+        for (let i = rightFixedColumns.length - 1; i >= 0; --i) {
+          const key = getColKey(rightFixedColumns[i]);
+          if (Math.round(lastScrollLeft + (((_a = fixedColumnRightMap[key]) === null || _a === void 0 ? void 0 : _a.start) || 0) + tableWidth - rightWidth) < scrollWidth) {
+            rightActiveFixedColKey = key;
+            rightWidth = ((_b = fixedColumnRightMap[key]) === null || _b === void 0 ? void 0 : _b.end) || 0;
+          } else {
+            break;
+          }
+        }
+        rightActiveFixedColKeyRef.value = rightActiveFixedColKey;
+      }
+      function deriveActiveRightFixedChildrenColumns() {
+        rightActiveFixedChildrenColKeysRef.value = [];
+        let activeRightFixedColumn = props.columns.find((col) => getColKey(col) === rightActiveFixedColKeyRef.value);
+        while (activeRightFixedColumn && "children" in activeRightFixedColumn && activeRightFixedColumn.children.length) {
+          const nextActiveRightFixedColumn = activeRightFixedColumn.children[0];
+          rightActiveFixedChildrenColKeysRef.value.push(getColKey(nextActiveRightFixedColumn));
+          activeRightFixedColumn = nextActiveRightFixedColumn;
+        }
+      }
+      function getScrollElements() {
+        const header = mainTableInstRef.value ? mainTableInstRef.value.getHeaderElement() : null;
+        const body = mainTableInstRef.value ? mainTableInstRef.value.getBodyElement() : null;
+        return {
+          header,
+          body
+        };
+      }
+      function scrollMainTableBodyToTop() {
+        const {
+          body
+        } = getScrollElements();
+        if (body) {
+          body.scrollTop = 0;
+        }
+      }
+      function handleTableHeaderScroll() {
+        if (scrollPartRef.value !== "body") {
+          beforeNextFrameOnce(syncScrollState);
+        } else {
+          scrollPartRef.value = void 0;
+        }
+      }
+      function handleTableBodyScroll(e) {
+        var _a;
+        (_a = props.onScroll) === null || _a === void 0 ? void 0 : _a.call(props, e);
+        if (scrollPartRef.value !== "head") {
+          beforeNextFrameOnce(syncScrollState);
+        } else {
+          scrollPartRef.value = void 0;
+        }
+      }
+      function syncScrollState() {
+        const {
+          header,
+          body
+        } = getScrollElements();
+        if (!body) return;
+        const {
+          value: tableWidth
+        } = bodyWidthRef;
+        if (tableWidth === null) return;
+        if (header) {
+          const directionHead = lastScrollLeft - header.scrollLeft;
+          scrollPartRef.value = directionHead !== 0 ? "head" : "body";
+          if (scrollPartRef.value === "head") {
+            lastScrollLeft = header.scrollLeft;
+            body.scrollLeft = lastScrollLeft;
+          } else {
+            lastScrollLeft = body.scrollLeft;
+            header.scrollLeft = lastScrollLeft;
+          }
+        } else {
+          lastScrollLeft = body.scrollLeft;
+        }
+        deriveActiveLeftFixedColumn();
+        deriveActiveLeftFixedChildrenColumns();
+        deriveActiveRightFixedColumn();
+        deriveActiveRightFixedChildrenColumns();
+      }
+      function setHeaderScrollLeft(left) {
+        const {
+          header
+        } = getScrollElements();
+        if (!header) return;
+        header.scrollLeft = left;
+        syncScrollState();
+      }
+      watch(mergedCurrentPageRef, () => {
+        scrollMainTableBodyToTop();
+      });
+      return {
+        styleScrollXRef,
+        fixedColumnLeftMapRef,
+        fixedColumnRightMapRef,
+        leftFixedColumnsRef,
+        rightFixedColumnsRef,
+        leftActiveFixedColKeyRef,
+        leftActiveFixedChildrenColKeysRef,
+        rightActiveFixedColKeyRef,
+        rightActiveFixedChildrenColKeysRef,
+        syncScrollState,
+        handleTableBodyScroll,
+        handleTableHeaderScroll,
+        setHeaderScrollLeft,
+        explicitlyScrollableRef,
+        xScrollableRef
+      };
+    }
+    function getMultiplePriority(sorter) {
+      if (typeof sorter === "object" && typeof sorter.multiple === "number") {
+        return sorter.multiple;
+      }
+      return false;
+    }
+    function getSortFunction(sorter, columnKey) {
+      if (columnKey && (sorter === void 0 || sorter === "default" || typeof sorter === "object" && sorter.compare === "default")) {
+        return getDefaultSorterFn(columnKey);
+      }
+      if (typeof sorter === "function") {
+        return sorter;
+      }
+      if (sorter && typeof sorter === "object" && sorter.compare && sorter.compare !== "default") {
+        return sorter.compare;
+      }
+      return false;
+    }
+    function getDefaultSorterFn(columnKey) {
+      return (row1, row2) => {
+        const value1 = row1[columnKey];
+        const value2 = row2[columnKey];
+        if (value1 === null || value1 === void 0) {
+          if (value2 === null || value2 === void 0) return 0;
+          return -1;
+        } else if (value2 === null || value2 === void 0) {
+          return 1;
+        } else if (typeof value1 === "number" && typeof value2 === "number") {
+          return value1 - value2;
+        } else if (typeof value1 === "string" && typeof value2 === "string") {
+          return value1.localeCompare(value2);
+        }
+        return 0;
+      };
+    }
+    function useSorter(props, {
+      dataRelatedColsRef,
+      filteredDataRef
+    }) {
+      const defaultSortState = [];
+      dataRelatedColsRef.value.forEach((column) => {
+        var _a;
+        if (column.sorter !== void 0) {
+          updateSortStatesByNewSortState(defaultSortState, {
+            columnKey: column.key,
+            sorter: column.sorter,
+            order: (_a = column.defaultSortOrder) !== null && _a !== void 0 ? _a : false
+          });
+        }
+      });
+      const uncontrolledSortStateRef = /* @__PURE__ */ ref(defaultSortState);
+      const mergedSortStateRef = computed(() => {
+        const columnsWithControlledSortOrder = dataRelatedColsRef.value.filter((column) => column.type !== "selection" && column.sorter !== void 0 && (column.sortOrder === "ascend" || column.sortOrder === "descend" || column.sortOrder === false));
+        const columnToSort = columnsWithControlledSortOrder.filter((col) => col.sortOrder !== false);
+        if (columnToSort.length) {
+          return columnToSort.map((column) => {
+            return {
+              columnKey: column.key,
+              // column to sort has controlled sorter
+              // sorter && sort order won't be undefined
+              order: column.sortOrder,
+              sorter: column.sorter
+            };
+          });
+        }
+        if (columnsWithControlledSortOrder.length) return [];
+        const {
+          value: uncontrolledSortState
+        } = uncontrolledSortStateRef;
+        if (Array.isArray(uncontrolledSortState)) {
+          return uncontrolledSortState;
+        } else if (uncontrolledSortState) {
+          return [uncontrolledSortState];
+        } else {
+          return [];
+        }
+      });
+      const sortedDataRef = computed(() => {
+        const activeSorters = mergedSortStateRef.value.slice().sort((a, b) => {
+          const item1Priority = getMultiplePriority(a.sorter) || 0;
+          const item2Priority = getMultiplePriority(b.sorter) || 0;
+          return item2Priority - item1Priority;
+        });
+        if (activeSorters.length) {
+          const filteredData = filteredDataRef.value.slice();
+          return filteredData.sort((tmNode1, tmNode2) => {
+            let compareResult = 0;
+            activeSorters.some((sorterState) => {
+              const {
+                columnKey,
+                sorter,
+                order
+              } = sorterState;
+              const compareFn = getSortFunction(sorter, columnKey);
+              if (compareFn && order) {
+                compareResult = compareFn(tmNode1.rawNode, tmNode2.rawNode);
+                if (compareResult !== 0) {
+                  compareResult = compareResult * getFlagOfOrder(order);
+                  return true;
+                }
+              }
+              return false;
+            });
+            return compareResult;
+          });
+        }
+        return filteredDataRef.value;
+      });
+      function getUpdatedSorterState(sortState) {
+        let currentSortState = mergedSortStateRef.value.slice();
+        if (sortState && getMultiplePriority(sortState.sorter) !== false) {
+          currentSortState = currentSortState.filter((sortState2) => getMultiplePriority(sortState2.sorter) !== false);
+          updateSortStatesByNewSortState(currentSortState, sortState);
+          return currentSortState;
+        } else if (sortState) {
+          return sortState;
+        }
+        return null;
+      }
+      function deriveNextSorter(sortState) {
+        const nextSorterState = getUpdatedSorterState(sortState);
+        doUpdateSorter(nextSorterState);
+      }
+      function doUpdateSorter(sortState) {
+        const {
+          "onUpdate:sorter": _onUpdateSorter,
+          onUpdateSorter,
+          onSorterChange
+        } = props;
+        if (_onUpdateSorter) {
+          call(_onUpdateSorter, sortState);
+        }
+        if (onUpdateSorter) {
+          call(onUpdateSorter, sortState);
+        }
+        if (onSorterChange) {
+          call(onSorterChange, sortState);
+        }
+        uncontrolledSortStateRef.value = sortState;
+      }
+      function sort(columnKey, order = "ascend") {
+        if (!columnKey) {
+          clearSorter();
+        } else {
+          const columnToSort = dataRelatedColsRef.value.find((column) => column.type !== "selection" && column.type !== "expand" && column.key === columnKey);
+          if (!(columnToSort === null || columnToSort === void 0 ? void 0 : columnToSort.sorter)) return;
+          const sorter = columnToSort.sorter;
+          deriveNextSorter({
+            columnKey,
+            sorter,
+            order
+          });
+        }
+      }
+      function clearSorter() {
+        doUpdateSorter(null);
+      }
+      function updateSortStatesByNewSortState(sortStates, sortState) {
+        const index = sortStates.findIndex((state) => (sortState === null || sortState === void 0 ? void 0 : sortState.columnKey) && state.columnKey === sortState.columnKey);
+        if (index !== void 0 && index >= 0) {
+          sortStates[index] = sortState;
+        } else {
+          sortStates.push(sortState);
+        }
+      }
+      return {
+        clearSorter,
+        sort,
+        sortedDataRef,
+        mergedSortStateRef,
+        deriveNextSorter
+      };
+    }
+    function useTableData(props, {
+      dataRelatedColsRef
+    }) {
+      const selectionColumnRef = computed(() => {
+        const getSelectionColumn = (cols) => {
+          for (let i = 0; i < cols.length; ++i) {
+            const col = cols[i];
+            if ("children" in col) {
+              return getSelectionColumn(col.children);
+            } else if (col.type === "selection") {
+              return col;
+            }
+          }
+          return null;
+        };
+        return getSelectionColumn(props.columns);
+      });
+      const treeMateRef = computed(() => {
+        const {
+          childrenKey
+        } = props;
+        return createTreeMate(props.data, {
+          ignoreEmptyChildren: true,
+          getKey: props.rowKey,
+          getChildren: (rowData) => rowData[childrenKey],
+          getDisabled: (rowData) => {
+            var _a, _b;
+            if ((_b = (_a = selectionColumnRef.value) === null || _a === void 0 ? void 0 : _a.disabled) === null || _b === void 0 ? void 0 : _b.call(_a, rowData)) {
+              return true;
+            }
+            return false;
+          }
+        });
+      });
+      const childTriggerColIndexRef = useMemo(() => {
+        const {
+          columns
+        } = props;
+        const {
+          length
+        } = columns;
+        let firstContentfulColIndex = null;
+        for (let i = 0; i < length; ++i) {
+          const col = columns[i];
+          if (!col.type && firstContentfulColIndex === null) {
+            firstContentfulColIndex = i;
+          }
+          if ("tree" in col && col.tree) {
+            return i;
+          }
+        }
+        return firstContentfulColIndex || 0;
+      });
+      const uncontrolledFilterStateRef = /* @__PURE__ */ ref({});
+      const {
+        pagination
+      } = props;
+      const uncontrolledCurrentPageRef = /* @__PURE__ */ ref(pagination ? pagination.defaultPage || 1 : 1);
+      const uncontrolledPageSizeRef = /* @__PURE__ */ ref(getDefaultPageSize(pagination));
+      const mergedFilterStateRef = computed(() => {
+        const columnsWithControlledFilter = dataRelatedColsRef.value.filter((column) => {
+          return column.filterOptionValues !== void 0 || column.filterOptionValue !== void 0;
+        });
+        const controlledFilterState = {};
+        columnsWithControlledFilter.forEach((column) => {
+          var _a;
+          if (column.type === "selection" || column.type === "expand") return;
+          if (column.filterOptionValues === void 0) {
+            controlledFilterState[column.key] = (_a = column.filterOptionValue) !== null && _a !== void 0 ? _a : null;
+          } else {
+            controlledFilterState[column.key] = column.filterOptionValues;
+          }
+        });
+        const activeFilters = Object.assign(createShallowClonedObject(uncontrolledFilterStateRef.value), controlledFilterState);
+        return activeFilters;
+      });
+      const filteredDataRef = computed(() => {
+        const mergedFilterState = mergedFilterStateRef.value;
+        const {
+          columns
+        } = props;
+        function createDefaultFilter(columnKey) {
+          return (filterOptionValue, row) => !!~String(row[columnKey]).indexOf(String(filterOptionValue));
+        }
+        const {
+          value: {
+            treeNodes: data
+          }
+        } = treeMateRef;
+        const columnEntries = [];
+        columns.forEach((column) => {
+          if (column.type === "selection" || column.type === "expand" || "children" in column) {
+            return;
+          }
+          columnEntries.push([column.key, column]);
+        });
+        return data ? data.filter((tmNode) => {
+          const {
+            rawNode: row
+          } = tmNode;
+          for (const [columnKey, column] of columnEntries) {
+            let activeFilterOptionValues = mergedFilterState[columnKey];
+            if (activeFilterOptionValues == null) continue;
+            if (!Array.isArray(activeFilterOptionValues)) {
+              activeFilterOptionValues = [activeFilterOptionValues];
+            }
+            if (!activeFilterOptionValues.length) continue;
+            const filter2 = column.filter === "default" ? createDefaultFilter(columnKey) : column.filter;
+            if (column && typeof filter2 === "function") {
+              if (column.filterMode === "and") {
+                if (activeFilterOptionValues.some((filterOptionValue) => !filter2(filterOptionValue, row))) {
+                  return false;
+                }
+              } else {
+                if (activeFilterOptionValues.some((filterOptionValue) => filter2(filterOptionValue, row))) {
+                  continue;
+                } else {
+                  return false;
+                }
+              }
+            }
+          }
+          return true;
+        }) : [];
+      });
+      const {
+        sortedDataRef,
+        deriveNextSorter,
+        mergedSortStateRef,
+        sort,
+        clearSorter
+      } = useSorter(props, {
+        dataRelatedColsRef,
+        filteredDataRef
+      });
+      dataRelatedColsRef.value.forEach((column) => {
+        var _a;
+        if (column.filter) {
+          const defaultFilterOptionValues = column.defaultFilterOptionValues;
+          if (column.filterMultiple) {
+            uncontrolledFilterStateRef.value[column.key] = defaultFilterOptionValues || [];
+          } else if (defaultFilterOptionValues !== void 0) {
+            uncontrolledFilterStateRef.value[column.key] = defaultFilterOptionValues === null ? [] : defaultFilterOptionValues;
+          } else {
+            uncontrolledFilterStateRef.value[column.key] = (_a = column.defaultFilterOptionValue) !== null && _a !== void 0 ? _a : null;
+          }
+        }
+      });
+      const controlledCurrentPageRef = computed(() => {
+        const {
+          pagination: pagination2
+        } = props;
+        if (pagination2 === false) return void 0;
+        return pagination2.page;
+      });
+      const controlledPageSizeRef = computed(() => {
+        const {
+          pagination: pagination2
+        } = props;
+        if (pagination2 === false) return void 0;
+        return pagination2.pageSize;
+      });
+      const _mergedCurrentPageRef = useMergedState(controlledCurrentPageRef, uncontrolledCurrentPageRef);
+      const mergedPageSizeRef = useMergedState(controlledPageSizeRef, uncontrolledPageSizeRef);
+      const boundedMergedCurrentPageRef = useMemo(() => {
+        const page2 = _mergedCurrentPageRef.value;
+        return props.remote ? page2 : Math.max(1, Math.min(Math.ceil(filteredDataRef.value.length / mergedPageSizeRef.value), page2));
+      });
+      const mergedPageCountRef = computed(() => {
+        const {
+          pagination: pagination2
+        } = props;
+        if (pagination2) {
+          const {
+            pageCount
+          } = pagination2;
+          if (pageCount !== void 0) return pageCount;
+        }
+        return void 0;
+      });
+      const paginatedDataRef = computed(() => {
+        if (props.remote) return treeMateRef.value.treeNodes;
+        if (!props.pagination) return sortedDataRef.value;
+        const pageSize = mergedPageSizeRef.value;
+        const startIndex = (boundedMergedCurrentPageRef.value - 1) * pageSize;
+        return sortedDataRef.value.slice(startIndex, startIndex + pageSize);
+      });
+      const rawPaginatedDataRef = computed(() => {
+        return paginatedDataRef.value.map((tmNode) => tmNode.rawNode);
+      });
+      function mergedOnUpdatePage(page2) {
+        const {
+          pagination: pagination2
+        } = props;
+        if (pagination2) {
+          const {
+            onChange,
+            "onUpdate:page": _onUpdatePage,
+            onUpdatePage
+          } = pagination2;
+          if (onChange) call(onChange, page2);
+          if (onUpdatePage) call(onUpdatePage, page2);
+          if (_onUpdatePage) call(_onUpdatePage, page2);
+          doUpdatePage(page2);
+        }
+      }
+      function mergedOnUpdatePageSize(pageSize) {
+        const {
+          pagination: pagination2
+        } = props;
+        if (pagination2) {
+          const {
+            onPageSizeChange,
+            "onUpdate:pageSize": _onUpdatePageSize,
+            onUpdatePageSize
+          } = pagination2;
+          if (onPageSizeChange) call(onPageSizeChange, pageSize);
+          if (onUpdatePageSize) call(onUpdatePageSize, pageSize);
+          if (_onUpdatePageSize) call(_onUpdatePageSize, pageSize);
+          doUpdatePageSize(pageSize);
+        }
+      }
+      const mergedItemCountRef = computed(() => {
+        if (props.remote) {
+          const {
+            pagination: pagination2
+          } = props;
+          if (pagination2) {
+            const {
+              itemCount
+            } = pagination2;
+            if (itemCount !== void 0) return itemCount;
+          }
+          return void 0;
+        }
+        return filteredDataRef.value.length;
+      });
+      const mergedPaginationRef = computed(() => {
+        return Object.assign(Object.assign({}, props.pagination), {
+          // reset deprecated methods
+          onChange: void 0,
+          onUpdatePage: void 0,
+          onUpdatePageSize: void 0,
+          onPageSizeChange: void 0,
+          "onUpdate:page": mergedOnUpdatePage,
+          "onUpdate:pageSize": mergedOnUpdatePageSize,
+          // writing merged props after pagination to avoid
+          // pagination[key] === undefined
+          // key still exists but value is undefined
+          page: boundedMergedCurrentPageRef.value,
+          pageSize: mergedPageSizeRef.value,
+          pageCount: mergedItemCountRef.value === void 0 ? mergedPageCountRef.value : void 0,
+          itemCount: mergedItemCountRef.value
+        });
+      });
+      function doUpdatePage(page2) {
+        const {
+          "onUpdate:page": _onUpdatePage,
+          onPageChange,
+          onUpdatePage
+        } = props;
+        if (onUpdatePage) call(onUpdatePage, page2);
+        if (_onUpdatePage) call(_onUpdatePage, page2);
+        if (onPageChange) call(onPageChange, page2);
+        uncontrolledCurrentPageRef.value = page2;
+      }
+      function doUpdatePageSize(pageSize) {
+        const {
+          "onUpdate:pageSize": _onUpdatePageSize,
+          onPageSizeChange,
+          onUpdatePageSize
+        } = props;
+        if (onPageSizeChange) call(onPageSizeChange, pageSize);
+        if (onUpdatePageSize) call(onUpdatePageSize, pageSize);
+        if (_onUpdatePageSize) call(_onUpdatePageSize, pageSize);
+        uncontrolledPageSizeRef.value = pageSize;
+      }
+      function doUpdateFilters(filters2, sourceColumn) {
+        const {
+          onUpdateFilters,
+          "onUpdate:filters": _onUpdateFilters,
+          onFiltersChange
+        } = props;
+        if (onUpdateFilters) call(onUpdateFilters, filters2, sourceColumn);
+        if (_onUpdateFilters) call(_onUpdateFilters, filters2, sourceColumn);
+        if (onFiltersChange) call(onFiltersChange, filters2, sourceColumn);
+        uncontrolledFilterStateRef.value = filters2;
+      }
+      function onUnstableColumnResize(resizedWidth, limitedWidth, column, getColumnWidth) {
+        var _a;
+        (_a = props.onUnstableColumnResize) === null || _a === void 0 ? void 0 : _a.call(props, resizedWidth, limitedWidth, column, getColumnWidth);
+      }
+      function page(page2) {
+        doUpdatePage(page2);
+      }
+      function clearFilter() {
+        clearFilters();
+      }
+      function clearFilters() {
+        filters({});
+      }
+      function filters(filters2) {
+        filter(filters2);
+      }
+      function filter(filters2) {
+        if (!filters2) {
+          uncontrolledFilterStateRef.value = {};
+        } else if (filters2) {
+          uncontrolledFilterStateRef.value = createShallowClonedObject(filters2);
+        } else ;
+      }
+      return {
+        treeMateRef,
+        mergedCurrentPageRef: boundedMergedCurrentPageRef,
+        mergedPaginationRef,
+        paginatedDataRef,
+        rawPaginatedDataRef,
+        mergedFilterStateRef,
+        mergedSortStateRef,
+        hoverKeyRef: /* @__PURE__ */ ref(null),
+        selectionColumnRef,
+        childTriggerColIndexRef,
+        doUpdateFilters,
+        deriveNextSorter,
+        doUpdatePageSize,
+        doUpdatePage,
+        onUnstableColumnResize,
+        // exported methods
+        filter,
+        filters,
+        clearFilter,
+        clearFilters,
+        clearSorter,
+        page,
+        sort
+      };
+    }
+    const NDataTable = /* @__PURE__ */ defineComponent({
+      name: "DataTable",
+      alias: ["AdvancedTable"],
+      props: dataTableProps,
+      slots: Object,
+      setup(props, {
+        slots
+      }) {
+        const {
+          mergedBorderedRef,
+          mergedClsPrefixRef,
+          inlineThemeDisabled,
+          mergedRtlRef,
+          mergedComponentPropsRef
+        } = useConfig(props);
+        const rtlEnabledRef = useRtl("DataTable", mergedRtlRef, mergedClsPrefixRef);
+        const mergedSizeRef = computed(() => {
+          var _a, _b;
+          return props.size || ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.DataTable) === null || _b === void 0 ? void 0 : _b.size) || "medium";
+        });
+        const mergedBottomBorderedRef = computed(() => {
+          const {
+            bottomBordered
+          } = props;
+          if (mergedBorderedRef.value) return false;
+          if (bottomBordered !== void 0) return bottomBordered;
+          return true;
+        });
+        const themeRef = useTheme("DataTable", "-data-table", style$7, dataTableLight, props, mergedClsPrefixRef);
+        const bodyWidthRef = /* @__PURE__ */ ref(null);
+        const mainTableInstRef = /* @__PURE__ */ ref(null);
+        const {
+          getResizableWidth,
+          clearResizableWidth,
+          doUpdateResizableWidth
+        } = useResizable();
+        const {
+          rowsRef,
+          colsRef,
+          dataRelatedColsRef,
+          hasEllipsisRef
+        } = useGroupHeader(props, getResizableWidth);
+        const {
+          treeMateRef,
+          mergedCurrentPageRef,
+          paginatedDataRef,
+          rawPaginatedDataRef,
+          selectionColumnRef,
+          hoverKeyRef,
+          mergedPaginationRef,
+          mergedFilterStateRef,
+          mergedSortStateRef,
+          childTriggerColIndexRef,
+          doUpdatePage,
+          doUpdateFilters,
+          onUnstableColumnResize,
+          deriveNextSorter,
+          filter,
+          filters,
+          clearFilter,
+          clearFilters,
+          clearSorter,
+          page,
+          sort
+        } = useTableData(props, {
+          dataRelatedColsRef
+        });
+        const downloadCsv = (options) => {
+          const {
+            fileName = "data.csv",
+            keepOriginalData = false
+          } = options || {};
+          const data = keepOriginalData ? props.data : rawPaginatedDataRef.value;
+          const csvData = generateCsv(props.columns, data, props.getCsvCell, props.getCsvHeader);
+          const blob = new Blob([csvData], {
+            type: "text/csv;charset=utf-8"
+          });
+          const downloadUrl = URL.createObjectURL(blob);
+          download(downloadUrl, fileName.endsWith(".csv") ? fileName : `${fileName}.csv`);
+          URL.revokeObjectURL(downloadUrl);
+        };
+        const {
+          doCheckAll,
+          doUncheckAll,
+          doCheck,
+          doUncheck,
+          headerCheckboxDisabledRef,
+          someRowsCheckedRef,
+          allRowsCheckedRef,
+          mergedCheckedRowKeySetRef,
+          mergedInderminateRowKeySetRef
+        } = useCheck(props, {
+          selectionColumnRef,
+          treeMateRef,
+          paginatedDataRef
+        });
+        const {
+          stickyExpandedRowsRef,
+          mergedExpandedRowKeysRef,
+          renderExpandRef,
+          expandableRef,
+          doUpdateExpandedRowKeys
+        } = useExpand(props, treeMateRef);
+        const maxHeightRef = /* @__PURE__ */ toRef(props, "maxHeight");
+        const mergedTableLayoutRef = computed(() => {
+          if (props.virtualScroll || props.flexHeight || props.maxHeight !== void 0 || hasEllipsisRef.value) {
+            return "fixed";
+          }
+          return props.tableLayout;
+        });
+        const {
+          handleTableBodyScroll,
+          handleTableHeaderScroll,
+          syncScrollState,
+          setHeaderScrollLeft,
+          leftActiveFixedColKeyRef,
+          leftActiveFixedChildrenColKeysRef,
+          rightActiveFixedColKeyRef,
+          rightActiveFixedChildrenColKeysRef,
+          leftFixedColumnsRef,
+          rightFixedColumnsRef,
+          fixedColumnLeftMapRef,
+          fixedColumnRightMapRef,
+          xScrollableRef,
+          explicitlyScrollableRef
+        } = useScroll(props, {
+          bodyWidthRef,
+          mainTableInstRef,
+          mergedCurrentPageRef,
+          maxHeightRef,
+          mergedTableLayoutRef
+        });
+        const {
+          localeRef
+        } = useLocale("DataTable");
+        provide(dataTableInjectionKey, {
+          xScrollableRef,
+          explicitlyScrollableRef,
+          props,
+          treeMateRef,
+          renderExpandIconRef: /* @__PURE__ */ toRef(props, "renderExpandIcon"),
+          loadingKeySetRef: /* @__PURE__ */ ref(/* @__PURE__ */ new Set()),
+          slots,
+          indentRef: /* @__PURE__ */ toRef(props, "indent"),
+          childTriggerColIndexRef,
+          bodyWidthRef,
+          componentId: createId(),
+          hoverKeyRef,
+          mergedClsPrefixRef,
+          mergedThemeRef: themeRef,
+          scrollXRef: computed(() => props.scrollX),
+          rowsRef,
+          colsRef,
+          paginatedDataRef,
+          leftActiveFixedColKeyRef,
+          leftActiveFixedChildrenColKeysRef,
+          rightActiveFixedColKeyRef,
+          rightActiveFixedChildrenColKeysRef,
+          leftFixedColumnsRef,
+          rightFixedColumnsRef,
+          fixedColumnLeftMapRef,
+          fixedColumnRightMapRef,
+          mergedCurrentPageRef,
+          someRowsCheckedRef,
+          allRowsCheckedRef,
+          mergedSortStateRef,
+          mergedFilterStateRef,
+          loadingRef: /* @__PURE__ */ toRef(props, "loading"),
+          rowClassNameRef: /* @__PURE__ */ toRef(props, "rowClassName"),
+          mergedCheckedRowKeySetRef,
+          mergedExpandedRowKeysRef,
+          mergedInderminateRowKeySetRef,
+          localeRef,
+          expandableRef,
+          stickyExpandedRowsRef,
+          rowKeyRef: /* @__PURE__ */ toRef(props, "rowKey"),
+          renderExpandRef,
+          summaryRef: /* @__PURE__ */ toRef(props, "summary"),
+          virtualScrollRef: /* @__PURE__ */ toRef(props, "virtualScroll"),
+          virtualScrollXRef: /* @__PURE__ */ toRef(props, "virtualScrollX"),
+          heightForRowRef: /* @__PURE__ */ toRef(props, "heightForRow"),
+          minRowHeightRef: /* @__PURE__ */ toRef(props, "minRowHeight"),
+          virtualScrollHeaderRef: /* @__PURE__ */ toRef(props, "virtualScrollHeader"),
+          headerHeightRef: /* @__PURE__ */ toRef(props, "headerHeight"),
+          rowPropsRef: /* @__PURE__ */ toRef(props, "rowProps"),
+          stripedRef: /* @__PURE__ */ toRef(props, "striped"),
+          checkOptionsRef: computed(() => {
+            const {
+              value: selectionColumn
+            } = selectionColumnRef;
+            return selectionColumn === null || selectionColumn === void 0 ? void 0 : selectionColumn.options;
+          }),
+          rawPaginatedDataRef,
+          filterMenuCssVarsRef: computed(() => {
+            const {
+              self: {
+                actionDividerColor,
+                actionPadding,
+                actionButtonMargin
+              }
+            } = themeRef.value;
+            return {
+              "--n-action-padding": actionPadding,
+              "--n-action-button-margin": actionButtonMargin,
+              "--n-action-divider-color": actionDividerColor
+            };
+          }),
+          onLoadRef: /* @__PURE__ */ toRef(props, "onLoad"),
+          mergedTableLayoutRef,
+          maxHeightRef,
+          minHeightRef: /* @__PURE__ */ toRef(props, "minHeight"),
+          flexHeightRef: /* @__PURE__ */ toRef(props, "flexHeight"),
+          headerCheckboxDisabledRef,
+          paginationBehaviorOnFilterRef: /* @__PURE__ */ toRef(props, "paginationBehaviorOnFilter"),
+          summaryPlacementRef: /* @__PURE__ */ toRef(props, "summaryPlacement"),
+          filterIconPopoverPropsRef: /* @__PURE__ */ toRef(props, "filterIconPopoverProps"),
+          scrollbarPropsRef: /* @__PURE__ */ toRef(props, "scrollbarProps"),
+          syncScrollState,
+          doUpdatePage,
+          doUpdateFilters,
+          getResizableWidth,
+          onUnstableColumnResize,
+          clearResizableWidth,
+          doUpdateResizableWidth,
+          deriveNextSorter,
+          doCheck,
+          doUncheck,
+          doCheckAll,
+          doUncheckAll,
+          doUpdateExpandedRowKeys,
+          handleTableHeaderScroll,
+          handleTableBodyScroll,
+          setHeaderScrollLeft,
+          renderCell: /* @__PURE__ */ toRef(props, "renderCell")
+        });
+        const exposedMethods = {
+          filter,
+          filters,
+          clearFilters,
+          clearSorter,
+          page,
+          sort,
+          clearFilter,
+          downloadCsv,
+          scrollTo: (arg0, arg1) => {
+            var _a;
+            (_a = mainTableInstRef.value) === null || _a === void 0 ? void 0 : _a.scrollTo(arg0, arg1);
+          }
+        };
+        const cssVarsRef = computed(() => {
+          const mergedSize = mergedSizeRef.value;
+          const {
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            },
+            self: {
+              borderColor,
+              tdColorHover,
+              tdColorSorting,
+              tdColorSortingModal,
+              tdColorSortingPopover,
+              thColorSorting,
+              thColorSortingModal,
+              thColorSortingPopover,
+              thColor,
+              thColorHover,
+              tdColor,
+              tdTextColor,
+              thTextColor,
+              thFontWeight,
+              thButtonColorHover,
+              thIconColor,
+              thIconColorActive,
+              filterSize,
+              borderRadius,
+              lineHeight: lineHeight2,
+              tdColorModal,
+              thColorModal,
+              borderColorModal,
+              thColorHoverModal,
+              tdColorHoverModal,
+              borderColorPopover,
+              thColorPopover,
+              tdColorPopover,
+              tdColorHoverPopover,
+              thColorHoverPopover,
+              paginationMargin,
+              emptyPadding,
+              boxShadowAfter,
+              boxShadowBefore,
+              sorterSize,
+              resizableContainerSize,
+              resizableSize,
+              loadingColor,
+              loadingSize,
+              opacityLoading,
+              tdColorStriped,
+              tdColorStripedModal,
+              tdColorStripedPopover,
+              [createKey("fontSize", mergedSize)]: fontSize2,
+              [createKey("thPadding", mergedSize)]: thPadding,
+              [createKey("tdPadding", mergedSize)]: tdPadding
+            }
+          } = themeRef.value;
+          return {
+            "--n-font-size": fontSize2,
+            "--n-th-padding": thPadding,
+            "--n-td-padding": tdPadding,
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-border-radius": borderRadius,
+            "--n-line-height": lineHeight2,
+            "--n-border-color": borderColor,
+            "--n-border-color-modal": borderColorModal,
+            "--n-border-color-popover": borderColorPopover,
+            "--n-th-color": thColor,
+            "--n-th-color-hover": thColorHover,
+            "--n-th-color-modal": thColorModal,
+            "--n-th-color-hover-modal": thColorHoverModal,
+            "--n-th-color-popover": thColorPopover,
+            "--n-th-color-hover-popover": thColorHoverPopover,
+            "--n-td-color": tdColor,
+            "--n-td-color-hover": tdColorHover,
+            "--n-td-color-modal": tdColorModal,
+            "--n-td-color-hover-modal": tdColorHoverModal,
+            "--n-td-color-popover": tdColorPopover,
+            "--n-td-color-hover-popover": tdColorHoverPopover,
+            "--n-th-text-color": thTextColor,
+            "--n-td-text-color": tdTextColor,
+            "--n-th-font-weight": thFontWeight,
+            "--n-th-button-color-hover": thButtonColorHover,
+            "--n-th-icon-color": thIconColor,
+            "--n-th-icon-color-active": thIconColorActive,
+            "--n-filter-size": filterSize,
+            "--n-pagination-margin": paginationMargin,
+            "--n-empty-padding": emptyPadding,
+            "--n-box-shadow-before": boxShadowBefore,
+            "--n-box-shadow-after": boxShadowAfter,
+            "--n-sorter-size": sorterSize,
+            "--n-resizable-container-size": resizableContainerSize,
+            "--n-resizable-size": resizableSize,
+            "--n-loading-size": loadingSize,
+            "--n-loading-color": loadingColor,
+            "--n-opacity-loading": opacityLoading,
+            "--n-td-color-striped": tdColorStriped,
+            "--n-td-color-striped-modal": tdColorStripedModal,
+            "--n-td-color-striped-popover": tdColorStripedPopover,
+            "--n-td-color-sorting": tdColorSorting,
+            "--n-td-color-sorting-modal": tdColorSortingModal,
+            "--n-td-color-sorting-popover": tdColorSortingPopover,
+            "--n-th-color-sorting": thColorSorting,
+            "--n-th-color-sorting-modal": thColorSortingModal,
+            "--n-th-color-sorting-popover": thColorSortingPopover
+          };
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("data-table", computed(() => mergedSizeRef.value[0]), cssVarsRef, props) : void 0;
+        const mergedShowPaginationRef = computed(() => {
+          if (!props.pagination) return false;
+          if (props.paginateSinglePage) return true;
+          const mergedPagination = mergedPaginationRef.value;
+          const {
+            pageCount
+          } = mergedPagination;
+          if (pageCount !== void 0) return pageCount > 1;
+          return mergedPagination.itemCount && mergedPagination.pageSize && mergedPagination.itemCount > mergedPagination.pageSize;
+        });
+        return Object.assign({
+          mainTableInstRef,
+          mergedClsPrefix: mergedClsPrefixRef,
+          rtlEnabled: rtlEnabledRef,
+          mergedTheme: themeRef,
+          paginatedData: paginatedDataRef,
+          mergedBordered: mergedBorderedRef,
+          mergedBottomBordered: mergedBottomBorderedRef,
+          mergedPagination: mergedPaginationRef,
+          mergedShowPagination: mergedShowPaginationRef,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender
+        }, exposedMethods);
+      },
+      render() {
+        const {
+          mergedClsPrefix,
+          themeClass,
+          onRender,
+          $slots,
+          spinProps
+        } = this;
+        onRender === null || onRender === void 0 ? void 0 : onRender();
+        return h("div", {
+          class: [`${mergedClsPrefix}-data-table`, this.rtlEnabled && `${mergedClsPrefix}-data-table--rtl`, themeClass, {
+            [`${mergedClsPrefix}-data-table--bordered`]: this.mergedBordered,
+            [`${mergedClsPrefix}-data-table--bottom-bordered`]: this.mergedBottomBordered,
+            [`${mergedClsPrefix}-data-table--single-line`]: this.singleLine,
+            [`${mergedClsPrefix}-data-table--single-column`]: this.singleColumn,
+            [`${mergedClsPrefix}-data-table--loading`]: this.loading,
+            [`${mergedClsPrefix}-data-table--flex-height`]: this.flexHeight
+          }],
+          style: this.cssVars
+        }, h("div", {
+          class: `${mergedClsPrefix}-data-table-wrapper`
+        }, h(MainTable, {
+          ref: "mainTableInstRef"
+        })), this.mergedShowPagination ? h("div", {
+          class: `${mergedClsPrefix}-data-table__pagination`
+        }, h(NPagination, Object.assign({
+          theme: this.mergedTheme.peers.Pagination,
+          themeOverrides: this.mergedTheme.peerOverrides.Pagination,
+          disabled: this.loading
+        }, this.mergedPagination))) : null, h(Transition, {
+          name: "fade-in-scale-up-transition"
+        }, {
+          default: () => {
+            return this.loading ? h("div", {
+              class: `${mergedClsPrefix}-data-table-loading-wrapper`
+            }, resolveSlot($slots.loading, () => [h(NBaseLoading, Object.assign({
+              clsPrefix: mergedClsPrefix,
+              strokeWidth: 20
+            }, spinProps))])) : null;
+          }
+        }));
       }
     });
     const commonVars$8 = {
@@ -35017,7 +43465,7 @@ ${style2}
         } = this;
         return h("div", {
           class: [`${mergedClsPrefix}-steps`, this.rtlEnabled && `${mergedClsPrefix}-steps--rtl`, this.vertical && `${mergedClsPrefix}-steps--vertical`, this.contentPlacement === "bottom" && `${mergedClsPrefix}-steps--content-bottom`]
-        }, stepsWithIndex(flatten$1(getSlot(this))));
+        }, stepsWithIndex(flatten$2(getSlot(this))));
       }
     });
     const stepProps = {
@@ -35825,7 +44273,7 @@ ${style2}
           return "medium";
         });
         const compitableValueRef = useCompitable(props, ["activeName", "value"]);
-        const uncontrolledValueRef = /* @__PURE__ */ ref((_b = (_a = compitableValueRef.value) !== null && _a !== void 0 ? _a : props.defaultValue) !== null && _b !== void 0 ? _b : slots.default ? (_d = (_c = flatten$1(slots.default())[0]) === null || _c === void 0 ? void 0 : _c.props) === null || _d === void 0 ? void 0 : _d.name : null);
+        const uncontrolledValueRef = /* @__PURE__ */ ref((_b = (_a = compitableValueRef.value) !== null && _a !== void 0 ? _a : props.defaultValue) !== null && _b !== void 0 ? _b : slots.default ? (_d = (_c = flatten$2(slots.default())[0]) === null || _c === void 0 ? void 0 : _c.props) === null || _d === void 0 ? void 0 : _d.name : null);
         const mergedValueRef = useMergedState(compitableValueRef, uncontrolledValueRef);
         const tabChangeIdRef = {
           id: 0
@@ -36422,10 +44870,10 @@ ${style2}
           }
         } = this;
         onRender === null || onRender === void 0 ? void 0 : onRender();
-        const tabPaneChildren = defaultSlot ? flatten$1(defaultSlot()).filter((v) => {
+        const tabPaneChildren = defaultSlot ? flatten$2(defaultSlot()).filter((v) => {
           return v.type.__TAB_PANE__ === true;
         }) : [];
-        const tabChildren = defaultSlot ? flatten$1(defaultSlot()).filter((v) => {
+        const tabChildren = defaultSlot ? flatten$2(defaultSlot()).filter((v) => {
           return v.type.__TAB__ === true;
         }) : [];
         const showPane = !tabChildren.length;
@@ -36730,12 +45178,12 @@ ${style2}
       FloatButtonGroup: floatButtonGroupDark,
       Marquee: marqueeDark
     };
-    const _hoisted_1$7 = {
+    const _hoisted_1$9 = {
       xmlns: "http://www.w3.org/2000/svg",
       "xmlns:xlink": "http://www.w3.org/1999/xlink",
       viewBox: "0 0 512 512"
     };
-    const _hoisted_2$7 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_2$9 = /* @__PURE__ */ createBaseVNode(
       "path",
       {
         d: "M320 336h76c55 0 100-21.21 100-75.6s-53-73.47-96-75.6C391.11 99.74 329 48 256 48c-69 0-113.44 45.79-128 91.2c-60 5.7-112 35.88-112 98.4S70 336 136 336h56",
@@ -36749,7 +45197,7 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_3$7 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_3$9 = /* @__PURE__ */ createBaseVNode(
       "path",
       {
         fill: "none",
@@ -36763,7 +45211,7 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_4$6 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_4$8 = /* @__PURE__ */ createBaseVNode(
       "path",
       {
         fill: "none",
@@ -36777,19 +45225,19 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_5$6 = [_hoisted_2$7, _hoisted_3$7, _hoisted_4$6];
+    const _hoisted_5$8 = [_hoisted_2$9, _hoisted_3$9, _hoisted_4$8];
     const CloudDownloadOutline = /* @__PURE__ */ defineComponent({
       name: "CloudDownloadOutline",
       render: function render2(_ctx, _cache) {
-        return openBlock(), createElementBlock("svg", _hoisted_1$7, _hoisted_5$6);
+        return openBlock(), createElementBlock("svg", _hoisted_1$9, _hoisted_5$8);
       }
     });
-    const _hoisted_1$6 = {
+    const _hoisted_1$8 = {
       xmlns: "http://www.w3.org/2000/svg",
       "xmlns:xlink": "http://www.w3.org/1999/xlink",
       viewBox: "0 0 512 512"
     };
-    const _hoisted_2$6 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_2$8 = /* @__PURE__ */ createBaseVNode(
       "rect",
       {
         x: "48",
@@ -36808,7 +45256,7 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_3$6 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_3$8 = /* @__PURE__ */ createBaseVNode(
       "rect",
       {
         x: "288",
@@ -36827,7 +45275,7 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_4$5 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_4$7 = /* @__PURE__ */ createBaseVNode(
       "rect",
       {
         x: "48",
@@ -36846,7 +45294,7 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_5$5 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_5$7 = /* @__PURE__ */ createBaseVNode(
       "rect",
       {
         x: "288",
@@ -36865,19 +45313,19 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_6$4 = [_hoisted_2$6, _hoisted_3$6, _hoisted_4$5, _hoisted_5$5];
+    const _hoisted_6$5 = [_hoisted_2$8, _hoisted_3$8, _hoisted_4$7, _hoisted_5$7];
     const GridOutline = /* @__PURE__ */ defineComponent({
       name: "GridOutline",
       render: function render2(_ctx, _cache) {
-        return openBlock(), createElementBlock("svg", _hoisted_1$6, _hoisted_6$4);
+        return openBlock(), createElementBlock("svg", _hoisted_1$8, _hoisted_6$5);
       }
     });
-    const _hoisted_1$5 = {
+    const _hoisted_1$7 = {
       xmlns: "http://www.w3.org/2000/svg",
       "xmlns:xlink": "http://www.w3.org/1999/xlink",
       viewBox: "0 0 512 512"
     };
-    const _hoisted_2$5 = /* @__PURE__ */ createBaseVNode(
+    const _hoisted_2$7 = /* @__PURE__ */ createBaseVNode(
       "path",
       {
         d: "M262.29 192.31a64 64 0 1 0 57.4 57.4a64.13 64.13 0 0 0-57.4-57.4zM416.39 256a154.34 154.34 0 0 1-1.53 20.79l45.21 35.46a10.81 10.81 0 0 1 2.45 13.75l-42.77 74a10.81 10.81 0 0 1-13.14 4.59l-44.9-18.08a16.11 16.11 0 0 0-15.17 1.75A164.48 164.48 0 0 1 325 400.8a15.94 15.94 0 0 0-8.82 12.14l-6.73 47.89a11.08 11.08 0 0 1-10.68 9.17h-85.54a11.11 11.11 0 0 1-10.69-8.87l-6.72-47.82a16.07 16.07 0 0 0-9-12.22a155.3 155.3 0 0 1-21.46-12.57a16 16 0 0 0-15.11-1.71l-44.89 18.07a10.81 10.81 0 0 1-13.14-4.58l-42.77-74a10.8 10.8 0 0 1 2.45-13.75l38.21-30a16.05 16.05 0 0 0 6-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16 16 0 0 0-6.07-13.94l-38.19-30A10.81 10.81 0 0 1 49.48 186l42.77-74a10.81 10.81 0 0 1 13.14-4.59l44.9 18.08a16.11 16.11 0 0 0 15.17-1.75A164.48 164.48 0 0 1 187 111.2a15.94 15.94 0 0 0 8.82-12.14l6.73-47.89A11.08 11.08 0 0 1 213.23 42h85.54a11.11 11.11 0 0 1 10.69 8.87l6.72 47.82a16.07 16.07 0 0 0 9 12.22a155.3 155.3 0 0 1 21.46 12.57a16 16 0 0 0 15.11 1.71l44.89-18.07a10.81 10.81 0 0 1 13.14 4.58l42.77 74a10.8 10.8 0 0 1-2.45 13.75l-38.21 30a16.05 16.05 0 0 0-6.05 14.08c.33 4.14.55 8.3.55 12.47z",
@@ -36891,11 +45339,69 @@ ${style2}
       -1
       /* HOISTED */
     );
-    const _hoisted_3$5 = [_hoisted_2$5];
+    const _hoisted_3$7 = [_hoisted_2$7];
     const SettingsOutline = /* @__PURE__ */ defineComponent({
       name: "SettingsOutline",
       render: function render2(_ctx, _cache) {
-        return openBlock(), createElementBlock("svg", _hoisted_1$5, _hoisted_3$5);
+        return openBlock(), createElementBlock("svg", _hoisted_1$7, _hoisted_3$7);
+      }
+    });
+    const _hoisted_1$6 = {
+      xmlns: "http://www.w3.org/2000/svg",
+      "xmlns:xlink": "http://www.w3.org/1999/xlink",
+      viewBox: "0 0 512 512"
+    };
+    const _hoisted_2$6 = /* @__PURE__ */ createBaseVNode(
+      "rect",
+      {
+        x: "32",
+        y: "48",
+        width: "448",
+        height: "416",
+        rx: "48",
+        ry: "48",
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-linejoin": "round",
+        "stroke-width": "32"
+      },
+      null,
+      -1
+      /* HOISTED */
+    );
+    const _hoisted_3$6 = /* @__PURE__ */ createBaseVNode(
+      "path",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "stroke-width": "32",
+        d: "M96 112l80 64l-80 64"
+      },
+      null,
+      -1
+      /* HOISTED */
+    );
+    const _hoisted_4$6 = /* @__PURE__ */ createBaseVNode(
+      "path",
+      {
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "stroke-width": "32",
+        d: "M192 240h64"
+      },
+      null,
+      -1
+      /* HOISTED */
+    );
+    const _hoisted_5$6 = [_hoisted_2$6, _hoisted_3$6, _hoisted_4$6];
+    const TerminalOutline = /* @__PURE__ */ defineComponent({
+      name: "TerminalOutline",
+      render: function render2(_ctx, _cache) {
+        return openBlock(), createElementBlock("svg", _hoisted_1$6, _hoisted_5$6);
       }
     });
     const useToolsStore = /* @__PURE__ */ defineStore("tools", () => {
@@ -36990,12 +45496,12 @@ ${style2}
         setupListeners
       };
     });
-    const _hoisted_1$4 = { class: "app-shell" };
-    const _hoisted_2$4 = { class: "sidebar" };
-    const _hoisted_3$4 = { class: "nav" };
-    const _hoisted_4$4 = { class: "mirror-status" };
-    const _hoisted_5$4 = { class: "main-content" };
-    const _sfc_main$4 = /* @__PURE__ */ defineComponent({
+    const _hoisted_1$5 = { class: "app-shell" };
+    const _hoisted_2$5 = { class: "sidebar" };
+    const _hoisted_3$5 = { class: "nav" };
+    const _hoisted_4$5 = { class: "mirror-status" };
+    const _hoisted_5$5 = { class: "main-content" };
+    const _sfc_main$5 = /* @__PURE__ */ defineComponent({
       __name: "App",
       setup(__props) {
         const themeOverrides = {
@@ -37040,14 +45546,14 @@ ${style2}
             default: withCtx(() => [
               createVNode(unref(NMessageProvider), null, {
                 default: withCtx(() => [
-                  _cache[4] || (_cache[4] = createBaseVNode("div", { class: "titlebar-drag" }, null, -1)),
-                  createBaseVNode("div", _hoisted_1$4, [
-                    createBaseVNode("aside", _hoisted_2$4, [
-                      _cache[3] || (_cache[3] = createBaseVNode("div", { class: "logo" }, [
+                  _cache[5] || (_cache[5] = createBaseVNode("div", { class: "titlebar-drag" }, null, -1)),
+                  createBaseVNode("div", _hoisted_1$5, [
+                    createBaseVNode("aside", _hoisted_2$5, [
+                      _cache[4] || (_cache[4] = createBaseVNode("div", { class: "logo" }, [
                         createBaseVNode("span", { class: "logo-icon" }, "⚙"),
                         createBaseVNode("span", { class: "logo-text" }, "DevTools")
                       ], -1)),
-                      createBaseVNode("nav", _hoisted_3$4, [
+                      createBaseVNode("nav", _hoisted_3$5, [
                         createVNode(_component_router_link, {
                           to: "/",
                           class: "nav-item",
@@ -37082,6 +45588,20 @@ ${style2}
                           _: 1
                         }),
                         createVNode(_component_router_link, {
+                          to: "/ports",
+                          class: "nav-item",
+                          "active-class": "nav-item--active"
+                        }, {
+                          default: withCtx(() => [
+                            createVNode(unref(NIcon), {
+                              component: unref(TerminalOutline),
+                              size: "18"
+                            }, null, 8, ["component"]),
+                            _cache[2] || (_cache[2] = createBaseVNode("span", null, "端口占用", -1))
+                          ]),
+                          _: 1
+                        }),
+                        createVNode(_component_router_link, {
                           to: "/settings",
                           class: "nav-item",
                           "active-class": "nav-item--active"
@@ -37091,19 +45611,19 @@ ${style2}
                               component: unref(SettingsOutline),
                               size: "18"
                             }, null, 8, ["component"]),
-                            _cache[2] || (_cache[2] = createBaseVNode("span", null, "设置", -1))
+                            _cache[3] || (_cache[3] = createBaseVNode("span", null, "设置", -1))
                           ]),
                           _: 1
                         })
                       ]),
-                      createBaseVNode("div", _hoisted_4$4, [
+                      createBaseVNode("div", _hoisted_4$5, [
                         createBaseVNode("div", {
                           class: normalizeClass(["mirror-dot", mirrorClass.value])
                         }, null, 2),
                         createBaseVNode("span", null, toDisplayString(mirrorLabel.value), 1)
                       ])
                     ]),
-                    createBaseVNode("main", _hoisted_5$4, [
+                    createBaseVNode("main", _hoisted_5$5, [
                       createVNode(_component_router_view)
                     ])
                   ])
@@ -37116,23 +45636,23 @@ ${style2}
         };
       }
     });
-    const _hoisted_1$3 = { class: "card-header" };
-    const _hoisted_2$3 = { class: "tool-meta" };
-    const _hoisted_3$3 = { class: "tool-name" };
-    const _hoisted_4$3 = { class: "tool-category" };
-    const _hoisted_5$3 = { class: "tool-status" };
-    const _hoisted_6$3 = { class: "tool-desc" };
-    const _hoisted_7$3 = {
+    const _hoisted_1$4 = { class: "card-header" };
+    const _hoisted_2$4 = { class: "tool-meta" };
+    const _hoisted_3$4 = { class: "tool-name" };
+    const _hoisted_4$4 = { class: "tool-category" };
+    const _hoisted_5$4 = { class: "tool-status" };
+    const _hoisted_6$4 = { class: "tool-desc" };
+    const _hoisted_7$4 = {
       key: 0,
       class: "installed-info"
     };
-    const _hoisted_8$3 = { class: "version-badge" };
-    const _hoisted_9$3 = { class: "install-path-text" };
-    const _hoisted_10$3 = {
+    const _hoisted_8$4 = { class: "version-badge" };
+    const _hoisted_9$4 = { class: "install-path-text" };
+    const _hoisted_10$4 = {
       key: 0,
       class: "path-tooltip-system"
     };
-    const _hoisted_11$3 = {
+    const _hoisted_11$4 = {
       key: 0,
       class: "path-tooltip-paths"
     };
@@ -37178,7 +45698,27 @@ ${style2}
     };
     const _hoisted_31 = { class: "ready-box" };
     const _hoisted_32 = { class: "wizard-footer" };
-    const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+    const _hoisted_33 = {
+      key: 0,
+      class: "wizard-pane"
+    };
+    const _hoisted_34 = { class: "readonly-path" };
+    const _hoisted_35 = { class: "dir-row" };
+    const _hoisted_36 = {
+      key: 1,
+      class: "wizard-pane form-grid"
+    };
+    const _hoisted_37 = {
+      key: 2,
+      class: "wizard-pane"
+    };
+    const _hoisted_38 = {
+      key: 3,
+      class: "wizard-pane"
+    };
+    const _hoisted_39 = { class: "ready-box" };
+    const _hoisted_40 = { class: "wizard-footer" };
+    const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       __name: "ToolCard",
       props: {
         tool: {}
@@ -37216,13 +45756,27 @@ ${style2}
           password: "123456"
         });
         const mysqlIniPreview = /* @__PURE__ */ ref("");
+        const showRedisWizard = /* @__PURE__ */ ref(false);
+        const redisStep = /* @__PURE__ */ ref(1);
+        const redisInstalling = /* @__PURE__ */ ref(false);
+        const redisForm = /* @__PURE__ */ ref({
+          installDir: "C:\\DevTools\\redis",
+          serviceName: "Redis",
+          host: "127.0.0.1",
+          port: 6379,
+          password: "123456"
+        });
+        const redisConfigPreview = /* @__PURE__ */ ref("");
+        const portChecking = /* @__PURE__ */ ref(false);
+        const portStatus = /* @__PURE__ */ ref(null);
+        let portCheckTimer = null;
         const DYNAMIC_TOOLS = ["nodejs", "maven", "jdk", "python", "mysql", "git", "codex", "claude-code"];
         const isDynamic = computed(() => DYNAMIC_TOOLS.includes(props.tool.id));
         const selectedFilename = computed(() => {
           const built = isDynamic.value ? buildDynamicUrls(selectedVersion.value) : void 0;
           return built?.filename ?? props.tool.versions?.find((v) => v.version === selectedVersion.value)?.filename ?? "";
         });
-        const showMysqlLocalInstall = computed(() => props.tool.id === "mysql" && !!cachedPackage.value);
+        const showLocalInstall = computed(() => ["mysql", "redis"].includes(props.tool.id) && !!cachedPackage.value);
         const versionOptions = computed(() => {
           if (isDynamic.value && dynamicVersions.value.length) {
             return dynamicVersions.value.map((v) => ({
@@ -37333,6 +45887,25 @@ ${style2}
             mysqlIniPreview.value = buildMysqlIni();
           },
           { deep: true }
+        );
+        watch(
+          redisForm,
+          () => {
+            redisConfigPreview.value = buildRedisConfig();
+          },
+          { deep: true }
+        );
+        watch(
+          () => mysqlForm.value.port,
+          () => {
+            schedulePortCheck();
+          }
+        );
+        watch(
+          () => redisForm.value.port,
+          () => {
+            schedulePortCheck();
+          }
         );
         async function handleJdkVendorChange(vendorId) {
           if (props.tool.id !== "jdk") return;
@@ -37492,6 +46065,8 @@ port=${mysqlForm.value.port || 3306}
 bind-address=${mysqlForm.value.host || "127.0.0.1"}
 character-set-server=utf8mb4
 default-storage-engine=INNODB
+default-time-zone='+08:00'
+max_allowed_packet=999M
 sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
 
 [client]
@@ -37502,14 +46077,34 @@ default-character-set=utf8mb4
 default-character-set=utf8mb4
 `;
         }
+        function buildRedisConfig() {
+          const installDir = normalizeIniPath(redisForm.value.installDir);
+          const password = redisForm.value.password ? `requirepass ${redisForm.value.password}` : "";
+          return `bind ${redisForm.value.host || "127.0.0.1"}
+port ${redisForm.value.port || 6379}
+protected-mode yes
+daemonize no
+dir ${installDir}
+dbfilename dump.rdb
+appendonly yes
+appendfilename "appendonly.aof"
+logfile "${installDir}/redis.log"
+maxmemory-policy noeviction
+${password}
+`;
+        }
         async function refreshCachedPackage() {
-          if (props.tool.id !== "mysql") return;
+          if (!["mysql", "redis"].includes(props.tool.id)) return;
           const filename = selectedFilename.value;
           if (!filename) {
             cachedPackage.value = null;
             return;
           }
           cachedPackage.value = await window.api.download.findCached(filename);
+        }
+        function openLocalInstallWizard() {
+          if (props.tool.id === "mysql") openMysqlInstallWizard();
+          else if (props.tool.id === "redis") openRedisInstallWizard();
         }
         function openMysqlInstallWizard() {
           if (!cachedPackage.value) return;
@@ -37522,23 +46117,86 @@ default-character-set=utf8mb4
             password: "123456"
           };
           mysqlIniPreview.value = buildMysqlIni();
+          portStatus.value = null;
+          void checkLocalPort();
           showMysqlWizard.value = true;
+        }
+        function openRedisInstallWizard() {
+          if (!cachedPackage.value) return;
+          redisStep.value = 1;
+          redisForm.value = {
+            installDir: `C:\\DevTools\\redis-${selectedVersion.value}`,
+            serviceName: "Redis",
+            host: "127.0.0.1",
+            port: 6379,
+            password: "123456"
+          };
+          redisConfigPreview.value = buildRedisConfig();
+          portStatus.value = null;
+          void checkLocalPort();
+          showRedisWizard.value = true;
         }
         function closeMysqlWizard() {
           if (mysqlInstalling.value) return;
           showMysqlWizard.value = false;
         }
+        function closeRedisWizard() {
+          if (redisInstalling.value) return;
+          showRedisWizard.value = false;
+        }
         async function selectMysqlInstallDir() {
           const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir);
           if (selected) mysqlForm.value.installDir = selected;
         }
+        async function selectRedisInstallDir() {
+          const selected = await window.api.dialog.selectDir(redisForm.value.installDir);
+          if (selected) redisForm.value.installDir = selected;
+        }
+        function schedulePortCheck() {
+          if (portCheckTimer) clearTimeout(portCheckTimer);
+          portCheckTimer = setTimeout(() => {
+            void checkLocalPort();
+          }, 350);
+        }
+        function activeLocalPort() {
+          if (showRedisWizard.value) return Number(redisForm.value.port);
+          return Number(mysqlForm.value.port);
+        }
+        async function checkLocalPort() {
+          const port = activeLocalPort();
+          if (!Number.isInteger(port) || port < 1 || port > 65535) {
+            portStatus.value = { available: false, port, state: "invalid" };
+            return;
+          }
+          portChecking.value = true;
+          try {
+            portStatus.value = await window.api.network.checkPort(port);
+          } finally {
+            portChecking.value = false;
+          }
+        }
+        const portStatusLabel = computed(() => {
+          if (portChecking.value) return "正在检测端口...";
+          if (!portStatus.value) return "端口待检测";
+          if (portStatus.value.available) return `端口 ${portStatus.value.port} 可用`;
+          if (portStatus.value.state === "invalid") return "端口无效";
+          const owner = portStatus.value.processName ? `${portStatus.value.processName}${portStatus.value.pid ? ` (PID ${portStatus.value.pid})` : ""}` : portStatus.value.pid ? `PID ${portStatus.value.pid}` : "未知进程";
+          return `端口 ${portStatus.value.port} 已被占用：${owner}${portStatus.value.state ? ` · ${portStatus.value.state}` : ""}`;
+        });
         const canAdvanceMysqlStep = computed(() => {
           if (mysqlStep.value === 1) return !!cachedPackage.value?.filePath && !!mysqlForm.value.installDir;
-          if (mysqlStep.value === 2) return !!mysqlForm.value.serviceName && !!mysqlForm.value.host && !!mysqlForm.value.port && !!mysqlForm.value.password;
+          if (mysqlStep.value === 2) return !!mysqlForm.value.serviceName && !!mysqlForm.value.host && !!mysqlForm.value.port && !!mysqlForm.value.password && !!portStatus.value?.available;
           if (mysqlStep.value === 3) return !!mysqlIniPreview.value.trim();
           return true;
         });
         const canStartMysqlInstall = computed(() => canAdvanceMysqlStep.value && !!cachedPackage.value?.filePath && !!mysqlIniPreview.value.trim());
+        const canAdvanceRedisStep = computed(() => {
+          if (redisStep.value === 1) return !!cachedPackage.value?.filePath && !!redisForm.value.installDir;
+          if (redisStep.value === 2) return !!redisForm.value.serviceName && !!redisForm.value.host && !!redisForm.value.port && !!redisForm.value.password && !!portStatus.value?.available;
+          if (redisStep.value === 3) return !!redisConfigPreview.value.trim();
+          return true;
+        });
+        const canStartRedisInstall = computed(() => canAdvanceRedisStep.value && !!cachedPackage.value?.filePath && !!redisConfigPreview.value.trim());
         async function startMysqlLocalInstall() {
           if (!cachedPackage.value || mysqlInstalling.value) return;
           mysqlInstalling.value = true;
@@ -37560,6 +46218,29 @@ default-character-set=utf8mb4
             window.api.log("error", `[ToolCard] mysql local install ERROR: ${err?.message ?? err}`);
           } finally {
             mysqlInstalling.value = false;
+          }
+        }
+        async function startRedisLocalInstall() {
+          if (!cachedPackage.value || redisInstalling.value) return;
+          redisInstalling.value = true;
+          try {
+            const taskId = await window.api.redis.installLocal({
+              version: selectedVersion.value,
+              filePath: cachedPackage.value.filePath,
+              installDir: redisForm.value.installDir,
+              serviceName: redisForm.value.serviceName,
+              host: redisForm.value.host,
+              port: Number(redisForm.value.port || 6379),
+              password: redisForm.value.password,
+              configText: redisConfigPreview.value
+            });
+            window.api.log("info", `[ToolCard] redis local install taskId=${taskId}`);
+            showRedisWizard.value = false;
+            await store.loadTools();
+          } catch (err) {
+            window.api.log("error", `[ToolCard] redis local install ERROR: ${err?.message ?? err}`);
+          } finally {
+            redisInstalling.value = false;
           }
         }
         const canOpenPath = computed(() => {
@@ -37599,21 +46280,21 @@ default-character-set=utf8mb4
             createBaseVNode("div", {
               class: normalizeClass(["tool-card", { "tool-card--installed": isInstalled.value }])
             }, [
-              createBaseVNode("div", _hoisted_1$3, [
+              createBaseVNode("div", _hoisted_1$4, [
                 createBaseVNode("div", {
                   class: normalizeClass(["tool-icon", `icon-${__props.tool.icon}`])
                 }, toDisplayString(iconText.value), 3),
-                createBaseVNode("div", _hoisted_2$3, [
-                  createBaseVNode("div", _hoisted_3$3, toDisplayString(__props.tool.name), 1),
-                  createBaseVNode("div", _hoisted_4$3, toDisplayString(categoryLabel.value), 1)
+                createBaseVNode("div", _hoisted_2$4, [
+                  createBaseVNode("div", _hoisted_3$4, toDisplayString(__props.tool.name), 1),
+                  createBaseVNode("div", _hoisted_4$4, toDisplayString(categoryLabel.value), 1)
                 ]),
-                createBaseVNode("div", _hoisted_5$3, [
+                createBaseVNode("div", _hoisted_5$4, [
                   isInstalled.value ? (openBlock(), createBlock(unref(NTag), {
                     key: 0,
                     type: "success",
                     size: "small"
                   }, {
-                    default: withCtx(() => [..._cache[12] || (_cache[12] = [
+                    default: withCtx(() => [..._cache[21] || (_cache[21] = [
                       createTextVNode("已安装", -1)
                     ])]),
                     _: 1
@@ -37622,16 +46303,16 @@ default-character-set=utf8mb4
                     type: "default",
                     size: "small"
                   }, {
-                    default: withCtx(() => [..._cache[13] || (_cache[13] = [
+                    default: withCtx(() => [..._cache[22] || (_cache[22] = [
                       createTextVNode("未安装", -1)
                     ])]),
                     _: 1
                   }))
                 ])
               ]),
-              createBaseVNode("div", _hoisted_6$3, toDisplayString(__props.tool.description), 1),
-              isInstalled.value ? (openBlock(), createElementBlock("div", _hoisted_7$3, [
-                createBaseVNode("span", _hoisted_8$3, toDisplayString(__props.tool.installed.version), 1),
+              createBaseVNode("div", _hoisted_6$4, toDisplayString(__props.tool.description), 1),
+              isInstalled.value ? (openBlock(), createElementBlock("div", _hoisted_7$4, [
+                createBaseVNode("span", _hoisted_8$4, toDisplayString(__props.tool.installed.version), 1),
                 createVNode(unref(NTooltip), {
                   placement: "top",
                   delay: 300
@@ -37641,14 +46322,14 @@ default-character-set=utf8mb4
                       class: normalizeClass(["install-path", { "install-path--clickable": canOpenPath.value }]),
                       onClick: handleOpenDir
                     }, [
-                      _cache[14] || (_cache[14] = createBaseVNode("span", { class: "install-path-icon" }, "📁", -1)),
-                      createBaseVNode("span", _hoisted_9$3, toDisplayString(pathLabel.value), 1)
+                      _cache[23] || (_cache[23] = createBaseVNode("span", { class: "install-path-icon" }, "📁", -1)),
+                      createBaseVNode("span", _hoisted_9$4, toDisplayString(pathLabel.value), 1)
                     ], 2)
                   ]),
                   default: withCtx(() => [
-                    __props.tool.installed.installPath === "system" ? (openBlock(), createElementBlock("div", _hoisted_10$3, [
-                      _cache[15] || (_cache[15] = createBaseVNode("div", { class: "path-tooltip-title" }, "系统 PATH 检测结果", -1)),
-                      systemPaths.value.length ? (openBlock(), createElementBlock("div", _hoisted_11$3, [
+                    __props.tool.installed.installPath === "system" ? (openBlock(), createElementBlock("div", _hoisted_10$4, [
+                      _cache[24] || (_cache[24] = createBaseVNode("div", { class: "path-tooltip-title" }, "系统 PATH 检测结果", -1)),
+                      systemPaths.value.length ? (openBlock(), createElementBlock("div", _hoisted_11$4, [
                         (openBlock(true), createElementBlock(Fragment, null, renderList(systemPaths.value, (p2) => {
                           return openBlock(), createElementBlock("div", {
                             key: p2,
@@ -37659,8 +46340,8 @@ default-character-set=utf8mb4
                     ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                       canOpenPath.value ? (openBlock(), createElementBlock("span", _hoisted_13$3, [
                         createTextVNode(toDisplayString(__props.tool.installed.installPath), 1),
-                        _cache[16] || (_cache[16] = createBaseVNode("br", null, null, -1)),
-                        _cache[17] || (_cache[17] = createBaseVNode("span", { style: { "color": "#888", "font-size": "11px" } }, "点击在资源管理器中打开", -1))
+                        _cache[25] || (_cache[25] = createBaseVNode("br", null, null, -1)),
+                        _cache[26] || (_cache[26] = createBaseVNode("span", { style: { "color": "#888", "font-size": "11px" } }, "点击在资源管理器中打开", -1))
                       ])) : (openBlock(), createElementBlock("span", _hoisted_14$3, toDisplayString(pathTooltip.value), 1))
                     ], 64))
                   ]),
@@ -37692,7 +46373,7 @@ default-character-set=utf8mb4
                   loading: dynamicVersionsLoading.value,
                   placeholder: "加载版本中..."
                 }, null, 8, ["value", "options", "disabled", "loading"]),
-                !showMysqlLocalInstall.value ? (openBlock(), createBlock(unref(NTooltip), {
+                !showLocalInstall.value ? (openBlock(), createBlock(unref(NTooltip), {
                   key: 1,
                   placement: "top",
                   delay: 300,
@@ -37726,9 +46407,9 @@ default-character-set=utf8mb4
                       type: "primary",
                       ghost: "",
                       disabled: isDownloading.value,
-                      onClick: openMysqlInstallWizard
+                      onClick: openLocalInstallWizard
                     }, {
-                      default: withCtx(() => [..._cache[18] || (_cache[18] = [
+                      default: withCtx(() => [..._cache[27] || (_cache[27] = [
                         createTextVNode(" 本地安装 ", -1)
                       ])]),
                       _: 1
@@ -37746,7 +46427,7 @@ default-character-set=utf8mb4
                   disabled: npmRegistryLoading.value,
                   onClick: openNpmRegistryModal
                 }, {
-                  default: withCtx(() => [..._cache[19] || (_cache[19] = [
+                  default: withCtx(() => [..._cache[28] || (_cache[28] = [
                     createTextVNode(" 设置 npm 源 ", -1)
                   ])]),
                   _: 1
@@ -37762,7 +46443,7 @@ default-character-set=utf8mb4
                       type: "primary",
                       size: "small",
                       loading: submitting.value || isDownloading.value,
-                      disabled: submitting.value || isDownloading.value || showMysqlLocalInstall.value,
+                      disabled: submitting.value || isDownloading.value || showLocalInstall.value,
                       onClick: handleInstall
                     }, {
                       default: withCtx(() => [
@@ -37824,7 +46505,7 @@ default-character-set=utf8mb4
             }, {
               default: withCtx(() => [
                 createBaseVNode("div", _hoisted_22, [
-                  _cache[20] || (_cache[20] = createBaseVNode("div", { class: "npm-registry-head" }, [
+                  _cache[29] || (_cache[29] = createBaseVNode("div", { class: "npm-registry-head" }, [
                     createBaseVNode("span", null, "源名称"),
                     createBaseVNode("span", null, "URL"),
                     createBaseVNode("span", null, "可用性"),
@@ -37875,7 +46556,7 @@ default-character-set=utf8mb4
                     disabled: mysqlInstalling.value,
                     onClick: closeMysqlWizard
                   }, {
-                    default: withCtx(() => [..._cache[30] || (_cache[30] = [
+                    default: withCtx(() => [..._cache[39] || (_cache[39] = [
                       createTextVNode("取消", -1)
                     ])]),
                     _: 1
@@ -37885,7 +46566,7 @@ default-character-set=utf8mb4
                     disabled: mysqlInstalling.value,
                     onClick: _cache[9] || (_cache[9] = ($event) => mysqlStep.value--)
                   }, {
-                    default: withCtx(() => [..._cache[31] || (_cache[31] = [
+                    default: withCtx(() => [..._cache[40] || (_cache[40] = [
                       createTextVNode("上一步", -1)
                     ])]),
                     _: 1
@@ -37896,7 +46577,7 @@ default-character-set=utf8mb4
                     disabled: !canAdvanceMysqlStep.value,
                     onClick: _cache[10] || (_cache[10] = ($event) => mysqlStep.value++)
                   }, {
-                    default: withCtx(() => [..._cache[32] || (_cache[32] = [
+                    default: withCtx(() => [..._cache[41] || (_cache[41] = [
                       createTextVNode("下一步", -1)
                     ])]),
                     _: 1
@@ -37907,7 +46588,7 @@ default-character-set=utf8mb4
                     disabled: !canStartMysqlInstall.value,
                     onClick: startMysqlLocalInstall
                   }, {
-                    default: withCtx(() => [..._cache[33] || (_cache[33] = [
+                    default: withCtx(() => [..._cache[42] || (_cache[42] = [
                       createTextVNode(" 开始安装 ", -1)
                     ])]),
                     _: 1
@@ -37929,16 +46610,16 @@ default-character-set=utf8mb4
                   _: 1
                 }, 8, ["current"]),
                 mysqlStep.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_25, [
-                  _cache[22] || (_cache[22] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+                  _cache[31] || (_cache[31] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
                   createBaseVNode("div", _hoisted_26, toDisplayString(cachedPackage.value?.filePath), 1),
-                  _cache[23] || (_cache[23] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
+                  _cache[32] || (_cache[32] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
                   createBaseVNode("div", _hoisted_27, [
                     createVNode(unref(NInput), {
                       value: mysqlForm.value.installDir,
                       "onUpdate:value": _cache[3] || (_cache[3] = ($event) => mysqlForm.value.installDir = $event)
                     }, null, 8, ["value"]),
                     createVNode(unref(Button), { onClick: selectMysqlInstallDir }, {
-                      default: withCtx(() => [..._cache[21] || (_cache[21] = [
+                      default: withCtx(() => [..._cache[30] || (_cache[30] = [
                         createTextVNode("选择", -1)
                       ])]),
                       _: 1
@@ -37946,40 +46627,41 @@ default-character-set=utf8mb4
                   ])
                 ])) : mysqlStep.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_28, [
                   createBaseVNode("div", null, [
-                    _cache[24] || (_cache[24] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
+                    _cache[33] || (_cache[33] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
                     createVNode(unref(NInput), {
                       value: mysqlForm.value.serviceName,
                       "onUpdate:value": _cache[4] || (_cache[4] = ($event) => mysqlForm.value.serviceName = $event)
                     }, null, 8, ["value"])
                   ]),
                   createBaseVNode("div", null, [
-                    _cache[25] || (_cache[25] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
+                    _cache[34] || (_cache[34] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
                     createVNode(unref(NInput), {
                       value: mysqlForm.value.host,
                       "onUpdate:value": _cache[5] || (_cache[5] = ($event) => mysqlForm.value.host = $event)
                     }, null, 8, ["value"])
                   ]),
                   createBaseVNode("div", null, [
-                    _cache[26] || (_cache[26] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
+                    _cache[35] || (_cache[35] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
                     createVNode(unref(NInputNumber), {
                       value: mysqlForm.value.port,
                       "onUpdate:value": _cache[6] || (_cache[6] = ($event) => mysqlForm.value.port = $event),
                       min: 1,
                       max: 65535,
                       style: { "width": "100%" }
-                    }, null, 8, ["value"])
+                    }, null, 8, ["value"]),
+                    createBaseVNode("div", {
+                      class: normalizeClass(["port-status", { "port-status--bad": portStatus.value && !portStatus.value.available }])
+                    }, toDisplayString(portStatusLabel.value), 3)
                   ]),
                   createBaseVNode("div", null, [
-                    _cache[27] || (_cache[27] = createBaseVNode("div", { class: "field-label" }, "root 密码", -1)),
+                    _cache[36] || (_cache[36] = createBaseVNode("div", { class: "field-label" }, "root 密码", -1)),
                     createVNode(unref(NInput), {
                       value: mysqlForm.value.password,
-                      "onUpdate:value": _cache[7] || (_cache[7] = ($event) => mysqlForm.value.password = $event),
-                      type: "password",
-                      "show-password-on": "click"
+                      "onUpdate:value": _cache[7] || (_cache[7] = ($event) => mysqlForm.value.password = $event)
                     }, null, 8, ["value"])
                   ])
                 ])) : mysqlStep.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_29, [
-                  _cache[28] || (_cache[28] = createBaseVNode("div", { class: "field-label" }, "my.ini", -1)),
+                  _cache[37] || (_cache[37] = createBaseVNode("div", { class: "field-label" }, "my.ini", -1)),
                   createVNode(unref(NInput), {
                     value: mysqlIniPreview.value,
                     "onUpdate:value": _cache[8] || (_cache[8] = ($event) => mysqlIniPreview.value = $event),
@@ -37990,7 +46672,143 @@ default-character-set=utf8mb4
                   createBaseVNode("div", _hoisted_31, [
                     createBaseVNode("div", null, "安装目录：" + toDisplayString(mysqlForm.value.installDir), 1),
                     createBaseVNode("div", null, "服务：" + toDisplayString(mysqlForm.value.serviceName) + " · " + toDisplayString(mysqlForm.value.host) + ":" + toDisplayString(mysqlForm.value.port), 1),
-                    _cache[29] || (_cache[29] = createBaseVNode("div", null, "确认后会解压、初始化数据目录、注册并启动 Windows 服务。", -1))
+                    _cache[38] || (_cache[38] = createBaseVNode("div", null, "确认后会解压、初始化数据目录、注册并启动 Windows 服务。", -1))
+                  ])
+                ]))
+              ]),
+              _: 1
+            }, 8, ["show"]),
+            createVNode(unref(NModal), {
+              show: showRedisWizard.value,
+              "onUpdate:show": _cache[20] || (_cache[20] = ($event) => showRedisWizard.value = $event),
+              preset: "card",
+              title: "Redis 本地安装",
+              style: { "width": "820px" },
+              "mask-closable": false
+            }, {
+              footer: withCtx(() => [
+                createBaseVNode("div", _hoisted_40, [
+                  createVNode(unref(Button), {
+                    disabled: redisInstalling.value,
+                    onClick: closeRedisWizard
+                  }, {
+                    default: withCtx(() => [..._cache[52] || (_cache[52] = [
+                      createTextVNode("取消", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled"]),
+                  redisStep.value > 1 ? (openBlock(), createBlock(unref(Button), {
+                    key: 0,
+                    disabled: redisInstalling.value,
+                    onClick: _cache[18] || (_cache[18] = ($event) => redisStep.value--)
+                  }, {
+                    default: withCtx(() => [..._cache[53] || (_cache[53] = [
+                      createTextVNode("上一步", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled"])) : createCommentVNode("", true),
+                  redisStep.value < 4 ? (openBlock(), createBlock(unref(Button), {
+                    key: 1,
+                    type: "primary",
+                    disabled: !canAdvanceRedisStep.value,
+                    onClick: _cache[19] || (_cache[19] = ($event) => redisStep.value++)
+                  }, {
+                    default: withCtx(() => [..._cache[54] || (_cache[54] = [
+                      createTextVNode("下一步", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled"])) : (openBlock(), createBlock(unref(Button), {
+                    key: 2,
+                    type: "primary",
+                    loading: redisInstalling.value,
+                    disabled: !canStartRedisInstall.value,
+                    onClick: startRedisLocalInstall
+                  }, {
+                    default: withCtx(() => [..._cache[55] || (_cache[55] = [
+                      createTextVNode(" 开始安装 ", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["loading", "disabled"]))
+                ])
+              ]),
+              default: withCtx(() => [
+                createVNode(unref(NSteps), {
+                  current: redisStep.value,
+                  size: "small",
+                  style: { "margin-bottom": "18px" }
+                }, {
+                  default: withCtx(() => [
+                    createVNode(unref(NStep), { title: "解压位置" }),
+                    createVNode(unref(NStep), { title: "服务配置" }),
+                    createVNode(unref(NStep), { title: "预览配置" }),
+                    createVNode(unref(NStep), { title: "开始安装" })
+                  ]),
+                  _: 1
+                }, 8, ["current"]),
+                redisStep.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_33, [
+                  _cache[44] || (_cache[44] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+                  createBaseVNode("div", _hoisted_34, toDisplayString(cachedPackage.value?.filePath), 1),
+                  _cache[45] || (_cache[45] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
+                  createBaseVNode("div", _hoisted_35, [
+                    createVNode(unref(NInput), {
+                      value: redisForm.value.installDir,
+                      "onUpdate:value": _cache[12] || (_cache[12] = ($event) => redisForm.value.installDir = $event)
+                    }, null, 8, ["value"]),
+                    createVNode(unref(Button), { onClick: selectRedisInstallDir }, {
+                      default: withCtx(() => [..._cache[43] || (_cache[43] = [
+                        createTextVNode("选择", -1)
+                      ])]),
+                      _: 1
+                    })
+                  ])
+                ])) : redisStep.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_36, [
+                  createBaseVNode("div", null, [
+                    _cache[46] || (_cache[46] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
+                    createVNode(unref(NInput), {
+                      value: redisForm.value.serviceName,
+                      "onUpdate:value": _cache[13] || (_cache[13] = ($event) => redisForm.value.serviceName = $event)
+                    }, null, 8, ["value"])
+                  ]),
+                  createBaseVNode("div", null, [
+                    _cache[47] || (_cache[47] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
+                    createVNode(unref(NInput), {
+                      value: redisForm.value.host,
+                      "onUpdate:value": _cache[14] || (_cache[14] = ($event) => redisForm.value.host = $event)
+                    }, null, 8, ["value"])
+                  ]),
+                  createBaseVNode("div", null, [
+                    _cache[48] || (_cache[48] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
+                    createVNode(unref(NInputNumber), {
+                      value: redisForm.value.port,
+                      "onUpdate:value": _cache[15] || (_cache[15] = ($event) => redisForm.value.port = $event),
+                      min: 1,
+                      max: 65535,
+                      style: { "width": "100%" }
+                    }, null, 8, ["value"]),
+                    createBaseVNode("div", {
+                      class: normalizeClass(["port-status", { "port-status--bad": portStatus.value && !portStatus.value.available }])
+                    }, toDisplayString(portStatusLabel.value), 3)
+                  ]),
+                  createBaseVNode("div", null, [
+                    _cache[49] || (_cache[49] = createBaseVNode("div", { class: "field-label" }, "访问密码", -1)),
+                    createVNode(unref(NInput), {
+                      value: redisForm.value.password,
+                      "onUpdate:value": _cache[16] || (_cache[16] = ($event) => redisForm.value.password = $event)
+                    }, null, 8, ["value"])
+                  ])
+                ])) : redisStep.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_37, [
+                  _cache[50] || (_cache[50] = createBaseVNode("div", { class: "field-label" }, "redis.conf", -1)),
+                  createVNode(unref(NInput), {
+                    value: redisConfigPreview.value,
+                    "onUpdate:value": _cache[17] || (_cache[17] = ($event) => redisConfigPreview.value = $event),
+                    type: "textarea",
+                    autosize: { minRows: 18, maxRows: 24 }
+                  }, null, 8, ["value"])
+                ])) : (openBlock(), createElementBlock("div", _hoisted_38, [
+                  createBaseVNode("div", _hoisted_39, [
+                    createBaseVNode("div", null, "安装目录：" + toDisplayString(redisForm.value.installDir), 1),
+                    createBaseVNode("div", null, "服务：" + toDisplayString(redisForm.value.serviceName) + " · " + toDisplayString(redisForm.value.host) + ":" + toDisplayString(redisForm.value.port), 1),
+                    _cache[51] || (_cache[51] = createBaseVNode("div", null, "确认后会解压、写入 redis.conf、注册并启动 Windows 服务。", -1))
                   ])
                 ]))
               ]),
@@ -38007,18 +46825,18 @@ default-character-set=utf8mb4
       }
       return target;
     };
-    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-dcf2c398"]]);
-    const _hoisted_1$2 = { class: "dashboard" };
-    const _hoisted_2$2 = { class: "page-header" };
-    const _hoisted_3$2 = { class: "header-actions" };
-    const _hoisted_4$2 = { class: "stats-bar" };
-    const _hoisted_5$2 = { class: "stat-item" };
-    const _hoisted_6$2 = { class: "stat-num" };
-    const _hoisted_7$2 = { class: "stat-item" };
-    const _hoisted_8$2 = { class: "stat-num installed" };
-    const _hoisted_9$2 = { class: "stat-item" };
-    const _hoisted_10$2 = { class: "stat-num pending" };
-    const _hoisted_11$2 = {
+    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-abd27adb"]]);
+    const _hoisted_1$3 = { class: "dashboard" };
+    const _hoisted_2$3 = { class: "page-header" };
+    const _hoisted_3$3 = { class: "header-actions" };
+    const _hoisted_4$3 = { class: "stats-bar" };
+    const _hoisted_5$3 = { class: "stat-item" };
+    const _hoisted_6$3 = { class: "stat-num" };
+    const _hoisted_7$3 = { class: "stat-item" };
+    const _hoisted_8$3 = { class: "stat-num installed" };
+    const _hoisted_9$3 = { class: "stat-item" };
+    const _hoisted_10$3 = { class: "stat-num pending" };
+    const _hoisted_11$3 = {
       key: 0,
       class: "detect-status"
     };
@@ -38041,7 +46859,7 @@ default-character-set=utf8mb4
       key: 1,
       class: "empty-state"
     };
-    const _sfc_main$2 = /* @__PURE__ */ defineComponent({
+    const _sfc_main$3 = /* @__PURE__ */ defineComponent({
       __name: "Dashboard",
       setup(__props) {
         const store = useToolsStore();
@@ -38104,13 +46922,13 @@ default-character-set=utf8mb4
           removeProgressListener?.();
         });
         return (_ctx, _cache) => {
-          return openBlock(), createElementBlock("div", _hoisted_1$2, [
-            createBaseVNode("div", _hoisted_2$2, [
+          return openBlock(), createElementBlock("div", _hoisted_1$3, [
+            createBaseVNode("div", _hoisted_2$3, [
               _cache[4] || (_cache[4] = createBaseVNode("div", null, [
                 createBaseVNode("h1", null, "工具库"),
                 createBaseVNode("p", null, "管理你的开发环境工具")
               ], -1)),
-              createBaseVNode("div", _hoisted_3$2, [
+              createBaseVNode("div", _hoisted_3$3, [
                 createVNode(unref(NInput), {
                   value: search.value,
                   "onUpdate:value": _cache[0] || (_cache[0] = ($event) => search.value = $event),
@@ -38144,20 +46962,20 @@ default-character-set=utf8mb4
                 }, 8, ["disabled"])
               ])
             ]),
-            createBaseVNode("div", _hoisted_4$2, [
-              createBaseVNode("div", _hoisted_5$2, [
-                createBaseVNode("span", _hoisted_6$2, toDisplayString(totalCount.value), 1),
+            createBaseVNode("div", _hoisted_4$3, [
+              createBaseVNode("div", _hoisted_5$3, [
+                createBaseVNode("span", _hoisted_6$3, toDisplayString(totalCount.value), 1),
                 _cache[5] || (_cache[5] = createBaseVNode("span", { class: "stat-label" }, "全部工具", -1))
               ]),
-              createBaseVNode("div", _hoisted_7$2, [
-                createBaseVNode("span", _hoisted_8$2, toDisplayString(installedCount.value), 1),
+              createBaseVNode("div", _hoisted_7$3, [
+                createBaseVNode("span", _hoisted_8$3, toDisplayString(installedCount.value), 1),
                 _cache[6] || (_cache[6] = createBaseVNode("span", { class: "stat-label" }, "已安装", -1))
               ]),
-              createBaseVNode("div", _hoisted_9$2, [
-                createBaseVNode("span", _hoisted_10$2, toDisplayString(pendingCount.value), 1),
+              createBaseVNode("div", _hoisted_9$3, [
+                createBaseVNode("span", _hoisted_10$3, toDisplayString(pendingCount.value), 1),
                 _cache[7] || (_cache[7] = createBaseVNode("span", { class: "stat-label" }, "未安装", -1))
               ]),
-              detecting.value || detectLogs.value.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_11$2, [
+              detecting.value || detectLogs.value.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_11$3, [
                 detecting.value ? (openBlock(), createElementBlock("div", _hoisted_12$2, [
                   _cache[8] || (_cache[8] = createBaseVNode("span", { class: "detect-spinner" }, null, -1)),
                   createBaseVNode("span", null, toDisplayString(currentDetecting.value), 1)
@@ -38211,39 +47029,39 @@ default-character-set=utf8mb4
         };
       }
     });
-    const Dashboard = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-1c514af7"]]);
+    const Dashboard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-1c514af7"]]);
     const MIRROR_LABELS = {
       official: "官方源",
       aliyun: "阿里云镜像",
       huawei: "华为云镜像",
       tencent: "腾讯云镜像"
     };
-    const _hoisted_1$1 = { class: "downloads" };
-    const _hoisted_2$1 = {
+    const _hoisted_1$2 = { class: "downloads" };
+    const _hoisted_2$2 = {
       key: 0,
       class: "empty-state"
     };
-    const _hoisted_3$1 = {
+    const _hoisted_3$2 = {
       key: 1,
       class: "task-list"
     };
-    const _hoisted_4$1 = { class: "task-header" };
-    const _hoisted_5$1 = { class: "task-name" };
-    const _hoisted_6$1 = { class: "task-version" };
-    const _hoisted_7$1 = {
+    const _hoisted_4$2 = { class: "task-header" };
+    const _hoisted_5$2 = { class: "task-name" };
+    const _hoisted_6$2 = { class: "task-version" };
+    const _hoisted_7$2 = {
       key: 0,
       class: "task-filename"
     };
-    const _hoisted_8$1 = { class: "task-header-right" };
-    const _hoisted_9$1 = {
+    const _hoisted_8$2 = { class: "task-header-right" };
+    const _hoisted_9$2 = {
       key: 0,
       class: "task-time"
     };
-    const _hoisted_10$1 = {
+    const _hoisted_10$2 = {
       key: 1,
       class: "task-duration"
     };
-    const _hoisted_11$1 = {
+    const _hoisted_11$2 = {
       key: 0,
       class: "task-url"
     };
@@ -38268,7 +47086,7 @@ default-character-set=utf8mb4
       class: "task-log"
     };
     const _hoisted_20$1 = { class: "task-actions" };
-    const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+    const _sfc_main$2 = /* @__PURE__ */ defineComponent({
       __name: "Downloads",
       setup(__props) {
         const store = useToolsStore();
@@ -38339,30 +47157,30 @@ default-character-set=utf8mb4
           store.removeTask(taskId);
         }
         return (_ctx, _cache) => {
-          return openBlock(), createElementBlock("div", _hoisted_1$1, [
+          return openBlock(), createElementBlock("div", _hoisted_1$2, [
             _cache[5] || (_cache[5] = createBaseVNode("div", { class: "page-header" }, [
               createBaseVNode("div", null, [
                 createBaseVNode("h1", null, "下载任务"),
                 createBaseVNode("p", null, "实时查看下载与安装进度")
               ])
             ], -1)),
-            tasks.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_2$1, [
+            tasks.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_2$2, [
               createVNode(unref(NEmpty), { description: "暂无下载任务" })
-            ])) : (openBlock(), createElementBlock("div", _hoisted_3$1, [
+            ])) : (openBlock(), createElementBlock("div", _hoisted_3$2, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(tasks.value, (task) => {
                 return openBlock(), createElementBlock("div", {
                   key: task.id,
                   class: normalizeClass(["task-card", `task-card--${task.status}`])
                 }, [
-                  createBaseVNode("div", _hoisted_4$1, [
-                    createBaseVNode("div", _hoisted_5$1, [
+                  createBaseVNode("div", _hoisted_4$2, [
+                    createBaseVNode("div", _hoisted_5$2, [
                       createBaseVNode("span", null, toDisplayString(task.toolName), 1),
-                      createBaseVNode("span", _hoisted_6$1, "v" + toDisplayString(task.version), 1),
-                      task.status === "completed" && task.filePath ? (openBlock(), createElementBlock("span", _hoisted_7$1, toDisplayString(basename(task.filePath)), 1)) : createCommentVNode("", true)
+                      createBaseVNode("span", _hoisted_6$2, "v" + toDisplayString(task.version), 1),
+                      task.status === "completed" && task.filePath ? (openBlock(), createElementBlock("span", _hoisted_7$2, toDisplayString(basename(task.filePath)), 1)) : createCommentVNode("", true)
                     ]),
-                    createBaseVNode("div", _hoisted_8$1, [
-                      task.startedAt ? (openBlock(), createElementBlock("span", _hoisted_9$1, toDisplayString(formatTime(task.startedAt)), 1)) : createCommentVNode("", true),
-                      task.completedAt ? (openBlock(), createElementBlock("span", _hoisted_10$1, " · 耗时 " + toDisplayString(duration2(task.startedAt, task.completedAt)), 1)) : createCommentVNode("", true),
+                    createBaseVNode("div", _hoisted_8$2, [
+                      task.startedAt ? (openBlock(), createElementBlock("span", _hoisted_9$2, toDisplayString(formatTime(task.startedAt)), 1)) : createCommentVNode("", true),
+                      task.completedAt ? (openBlock(), createElementBlock("span", _hoisted_10$2, " · 耗时 " + toDisplayString(duration2(task.startedAt, task.completedAt)), 1)) : createCommentVNode("", true),
                       createVNode(unref(NTag), {
                         type: statusType(task.status),
                         size: "small"
@@ -38374,7 +47192,7 @@ default-character-set=utf8mb4
                       }, 1032, ["type"])
                     ])
                   ]),
-                  task.downloadUrl ? (openBlock(), createElementBlock("div", _hoisted_11$1, [
+                  task.downloadUrl ? (openBlock(), createElementBlock("div", _hoisted_11$2, [
                     _cache[0] || (_cache[0] = createBaseVNode("span", { class: "url-label" }, "地址", -1)),
                     createBaseVNode("span", _hoisted_12$1, toDisplayString(task.downloadUrl), 1)
                   ])) : createCommentVNode("", true),
@@ -38449,7 +47267,178 @@ default-character-set=utf8mb4
         };
       }
     });
-    const Downloads = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-dc20afae"]]);
+    const Downloads = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-dc20afae"]]);
+    const _hoisted_1$1 = { class: "ports" };
+    const _hoisted_2$1 = { class: "page-header" };
+    const _hoisted_3$1 = { class: "header-actions" };
+    const _hoisted_4$1 = { class: "stats-bar" };
+    const _hoisted_5$1 = { class: "stat-item" };
+    const _hoisted_6$1 = { class: "stat-num" };
+    const _hoisted_7$1 = { class: "stat-item" };
+    const _hoisted_8$1 = { class: "stat-num listening" };
+    const _hoisted_9$1 = { class: "stat-item" };
+    const _hoisted_10$1 = { class: "stat-num matched" };
+    const _hoisted_11$1 = { class: "table-wrap" };
+    const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+      __name: "Ports",
+      setup(__props) {
+        const query = /* @__PURE__ */ ref("");
+        const loading = /* @__PURE__ */ ref(false);
+        const rows = /* @__PURE__ */ ref([]);
+        const listeningCount = computed(() => rows.value.filter((row) => row.state.toLowerCase() === "listening" || row.state.toLowerCase() === "listen").length);
+        const filteredRows = computed(() => {
+          const q = query.value.trim().toLowerCase();
+          if (!q) return rows.value;
+          return rows.value.filter((row) => {
+            const fields = [
+              row.port,
+              row.localAddress,
+              row.remoteAddress,
+              row.remotePort,
+              row.state,
+              row.pid,
+              row.processName,
+              row.path
+            ].map((v) => String(v ?? "").toLowerCase());
+            return fields.some((field) => field.includes(q));
+          });
+        });
+        const columns = [
+          {
+            title: "端口",
+            key: "port",
+            width: 90,
+            sorter: (a, b) => a.port - b.port
+          },
+          {
+            title: "状态",
+            key: "state",
+            width: 120,
+            render(row) {
+              const normalized = row.state.toLowerCase();
+              const type = ["listen", "listening"].includes(normalized) ? "success" : normalized === "established" ? "info" : "default";
+              return h(NTag, { size: "small", type }, { default: () => stateLabel(row.state) });
+            }
+          },
+          {
+            title: "进程",
+            key: "processName",
+            width: 180,
+            render(row) {
+              return h("div", { class: "process-cell" }, [
+                h("span", { class: "process-name" }, row.processName || "未知进程"),
+                h("span", { class: "pid" }, `PID ${row.pid}`)
+              ]);
+            }
+          },
+          {
+            title: "本地地址",
+            key: "localAddress",
+            width: 180,
+            render(row) {
+              return h("span", { class: "mono" }, `${row.localAddress}:${row.port}`);
+            }
+          },
+          {
+            title: "远程地址",
+            key: "remoteAddress",
+            width: 180,
+            render(row) {
+              const remote = row.remoteAddress && row.remotePort ? `${row.remoteAddress}:${row.remotePort}` : "-";
+              return h("span", { class: "mono muted" }, remote);
+            }
+          },
+          {
+            title: "路径",
+            key: "path",
+            ellipsis: { tooltip: true },
+            render(row) {
+              return h("span", { class: "mono path-text" }, row.path || "-");
+            }
+          }
+        ];
+        function stateLabel(state) {
+          const normalized = state.toLowerCase();
+          const map2 = {
+            Listen: "监听",
+            LISTENING: "监听",
+            Established: "已连接",
+            ESTABLISHED: "已连接",
+            TimeWait: "等待关闭",
+            TIME_WAIT: "等待关闭",
+            CloseWait: "等待关闭",
+            CLOSE_WAIT: "等待关闭",
+            Bound: "已绑定"
+          };
+          return map2[state] ?? map2[normalized] ?? state;
+        }
+        async function loadPorts() {
+          loading.value = true;
+          try {
+            rows.value = await window.api.network.listPorts();
+          } finally {
+            loading.value = false;
+          }
+        }
+        onMounted(loadPorts);
+        return (_ctx, _cache) => {
+          return openBlock(), createElementBlock("div", _hoisted_1$1, [
+            createBaseVNode("div", _hoisted_2$1, [
+              _cache[2] || (_cache[2] = createBaseVNode("div", null, [
+                createBaseVNode("h1", null, "端口占用"),
+                createBaseVNode("p", null, "查看本机端口与进程占用情况")
+              ], -1)),
+              createBaseVNode("div", _hoisted_3$1, [
+                createVNode(unref(NInput), {
+                  value: query.value,
+                  "onUpdate:value": _cache[0] || (_cache[0] = ($event) => query.value = $event),
+                  placeholder: "输入端口、服务名或进程名",
+                  clearable: "",
+                  size: "small",
+                  style: { "width": "280px" }
+                }, null, 8, ["value"]),
+                createVNode(unref(Button), {
+                  type: "primary",
+                  size: "small",
+                  loading: loading.value,
+                  onClick: loadPorts
+                }, {
+                  default: withCtx(() => [..._cache[1] || (_cache[1] = [
+                    createTextVNode(" 刷新 ", -1)
+                  ])]),
+                  _: 1
+                }, 8, ["loading"])
+              ])
+            ]),
+            createBaseVNode("div", _hoisted_4$1, [
+              createBaseVNode("div", _hoisted_5$1, [
+                createBaseVNode("span", _hoisted_6$1, toDisplayString(rows.value.length), 1),
+                _cache[3] || (_cache[3] = createBaseVNode("span", { class: "stat-label" }, "全部记录", -1))
+              ]),
+              createBaseVNode("div", _hoisted_7$1, [
+                createBaseVNode("span", _hoisted_8$1, toDisplayString(listeningCount.value), 1),
+                _cache[4] || (_cache[4] = createBaseVNode("span", { class: "stat-label" }, "监听中", -1))
+              ]),
+              createBaseVNode("div", _hoisted_9$1, [
+                createBaseVNode("span", _hoisted_10$1, toDisplayString(filteredRows.value.length), 1),
+                _cache[5] || (_cache[5] = createBaseVNode("span", { class: "stat-label" }, "匹配结果", -1))
+              ])
+            ]),
+            createBaseVNode("div", _hoisted_11$1, [
+              createVNode(unref(NDataTable), {
+                columns,
+                data: filteredRows.value,
+                loading: loading.value,
+                pagination: { pageSize: 15 },
+                size: "small",
+                striped: ""
+              }, null, 8, ["data", "loading"])
+            ])
+          ]);
+        };
+      }
+    });
+    const Ports = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-895cf534"]]);
     const _hoisted_1 = { class: "settings" };
     const _hoisted_2 = {
       key: 0,
@@ -38745,10 +47734,11 @@ default-character-set=utf8mb4
       routes: [
         { path: "/", component: Dashboard },
         { path: "/downloads", component: Downloads },
+        { path: "/ports", component: Ports },
         { path: "/settings", component: Settings }
       ]
     });
-    const app = createApp(_sfc_main$4);
+    const app = createApp(_sfc_main$5);
     app.use(createPinia());
     app.use(router);
     app.mount("#app");

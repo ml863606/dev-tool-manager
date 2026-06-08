@@ -23,7 +23,9 @@ const api = {
   },
   network: {
     detect: () => electron.ipcRenderer.invoke("network:detect"),
-    probeAll: () => electron.ipcRenderer.invoke("network:probeAll")
+    probeAll: () => electron.ipcRenderer.invoke("network:probeAll"),
+    checkPort: (port) => electron.ipcRenderer.invoke("network:checkPort", port),
+    listPorts: () => electron.ipcRenderer.invoke("network:listPorts")
   },
   python: {
     fetchVersions: () => electron.ipcRenderer.invoke("python:fetchVersions")
@@ -41,6 +43,9 @@ const api = {
   mysql: {
     fetchVersions: () => electron.ipcRenderer.invoke("mysql:fetchVersions"),
     installLocal: (payload) => electron.ipcRenderer.invoke("mysql:installLocal", payload)
+  },
+  redis: {
+    installLocal: (payload) => electron.ipcRenderer.invoke("redis:installLocal", payload)
   },
   git: {
     fetchVersions: () => electron.ipcRenderer.invoke("git:fetchVersions")

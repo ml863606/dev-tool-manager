@@ -6,6 +6,8 @@ import { registerIpcHandlers } from './ipc-handlers'
 
 log.initialize()
 log.transports.file.level = 'info'
+process.stdout?.setDefaultEncoding?.('utf8')
+process.stderr?.setDefaultEncoding?.('utf8')
 
 app.disableHardwareAcceleration()
 app.commandLine.appendSwitch('disable-gpu')

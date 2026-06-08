@@ -1,4 +1,4 @@
-import type { AppSettings, DownloadTask, IpcDownloadPayload, MysqlInstallPayload, NodeVersion } from '../shared/types'
+import type { AppSettings, DownloadTask, IpcDownloadPayload, MysqlInstallPayload, NodeVersion, RedisInstallPayload } from '../shared/types'
 
 declare global {
   interface Window {
@@ -22,6 +22,8 @@ declare global {
       network: {
         detect: () => Promise<string>
         probeAll: () => Promise<Array<{ region: string; url: string; ok: boolean; latency: number | null }>>
+        checkPort: (port: number) => Promise<{ available: boolean; port: number; pid?: number; processName?: string; path?: string; state?: string }>
+        listPorts: () => Promise<Array<{ port: number; localAddress: string; remoteAddress?: string; remotePort?: number; state: string; pid: number; processName?: string; path?: string }>>
       }
       python: {
         fetchVersions: () => Promise<Array<{ version: string }>>
@@ -39,6 +41,9 @@ declare global {
       mysql: {
         fetchVersions: () => Promise<Array<{ version: string; date: string; lts: false; filename: string; downloadUrls: Record<string, string> }>>
         installLocal: (payload: MysqlInstallPayload) => Promise<string>
+      }
+      redis: {
+        installLocal: (payload: RedisInstallPayload) => Promise<string>
       }
       git: {
         fetchVersions: () => Promise<Array<{ version: string; date: string; lts: false; filename: string; downloadUrls: Record<string, string> }>>

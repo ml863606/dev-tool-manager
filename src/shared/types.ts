@@ -98,3 +98,14 @@ export interface MysqlInstallPayload {
   password: string
   myIni: string
 }
+
+export interface RedisInstallPayload {
+  version: string
+  filePath: string
+  installDir: string
+  serviceName: string
+  host: string
+  port: number
+  password: string
+  configText: string
+}

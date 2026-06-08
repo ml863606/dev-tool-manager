@@ -5,7 +5,7 @@
   "main": "./out/main/index.js",
   "author": "",
   "scripts": {
-    "dev": "set CHOKIDAR_USEPOLLING=1&& set CHOKIDAR_INTERVAL=300&& electron-vite dev -- --disable-gpu --disable-gpu-sandbox --disable-software-rasterizer",
+    "dev": "chcp 65001>nul && set NODE_OPTIONS=--enable-source-maps&& set CHOKIDAR_USEPOLLING=1&& set CHOKIDAR_INTERVAL=300&& electron-vite dev -- --disable-gpu --disable-gpu-sandbox --disable-software-rasterizer",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "package": "npm run build && electron-builder"

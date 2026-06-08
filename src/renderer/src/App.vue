@@ -18,6 +18,10 @@
               <span>下载任务</span>
               <n-badge v-if="activeCount > 0" :value="activeCount" type="info" />
             </router-link>
+            <router-link to="/ports" class="nav-item" active-class="nav-item--active">
+              <n-icon :component="TerminalOutline" size="18" />
+              <span>端口占用</span>
+            </router-link>
             <router-link to="/settings" class="nav-item" active-class="nav-item--active">
               <n-icon :component="SettingsOutline" size="18" />
               <span>设置</span>
@@ -40,7 +44,7 @@
 import { computed, onMounted } from 'vue'
 import { darkTheme } from 'naive-ui'
 import { NConfigProvider, NMessageProvider, NIcon, NBadge } from 'naive-ui'
-import { GridOutline, CloudDownloadOutline, SettingsOutline } from '@vicons/ionicons5'
+import { GridOutline, CloudDownloadOutline, SettingsOutline, TerminalOutline } from '@vicons/ionicons5'
 import { useToolsStore } from './stores/tools'
 
 const themeOverrides = {

@@ -941,6 +941,26 @@ function runLoggedProcess(command, args, cwd, onLog) {
     });
   });
 }
+async function checkPortUsage(port) {
+  const safePort = Number(port);
+  if (!Number.isInteger(safePort) || safePort < 1 || safePort > 65535) {
+    return { available: false, port: safePort, state: "invalid" };
+  }
+  try {
+    const ps = [
+      `$conn = Get-NetTCPConnection -LocalPort ${safePort} -ErrorAction SilentlyContinue | Select-Object -First 1;`,
+      `if ($null -eq $conn) { Write-Output '{"available":true,"port":${safePort}}'; exit }`,
+      `$proc = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue;`,
+      `$result = [ordered]@{ available=$false; port=${safePort}; pid=$conn.OwningProcess; state=[string]$conn.State; processName=$proc.ProcessName; path=$proc.Path };`,
+      `$result | ConvertTo-Json -Compress`
+    ].join(" ");
+    const { stdout } = await execAsync(`powershell -NoProfile -Command "${ps.replace(/"/g, '\\"')}"`, { timeout: 3e3 });
+    return JSON.parse(stdout.trim());
+  } catch (err) {
+    log.warn(`[port check] 端口 ${safePort} 检测失败: ${err?.message ?? err}`);
+    return { available: true, port: safePort };
+  }
+}
 const store = new Store({
   defaults: {
     settings: DEFAULT_SETTINGS,
@@ -1073,6 +1093,55 @@ function registerIpcHandlers(mainWindow2) {
   electron.ipcMain.handle("network:probeAll", async () => {
     const settings = store.get("settings");
     return probeAll(settings.probeTimeoutMs);
+  });
+  electron.ipcMain.handle("network:checkPort", async (_event, port) => {
+    return checkPortUsage(port);
+  });
+  electron.ipcMain.handle("network:listPorts", async () => {
+    try {
+      const { stdout } = await execAsync("netstat -ano -p tcp", { timeout: 5e3, maxBuffer: 1024 * 1024 * 8 });
+      const rows = stdout.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.startsWith("TCP")).map((line) => {
+        const parts = line.split(/\s+/);
+        const local = parts[1] ?? "";
+        const remote = parts[2] ?? "";
+        const state = parts[3] ?? "";
+        const pid = Number(parts[4] ?? 0);
+        const localPort = Number(local.slice(local.lastIndexOf(":") + 1));
+        const remotePort = Number(remote.slice(remote.lastIndexOf(":") + 1));
+        return {
+          port: localPort,
+          localAddress: local.slice(0, local.lastIndexOf(":")),
+          remoteAddress: remote.slice(0, remote.lastIndexOf(":")),
+          remotePort: Number.isFinite(remotePort) ? remotePort : 0,
+          state,
+          pid
+        };
+      }).filter((row) => Number.isFinite(row.port) && row.port > 0);
+      const pids = [...new Set(rows.map((row) => row.pid).filter(Boolean))];
+      let processMap = {};
+      if (pids.length) {
+        try {
+          const ps = [
+            `$ids = @(${pids.join(",")});`,
+            `$ids | ForEach-Object {`,
+            `  $proc = Get-Process -Id $_ -ErrorAction SilentlyContinue;`,
+            `  if ($proc) { [ordered]@{ pid=[int]$proc.Id; processName=[string]$proc.ProcessName; path=[string]$proc.Path } }`,
+            `} | ConvertTo-Json -Compress`
+          ].join(" ");
+          const { stdout: procOut } = await execAsync(`powershell -NoProfile -Command "${ps.replace(/"/g, '\\"')}"`, { timeout: 5e3, maxBuffer: 1024 * 1024 * 4 });
+          const raw = procOut.trim();
+          const parsed = raw ? JSON.parse(raw) : [];
+          const list = Array.isArray(parsed) ? parsed : [parsed];
+          processMap = Object.fromEntries(list.map((item) => [String(item.pid), { processName: item.processName, path: item.path }]));
+        } catch (err) {
+          log.warn(`[port list] 获取进程信息失败: ${err?.message ?? err}`);
+        }
+      }
+      return rows.map((row) => ({ ...row, ...processMap[String(row.pid)] ?? {} })).sort((a, b) => a.port - b.port || a.pid - b.pid);
+    } catch (err) {
+      log.warn(`[port list] 获取端口占用失败: ${err?.message ?? err}`);
+      return [];
+    }
   });
   electron.ipcMain.on("renderer:log", (_event, level, ...args) => {
     const msg = args.map((a) => typeof a === "object" ? JSON.stringify(a) : String(a)).join(" ");
@@ -1304,6 +1373,12 @@ function registerIpcHandlers(mainWindow2) {
       sendLog(`开始 MySQL 本地安装: ${payload.version}`);
       sendLog(`安装包: ${payload.filePath}`);
       sendLog(`解压目录: ${installDir}`);
+      const portUsage = await checkPortUsage(payload.port);
+      if (!portUsage.available) {
+        const owner = portUsage.processName ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ""}` : portUsage.pid ? `PID ${portUsage.pid}` : "未知进程";
+        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`);
+      }
+      sendLog(`端口 ${payload.port} 可用`);
       if (await fsExtra.pathExists(installDir)) {
         await fsExtra.remove(installDir);
         sendLog("已清理旧解压目录");
@@ -1356,6 +1431,97 @@ function registerIpcHandlers(mainWindow2) {
       sendLog(`安装失败: ${message}`);
       await done({ status: "error", error: message });
       mainWindow2.webContents.send("install:complete", { taskId, toolId: "mysql", success: false, error: message });
+      return taskId;
+    }
+  });
+  electron.ipcMain.handle("redis:installLocal", async (_event, payload) => {
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "redis");
+    const taskId = generateId();
+    const task = {
+      id: taskId,
+      toolId: "redis",
+      toolName: toolConfig?.name ?? "Redis",
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
+      downloadedSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
+      mirrorUsed: "huawei",
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    mainWindow2.webContents.send("download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
+    const done = async (patch) => {
+      const next = { ...task, ...patch, completedAt: (/* @__PURE__ */ new Date()).toISOString() };
+      mainWindow2.webContents.send("download:progress", next);
+      await upsertTask(next);
+    };
+    try {
+      if (!fs.existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`);
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Redis 本地安装仅支持 zip 包");
+      const installDir = payload.installDir;
+      const redisServer = path.join(installDir, "redis-server.exe");
+      const redisCli = path.join(installDir, "redis-cli.exe");
+      const redisConf = path.join(installDir, "redis.conf");
+      sendLog(`开始 Redis 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      const portUsage = await checkPortUsage(payload.port);
+      if (!portUsage.available) {
+        const owner = portUsage.processName ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ""}` : portUsage.pid ? `PID ${portUsage.pid}` : "未知进程";
+        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`);
+      }
+      sendLog(`端口 ${payload.port} 可用`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧解压目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (await fsExtra.pathExists(path.join(subDir, "redis-server.exe"))) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+        }
+      }
+      sendLog("解压完成");
+      if (!fs.existsSync(redisServer)) throw new Error(`未找到 redis-server.exe: ${redisServer}`);
+      fs.writeFileSync(redisConf, payload.configText, "utf8");
+      sendLog(`已写入配置文件: ${redisConf}`);
+      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
+      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
+      await runLoggedProcess(redisServer, ["--service-install", redisConf, "--service-name", payload.serviceName, "--loglevel", "notice"], installDir, sendLog);
+      sendLog(`服务注册完成: ${payload.serviceName}`);
+      await runLoggedProcess(redisServer, ["--service-start", "--service-name", payload.serviceName], installDir, sendLog);
+      sendLog("服务启动完成");
+      const installed = store.get("installed");
+      installed.redis = {
+        id: "redis",
+        version: payload.version,
+        installPath: installDir,
+        exePath: redisCli,
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store.set("installed", installed);
+      sendLog("Redis 安装完成");
+      await done({ status: "completed", progress: 100 });
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "redis", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`安装失败: ${message}`);
+      await done({ status: "error", error: message });
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "redis", success: false, error: message });
       return taskId;
     }
   });
@@ -1871,6 +2037,8 @@ function registerIpcHandlers(mainWindow2) {
 }
 log.initialize();
 log.transports.file.level = "info";
+process.stdout?.setDefaultEncoding?.("utf8");
+process.stderr?.setDefaultEncoding?.("utf8");
 electron.app.disableHardwareAcceleration();
 electron.app.commandLine.appendSwitch("disable-gpu");
 electron.app.commandLine.appendSwitch("disable-gpu-compositing");
