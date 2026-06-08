@@ -7,6 +7,10 @@ import { registerIpcHandlers } from './ipc-handlers'
 log.initialize()
 log.transports.file.level = 'info'
 
+app.disableHardwareAcceleration()
+app.commandLine.appendSwitch('disable-gpu')
+app.commandLine.appendSwitch('disable-gpu-compositing')
+
 let mainWindow: BrowserWindow
 
 function createWindow(): void {

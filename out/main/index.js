@@ -1575,6 +1575,9 @@ function registerIpcHandlers(mainWindow2) {
 }
 log.initialize();
 log.transports.file.level = "info";
+electron.app.disableHardwareAcceleration();
+electron.app.commandLine.appendSwitch("disable-gpu");
+electron.app.commandLine.appendSwitch("disable-gpu-compositing");
 let mainWindow;
 function createWindow() {
   mainWindow = new electron.BrowserWindow({
