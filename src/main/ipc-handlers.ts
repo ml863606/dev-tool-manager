@@ -511,9 +511,19 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     const settings = store.get('settings') as AppSettings
     const downloadDir = settings.downloadDir || join(settings.installBaseDir, '_downloads')
     const filePath = join(downloadDir, filename)
-    if (!existsSync(filePath)) return null
-    const stat = statSync(filePath)
-    return { filePath, size: formatBytes(stat.size) }
+    if (existsSync(filePath)) {
+      const stat = statSync(filePath)
+      return { filePath, size: formatBytes(stat.size) }
+    }
+
+    const cache = await loadTaskCache()
+    for (const [, task] of cache.downloadTasks) {
+      if (task.filePath && basename(task.filePath) === filename && existsSync(task.filePath)) {
+        const stat = statSync(task.filePath)
+        return { filePath: task.filePath, size: formatBytes(stat.size) }
+      }
+    }
+    return null
   })
 
   ipcMain.handle('mysql:installLocal', async (_event, payload: MysqlInstallPayload) => {
@@ -669,6 +679,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
       const installDir = payload.installDir
       const redisServer = join(installDir, 'redis-server.exe')
+      const redisService = join(installDir, 'RedisService.exe')
       const redisCli = join(installDir, 'redis-cli.exe')
       const redisConf = join(installDir, 'redis.conf')
 
@@ -697,7 +708,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       const entries = await import('fs').then((fs) => fs.readdirSync(installDir))
       if (entries.length === 1) {
         const subDir = join(installDir, entries[0])
-        if (await pathExists(join(subDir, 'redis-server.exe'))) {
+        if (await pathExists(join(subDir, 'redis-server.exe')) || await pathExists(join(subDir, 'RedisService.exe'))) {
           const tmpDir = `${installDir}_tmp`
           await move(subDir, tmpDir)
           await remove(installDir)
@@ -707,16 +718,27 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       sendLog('解压完成')
 
       if (!existsSync(redisServer)) throw new Error(`未找到 redis-server.exe: ${redisServer}`)
+      if (!existsSync(redisService)) throw new Error(`未找到 RedisService.exe: ${redisService}`)
       writeFileSync(redisConf, payload.configText, 'utf8')
       sendLog(`已写入配置文件: ${redisConf}`)
 
       const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false)
       if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`)
 
-      await runLoggedProcess(redisServer, ['--service-install', redisConf, '--service-name', payload.serviceName, '--loglevel', 'notice'], installDir, sendLog)
+      await runLoggedProcess(redisService, [
+        'install',
+        '-c', redisConf,
+        '--dir', installDir,
+        '--port', String(payload.port),
+        '--service-name', payload.serviceName,
+        '--display-name', payload.serviceName,
+        '--description', `Redis ${payload.version}`,
+        '--start-mode', 'auto',
+        '--loglevel', 'notice'
+      ], installDir, sendLog)
       sendLog(`服务注册完成: ${payload.serviceName}`)
 
-      await runLoggedProcess(redisServer, ['--service-start', '--service-name', payload.serviceName], installDir, sendLog)
+      await runLoggedProcess('net', ['start', payload.serviceName], installDir, sendLog)
       sendLog('服务启动完成')
 
       const installed = store.get('installed') as Record<string, InstalledTool>

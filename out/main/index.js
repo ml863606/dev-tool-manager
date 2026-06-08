@@ -1350,9 +1350,18 @@ function registerIpcHandlers(mainWindow2) {
     const settings = store.get("settings");
     const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
     const filePath = path.join(downloadDir, filename);
-    if (!fs.existsSync(filePath)) return null;
-    const stat = fs.statSync(filePath);
-    return { filePath, size: formatBytes(stat.size) };
+    if (fs.existsSync(filePath)) {
+      const stat = fs.statSync(filePath);
+      return { filePath, size: formatBytes(stat.size) };
+    }
+    const cache = await loadTaskCache();
+    for (const [, task] of cache.downloadTasks) {
+      if (task.filePath && path.basename(task.filePath) === filename && fs.existsSync(task.filePath)) {
+        const stat = fs.statSync(task.filePath);
+        return { filePath: task.filePath, size: formatBytes(stat.size) };
+      }
+    }
+    return null;
   });
   electron.ipcMain.handle("mysql:installLocal", async (_event, payload) => {
     const toolsCatalog = await getToolsCatalog();
@@ -1486,6 +1495,7 @@ function registerIpcHandlers(mainWindow2) {
       if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Redis 本地安装仅支持 zip 包");
       const installDir = payload.installDir;
       const redisServer = path.join(installDir, "redis-server.exe");
+      const redisService = path.join(installDir, "RedisService.exe");
       const redisCli = path.join(installDir, "redis-cli.exe");
       const redisConf = path.join(installDir, "redis.conf");
       sendLog(`开始 Redis 本地安装: ${payload.version}`);
@@ -1507,7 +1517,7 @@ function registerIpcHandlers(mainWindow2) {
       const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
       if (entries.length === 1) {
         const subDir = path.join(installDir, entries[0]);
-        if (await fsExtra.pathExists(path.join(subDir, "redis-server.exe"))) {
+        if (await fsExtra.pathExists(path.join(subDir, "redis-server.exe")) || await fsExtra.pathExists(path.join(subDir, "RedisService.exe"))) {
           const tmpDir = `${installDir}_tmp`;
           await fsExtra.move(subDir, tmpDir);
           await fsExtra.remove(installDir);
@@ -1516,13 +1526,32 @@ function registerIpcHandlers(mainWindow2) {
       }
       sendLog("解压完成");
       if (!fs.existsSync(redisServer)) throw new Error(`未找到 redis-server.exe: ${redisServer}`);
+      if (!fs.existsSync(redisService)) throw new Error(`未找到 RedisService.exe: ${redisService}`);
       fs.writeFileSync(redisConf, payload.configText, "utf8");
       sendLog(`已写入配置文件: ${redisConf}`);
       const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
       if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
-      await runLoggedProcess(redisServer, ["--service-install", redisConf, "--service-name", payload.serviceName, "--loglevel", "notice"], installDir, sendLog);
+      await runLoggedProcess(redisService, [
+        "install",
+        "-c",
+        redisConf,
+        "--dir",
+        installDir,
+        "--port",
+        String(payload.port),
+        "--service-name",
+        payload.serviceName,
+        "--display-name",
+        payload.serviceName,
+        "--description",
+        `Redis ${payload.version}`,
+        "--start-mode",
+        "auto",
+        "--loglevel",
+        "notice"
+      ], installDir, sendLog);
       sendLog(`服务注册完成: ${payload.serviceName}`);
-      await runLoggedProcess(redisServer, ["--service-start", "--service-name", payload.serviceName], installDir, sendLog);
+      await runLoggedProcess("net", ["start", payload.serviceName], installDir, sendLog);
       sendLog("服务启动完成");
       const installed = store.get("installed");
       installed.redis = {

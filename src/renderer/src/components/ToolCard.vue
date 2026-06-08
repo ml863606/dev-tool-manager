@@ -483,6 +483,16 @@ watch(
 )
 
 watch(
+  () => [...store.downloadTasks.values()]
+    .filter((task) => task.toolId === props.tool.id && task.status === 'completed')
+    .map((task) => `${task.version}:${task.filePath ?? ''}`)
+    .join('|'),
+  () => {
+    void refreshCachedPackage()
+  }
+)
+
+watch(
   mysqlForm,
   () => {
     mysqlIniPreview.value = buildMysqlIni()

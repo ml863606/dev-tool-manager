@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-Brk6gy3S.js"(exports, module) {
+  "assets/index-Bq114apv.js"(exports, module) {
     /**
     * @vue/shared v3.5.33
     * (c) 2018-present Yuxi (Evan) You and Vue contributors
@@ -45882,6 +45882,12 @@ ${style2}
           { deep: true, immediate: true }
         );
         watch(
+          () => [...store.downloadTasks.values()].filter((task) => task.toolId === props.tool.id && task.status === "completed").map((task) => `${task.version}:${task.filePath ?? ""}`).join("|"),
+          () => {
+            void refreshCachedPackage();
+          }
+        );
+        watch(
           mysqlForm,
           () => {
             mysqlIniPreview.value = buildMysqlIni();
@@ -46831,7 +46837,7 @@ ${password}
       }
       return target;
     };
-    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-4e8e7dec"]]);
+    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-4d5f1cc2"]]);
     const _hoisted_1$3 = { class: "dashboard" };
     const _hoisted_2$3 = { class: "page-header" };
     const _hoisted_3$3 = { class: "header-actions" };
