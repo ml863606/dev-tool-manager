@@ -1,8 +1,8 @@
 <template>
   <div class="tool-card" :class="{ 'tool-card--installed': isInstalled }">
     <div class="card-header">
-      <div class="tool-icon" :class="`icon-${tool.icon}`">
-        {{ iconText }}
+      <div class="tool-icon">
+        <img v-if="logoUrl" :src="logoUrl" :alt="`${tool.name} logo`" class="tool-logo" />
       </div>
       <div class="tool-meta">
         <div class="tool-name">{{ tool.name }}</div>
@@ -610,21 +610,8 @@ const categoryLabel = computed(() => {
   return map[props.tool.category] ?? props.tool.category
 })
 
-const iconText = computed(() => {
-  const map: Record<string, string> = {
-    java: 'J',
-    maven: 'Mvn',
-    python: 'Py',
-    nodejs: 'N',
-    mysql: 'My',
-    redis: 'R',
-    claude: 'C',
-    openai: 'AI',
-    git: 'G',
-    vscode: 'VS'
-  }
-  return map[props.tool.icon] ?? props.tool.icon[0].toUpperCase()
-})
+const logoModules = import.meta.glob('../assets/logo/*.svg', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+const logoUrl = computed(() => logoModules[`../assets/logo/${props.tool.icon}.svg`] ?? '')
 
 async function handleInstall() {
   window.api.log('info', `[ToolCard] handleInstall: tool=${props.tool.id} ver=${selectedVersion.value} submitting=${submitting.value} isDownloading=${isDownloading.value}`)
@@ -981,26 +968,20 @@ function handleOpenDir() {
 .tool-icon {
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  background: #2d2557;
-  color: #a89cff;
+  background: #f5f5f8;
+  border: 1px solid #ffffff18;
   flex-shrink: 0;
 }
-.icon-java { background: #3a1a1a; color: #ff8c69; }
-.icon-maven { background: #3a1a2a; color: #ff6eb4; }
-.icon-python { background: #1a2a3a; color: #69b4ff; }
-.icon-nodejs { background: #1a3a1a; color: #69ff8c; }
-.icon-mysql { background: #1a2c3a; color: #7cc8ff; }
-.icon-redis { background: #3a1a1d; color: #ff7777; }
-.icon-claude { background: #2d1a3a; color: #c469ff; }
-.icon-openai { background: #1a2a2a; color: #69ffd4; }
-.icon-git { background: #3a1a1a; color: #ff6980; }
-.icon-vscode { background: #1a2a3a; color: #69c4ff; }
+.tool-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
 
 .tool-meta { flex: 1; min-width: 0; }
 .tool-name { font-size: 15px; font-weight: 600; color: #e0e0e0; }
