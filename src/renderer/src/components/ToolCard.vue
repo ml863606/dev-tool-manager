@@ -66,7 +66,7 @@
         :loading="dynamicVersionsLoading"
         placeholder="加载版本中..."
       />
-      <n-tooltip placement="top" :delay="300" :disabled="!downloadUrlPreview">
+      <n-tooltip v-if="!showMysqlLocalInstall" placement="top" :delay="300" :disabled="!downloadUrlPreview">
         <template #trigger>
           <n-button
             size="small"
@@ -81,6 +81,14 @@
         </template>
         <span class="url-tooltip">{{ downloadUrlPreview }}</span>
       </n-tooltip>
+      <n-tooltip v-else placement="top" :delay="300">
+        <template #trigger>
+          <n-button size="small" type="primary" ghost :disabled="isDownloading" @click="openMysqlInstallWizard">
+            本地安装
+          </n-button>
+        </template>
+        <span class="url-tooltip">{{ cachedPackage?.filePath }}</span>
+      </n-tooltip>
       <n-button
         v-if="props.tool.id === 'nodejs'"
         size="small"
@@ -93,7 +101,7 @@
       <template v-if="!isInstalled">
         <n-tooltip placement="top" :delay="300" :disabled="!downloadUrlPreview">
           <template #trigger>
-            <n-button type="primary" size="small" :loading="submitting || isDownloading" :disabled="submitting || isDownloading" @click="handleInstall">
+            <n-button type="primary" size="small" :loading="submitting || isDownloading" :disabled="submitting || isDownloading || showMysqlLocalInstall" @click="handleInstall">
               {{ submitting ? '准备中...' : isDownloading ? '处理中...' : '下载安装' }}
             </n-button>
           </template>
@@ -158,11 +166,73 @@
       </div>
     </div>
   </n-modal>
+
+  <n-modal v-model:show="showMysqlWizard" preset="card" title="MySQL 本地安装" style="width: 820px" :mask-closable="false">
+    <n-steps :current="mysqlStep" size="small" style="margin-bottom: 18px">
+      <n-step title="解压位置" />
+      <n-step title="服务配置" />
+      <n-step title="预览配置" />
+      <n-step title="开始安装" />
+    </n-steps>
+
+    <div v-if="mysqlStep === 1" class="wizard-pane">
+      <div class="field-label">安装包</div>
+      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
+      <div class="field-label">默认解压位置</div>
+      <div class="dir-row">
+        <n-input v-model:value="mysqlForm.installDir" />
+        <n-button @click="selectMysqlInstallDir">选择</n-button>
+      </div>
+    </div>
+
+    <div v-else-if="mysqlStep === 2" class="wizard-pane form-grid">
+      <div>
+        <div class="field-label">服务名</div>
+        <n-input v-model:value="mysqlForm.serviceName" />
+      </div>
+      <div>
+        <div class="field-label">IP</div>
+        <n-input v-model:value="mysqlForm.host" />
+      </div>
+      <div>
+        <div class="field-label">端口</div>
+        <n-input-number v-model:value="mysqlForm.port" :min="1" :max="65535" style="width: 100%" />
+      </div>
+      <div>
+        <div class="field-label">root 密码</div>
+        <n-input v-model:value="mysqlForm.password" type="password" show-password-on="click" />
+      </div>
+    </div>
+
+    <div v-else-if="mysqlStep === 3" class="wizard-pane">
+      <div class="field-label">my.ini</div>
+      <n-input v-model:value="mysqlIniPreview" type="textarea" :autosize="{ minRows: 18, maxRows: 24 }" />
+    </div>
+
+    <div v-else class="wizard-pane">
+      <div class="ready-box">
+        <div>安装目录：{{ mysqlForm.installDir }}</div>
+        <div>服务：{{ mysqlForm.serviceName }} · {{ mysqlForm.host }}:{{ mysqlForm.port }}</div>
+        <div>确认后会解压、初始化数据目录、注册并启动 Windows 服务。</div>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="wizard-footer">
+        <n-button :disabled="mysqlInstalling" @click="closeMysqlWizard">取消</n-button>
+        <n-button v-if="mysqlStep > 1" :disabled="mysqlInstalling" @click="mysqlStep--">上一步</n-button>
+        <n-button v-if="mysqlStep < 4" type="primary" :disabled="!canAdvanceMysqlStep" @click="mysqlStep++">下一步</n-button>
+        <n-button v-else type="primary" :loading="mysqlInstalling" :disabled="!canStartMysqlInstall" @click="startMysqlLocalInstall">
+          开始安装
+        </n-button>
+      </div>
+    </template>
+  </n-modal>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, h } from 'vue'
-import { NTag, NButton, NSelect, NProgress, NTooltip, NIcon, NModal } from 'naive-ui'
+import { computed, ref, onMounted, watch, h } from 'vue'
+import { NTag, NButton, NSelect, NProgress, NTooltip, NIcon, NModal, NSteps, NStep, NInput, NInputNumber } from 'naive-ui'
 import { CloudDownloadOutline } from '@vicons/ionicons5'
 import { useToolsStore } from '../stores/tools'
 import type { NodeVersion } from '../../../shared/types'
@@ -196,9 +266,26 @@ const npmRegistryLoading = ref(false)
 const settingNpmRegistry = ref(false)
 const pendingRegistryUrl = ref('')
 const npmRegistries = ref<Array<{ name: string; url: string; ok: boolean; latency: number | null; current: boolean }>>([])
+const cachedPackage = ref<{ filePath: string; size: string } | null>(null)
+const showMysqlWizard = ref(false)
+const mysqlStep = ref(1)
+const mysqlInstalling = ref(false)
+const mysqlForm = ref({
+  installDir: 'C:\\DevTools\\mysql',
+  serviceName: 'MySQL',
+  host: '127.0.0.1',
+  port: 3306,
+  password: '123456'
+})
+const mysqlIniPreview = ref('')
 
-const DYNAMIC_TOOLS = ['nodejs', 'maven', 'jdk', 'python', 'git', 'codex', 'claude-code']
+const DYNAMIC_TOOLS = ['nodejs', 'maven', 'jdk', 'python', 'mysql', 'git', 'codex', 'claude-code']
 const isDynamic = computed(() => DYNAMIC_TOOLS.includes(props.tool.id))
+const selectedFilename = computed(() => {
+  const built = isDynamic.value ? buildDynamicUrls(selectedVersion.value) : undefined
+  return built?.filename ?? props.tool.versions?.find((v: any) => v.version === selectedVersion.value)?.filename ?? ''
+})
+const showMysqlLocalInstall = computed(() => props.tool.id === 'mysql' && !!cachedPackage.value)
 
 const versionOptions = computed(() => {
   if (isDynamic.value && dynamicVersions.value.length) {
@@ -228,7 +315,7 @@ function renderVersionLabel(option: any) {
 }
 
 function buildDynamicUrls(version: string): { urls: Record<string, string>; filename?: string } | undefined {
-  if (props.tool.id === 'jdk' || props.tool.id === 'git' || props.tool.id === 'python' || props.tool.id === 'codex' || props.tool.id === 'claude-code') {
+  if (props.tool.id === 'jdk' || props.tool.id === 'git' || props.tool.id === 'python' || props.tool.id === 'mysql' || props.tool.id === 'codex' || props.tool.id === 'claude-code') {
     const ver = dynamicVersions.value.find((v) => v.version === version)
     if (ver?.downloadUrls) return { urls: { ...ver.downloadUrls }, filename: ver.filename }
     return undefined
@@ -286,6 +373,9 @@ onMounted(async () => {
     } else if (props.tool.id === 'maven') {
       list = await window.api.maven.fetchVersions()
       selectedVersion.value = list[0]?.version ?? selectedVersion.value
+    } else if (props.tool.id === 'mysql') {
+      list = await window.api.mysql.fetchVersions()
+      selectedVersion.value = list[0]?.version ?? selectedVersion.value
     } else if (props.tool.id === 'git') {
       list = await window.api.git.fetchVersions()
       selectedVersion.value = list[0]?.version ?? selectedVersion.value
@@ -301,6 +391,22 @@ onMounted(async () => {
     dynamicVersionsLoading.value = false
   }
 })
+
+watch(
+  [selectedVersion, dynamicVersions],
+  () => {
+    void refreshCachedPackage()
+  },
+  { deep: true, immediate: true }
+)
+
+watch(
+  mysqlForm,
+  () => {
+    mysqlIniPreview.value = buildMysqlIni()
+  },
+  { deep: true }
+)
 
 async function handleJdkVendorChange(vendorId: string) {
   if (props.tool.id !== 'jdk') return
@@ -372,6 +478,7 @@ const categoryLabel = computed(() => {
   const map: Record<string, string> = {
     backend: '后端',
     frontend: '前端',
+    database: '数据库',
     ai: 'AI 工具',
     other: '其他'
   }
@@ -384,6 +491,8 @@ const iconText = computed(() => {
     maven: 'Mvn',
     python: 'Py',
     nodejs: 'N',
+    mysql: 'My',
+    redis: 'R',
     claude: 'C',
     openai: 'AI',
     git: 'G',
@@ -467,6 +576,97 @@ async function applyNpmRegistry(url: string) {
   }
 }
 
+function normalizeIniPath(path: string) {
+  return path.replace(/\\/g, '/')
+}
+
+function buildMysqlIni() {
+  const installDir = normalizeIniPath(mysqlForm.value.installDir)
+  return `[mysqld]
+basedir=${installDir}
+datadir=${installDir}/data
+port=${mysqlForm.value.port || 3306}
+bind-address=${mysqlForm.value.host || '127.0.0.1'}
+character-set-server=utf8mb4
+default-storage-engine=INNODB
+sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+
+[client]
+port=${mysqlForm.value.port || 3306}
+default-character-set=utf8mb4
+
+[mysql]
+default-character-set=utf8mb4
+`
+}
+
+async function refreshCachedPackage() {
+  if (props.tool.id !== 'mysql') return
+  const filename = selectedFilename.value
+  if (!filename) {
+    cachedPackage.value = null
+    return
+  }
+  cachedPackage.value = await window.api.download.findCached(filename)
+}
+
+function openMysqlInstallWizard() {
+  if (!cachedPackage.value) return
+  mysqlStep.value = 1
+  mysqlForm.value = {
+    installDir: `C:\\DevTools\\mysql-${selectedVersion.value}`,
+    serviceName: 'MySQL',
+    host: '127.0.0.1',
+    port: 3306,
+    password: '123456'
+  }
+  mysqlIniPreview.value = buildMysqlIni()
+  showMysqlWizard.value = true
+}
+
+function closeMysqlWizard() {
+  if (mysqlInstalling.value) return
+  showMysqlWizard.value = false
+}
+
+async function selectMysqlInstallDir() {
+  const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir)
+  if (selected) mysqlForm.value.installDir = selected
+}
+
+const canAdvanceMysqlStep = computed(() => {
+  if (mysqlStep.value === 1) return !!cachedPackage.value?.filePath && !!mysqlForm.value.installDir
+  if (mysqlStep.value === 2) return !!mysqlForm.value.serviceName && !!mysqlForm.value.host && !!mysqlForm.value.port && !!mysqlForm.value.password
+  if (mysqlStep.value === 3) return !!mysqlIniPreview.value.trim()
+  return true
+})
+
+const canStartMysqlInstall = computed(() => canAdvanceMysqlStep.value && !!cachedPackage.value?.filePath && !!mysqlIniPreview.value.trim())
+
+async function startMysqlLocalInstall() {
+  if (!cachedPackage.value || mysqlInstalling.value) return
+  mysqlInstalling.value = true
+  try {
+    const taskId = await window.api.mysql.installLocal({
+      version: selectedVersion.value,
+      filePath: cachedPackage.value.filePath,
+      installDir: mysqlForm.value.installDir,
+      serviceName: mysqlForm.value.serviceName,
+      host: mysqlForm.value.host,
+      port: Number(mysqlForm.value.port || 3306),
+      password: mysqlForm.value.password,
+      myIni: mysqlIniPreview.value
+    })
+    window.api.log('info', `[ToolCard] mysql local install taskId=${taskId}`)
+    showMysqlWizard.value = false
+    await store.loadTools()
+  } catch (err: any) {
+    window.api.log('error', `[ToolCard] mysql local install ERROR: ${err?.message ?? err}`)
+  } finally {
+    mysqlInstalling.value = false
+  }
+}
+
 const canOpenPath = computed(() => {
   const p = props.tool.installed?.installPath
   return !!p && p !== 'system' && p !== 'global'
@@ -544,6 +744,8 @@ function handleOpenDir() {
 .icon-maven { background: #3a1a2a; color: #ff6eb4; }
 .icon-python { background: #1a2a3a; color: #69b4ff; }
 .icon-nodejs { background: #1a3a1a; color: #69ff8c; }
+.icon-mysql { background: #1a2c3a; color: #7cc8ff; }
+.icon-redis { background: #3a1a1d; color: #ff7777; }
 .icon-claude { background: #2d1a3a; color: #c469ff; }
 .icon-openai { background: #1a2a2a; color: #69ffd4; }
 .icon-git { background: #3a1a1a; color: #ff6980; }
@@ -657,4 +859,31 @@ function handleOpenDir() {
   background: #2a3f67;
   color: #91c0ff;
 }
+
+.wizard-pane { display: flex; flex-direction: column; gap: 10px; }
+.field-label { font-size: 12px; color: #8f8fa8; }
+.readonly-path {
+  font-family: monospace;
+  font-size: 12px;
+  color: #a8a8c6;
+  background: #11111f;
+  border: 1px solid #2b2b44;
+  border-radius: 6px;
+  padding: 8px 10px;
+  word-break: break-all;
+}
+.dir-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ready-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #c0c0d0;
+  background: #11111f;
+  border: 1px solid #2b2b44;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+}
+.wizard-footer { display: flex; justify-content: flex-end; gap: 8px; }
 </style>

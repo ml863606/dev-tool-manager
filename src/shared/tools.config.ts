@@ -109,6 +109,50 @@ export const TOOLS_CONFIG: ToolConfig[] = [
     ]
   },
   {
+    id: 'mysql',
+    name: 'MySQL',
+    description: 'MySQL 数据库服务端与命令行工具',
+    category: 'database',
+    icon: 'mysql',
+    homepage: 'https://www.mysql.com',
+    verifyCommand: 'mysql --version',
+    pathAppend: 'bin',
+    versions: [
+      {
+        version: '8.0.27',
+        filename: 'mysql-8.0.27-winx64.zip',
+        downloadUrls: {
+          official: 'https://cdn.mysql.com/archives/mysql-8.0/mysql-8.0.27-winx64.zip',
+          aliyun: 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.27-winx64.zip',
+          huawei: 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.27-winx64.zip',
+          tencent: 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.27-winx64.zip'
+        }
+      }
+    ]
+  },
+  {
+    id: 'redis',
+    name: 'Redis',
+    description: 'Redis 内存数据库 Windows 版命令行工具',
+    category: 'database',
+    icon: 'redis',
+    homepage: 'https://redis.io',
+    verifyCommand: 'redis-server --version',
+    pathAppend: 'bin',
+    versions: [
+      {
+        version: '7.4.3',
+        filename: 'Redis-7.4.3-Windows-x64-msys2.zip',
+        downloadUrls: {
+          official: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip',
+          aliyun: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip',
+          huawei: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip',
+          tencent: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip'
+        }
+      }
+    ]
+  },
+  {
     id: 'claude-code',
     name: 'Claude Code',
     description: 'Anthropic Claude Code CLI 工具',
@@ -206,7 +250,7 @@ export const MIRROR_LABELS: Record<string, string> = {
 export const DEFAULT_SETTINGS = {
   installBaseDir: 'C:\\DevTools',
   downloadDir: 'C:\\DevTools\\_downloads',
-  preferredMirror: 'auto' as const,
+  preferredMirror: 'huawei' as const,
   probeTimeoutMs: 3000,
   concurrentDownloads: 2,
   autoDetectInstalled: true

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppSettings, IpcDownloadPayload } from '../shared/types'
+import type { AppSettings, IpcDownloadPayload, MysqlInstallPayload } from '../shared/types'
 
 const api = {
   tools: {
@@ -40,6 +40,10 @@ const api = {
   maven: {
     fetchVersions: () => ipcRenderer.invoke('maven:fetchVersions')
   },
+  mysql: {
+    fetchVersions: () => ipcRenderer.invoke('mysql:fetchVersions'),
+    installLocal: (payload: MysqlInstallPayload) => ipcRenderer.invoke('mysql:installLocal', payload)
+  },
   git: {
     fetchVersions: () => ipcRenderer.invoke('git:fetchVersions')
   },
@@ -57,6 +61,7 @@ const api = {
   download: {
     start: (payload: IpcDownloadPayload) => ipcRenderer.invoke('download:start', payload),
     pause: (taskId: string) => ipcRenderer.invoke('download:pause', taskId),
+    findCached: (filename: string) => ipcRenderer.invoke('download:findCached', filename),
     openFile: (filePath: string) => ipcRenderer.invoke('download:openFile', filePath),
     onProgress: (cb: (task: any) => void) => {
       ipcRenderer.on('download:progress', (_e, task) => cb(task))

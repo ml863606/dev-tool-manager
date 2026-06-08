@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-Bc7b59J8.js"(exports, module) {
+  "assets/index-C2r3WdZW.js"(exports, module) {
     /**
     * @vue/shared v3.5.33
     * (c) 2018-present Yuxi (Evan) You and Vue contributors
@@ -11217,7 +11217,7 @@ ${unwrappedProps}
       });
       return isDeactivatedRef;
     }
-    function getSlot(scope, slots, slotName = "default") {
+    function getSlot$1(scope, slots, slotName = "default") {
       const slot = slots[slotName];
       if (slot === void 0) {
         throw new Error(`[vueuc/${scope}]: slot[${slotName}] is empty.`);
@@ -11425,7 +11425,7 @@ ${unwrappedProps}
         };
       },
       render() {
-        return getSlot("binder", this.$slots);
+        return getSlot$1("binder", this.$slots);
       }
     });
     const VTarget = /* @__PURE__ */ defineComponent({
@@ -11783,10 +11783,10 @@ ${style2}
         };
       },
       render() {
-        return this.showTeleport ? this.disabled ? getSlot("lazy-teleport", this.$slots) : h(Teleport, {
+        return this.showTeleport ? this.disabled ? getSlot$1("lazy-teleport", this.$slots) : h(Teleport, {
           disabled: this.disabled,
           to: this.mergedTo
-        }, getSlot("lazy-teleport", this.$slots)) : null;
+        }, getSlot$1("lazy-teleport", this.$slots)) : null;
       }
     });
     const oppositionPositions = {
@@ -12111,7 +12111,7 @@ ${style2}
           };
       }
     }
-    const style$p = c([
+    const style$q = c([
       c(".v-binder-follower-container", {
         position: "absolute",
         left: "0",
@@ -12193,7 +12193,7 @@ ${style2}
           }
         });
         const ssrAdapter2 = useSsrAdapter();
-        style$p.mount({
+        style$q.mount({
           id: "vueuc/binder",
           head: true,
           anchorMetaName: cssrAnchorMetaName$1,
@@ -13532,7 +13532,7 @@ ${style2}
       }
     });
     const hiddenAttr = "v-hidden";
-    const style$o = c("[v-hidden]", {
+    const style$p = c("[v-hidden]", {
       display: "none!important"
     });
     const VOverflow = /* @__PURE__ */ defineComponent({
@@ -13633,7 +13633,7 @@ ${style2}
           }
         }
         const ssrAdapter2 = useSsrAdapter();
-        style$o.mount({
+        style$p.mount({
           id: "vueuc/overflow",
           head: true,
           anchorMetaName: cssrAnchorMetaName$1,
@@ -14077,6 +14077,12 @@ ${style2}
         warn("getFirstSlotVNode", `slot[${slotName}] should have exactly one child`);
         return null;
       }
+    }
+    function getSlot(instance, slotName = "default", fallback = []) {
+      const slots = instance.$slots;
+      const slot = slots[slotName];
+      if (slot === void 0) return fallback;
+      return slot();
     }
     function keep(object, keys2 = [], rest) {
       const keepedObject = {};
@@ -16623,7 +16629,7 @@ ${style2}
       themeOverrides: Object,
       builtinThemeOverrides: Object
     };
-    const style$n = cB("base-icon", `
+    const style$o = cB("base-icon", `
  height: 1em;
  width: 1em;
  line-height: 1em;
@@ -16657,7 +16663,7 @@ ${style2}
         onMouseup: Function
       },
       setup(props) {
-        useStyle("-base-icon", style$n, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-icon", style$o, /* @__PURE__ */ toRef(props, "clsPrefix"));
       },
       render() {
         return h("i", {
@@ -16937,7 +16943,7 @@ ${style2}
         transition
       })];
     }
-    const style$m = cB("base-clear", `
+    const style$n = cB("base-clear", `
  flex-shrink: 0;
  height: 1em;
  width: 1em;
@@ -16977,7 +16983,7 @@ ${style2}
         onClear: Function
       },
       setup(props) {
-        useStyle("-base-clear", style$m, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-clear", style$n, /* @__PURE__ */ toRef(props, "clsPrefix"));
         return {
           handleMouseDown(e) {
             e.preventDefault();
@@ -17011,7 +17017,7 @@ ${style2}
         }));
       }
     });
-    const style$l = cB("base-close", `
+    const style$m = cB("base-close", `
  display: flex;
  align-items: center;
  justify-content: center;
@@ -17080,7 +17086,7 @@ ${style2}
         absolute: Boolean
       },
       setup(props) {
-        useStyle("-base-close", style$l, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-close", style$m, /* @__PURE__ */ toRef(props, "clsPrefix"));
         return () => {
           const {
             clsPrefix,
@@ -17233,7 +17239,7 @@ ${style2}
         });
       }
     });
-    const style$k = c$1([c$1("@keyframes rotator", `
+    const style$l = c$1([c$1("@keyframes rotator", `
  0% {
  -webkit-transform: rotate(0deg);
  transform: rotate(0deg);
@@ -17297,7 +17303,7 @@ ${style2}
         }
       }, exposedLoadingProps),
       setup(props) {
-        useStyle("-base-loading", style$k, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-loading", style$l, /* @__PURE__ */ toRef(props, "clsPrefix"));
       },
       render() {
         const {
@@ -17748,7 +17754,7 @@ ${style2}
       common: derived$1,
       self: self$Y
     };
-    const style$j = cB("scrollbar", `
+    const style$k = cB("scrollbar", `
  overflow: hidden;
  position: relative;
  z-index: auto;
@@ -17892,7 +17898,7 @@ ${style2}
         let memoMouseX = 0;
         let memoMouseY = 0;
         const isIos2 = useIsIos();
-        const themeRef = useTheme("Scrollbar", "-scrollbar", style$j, scrollbarLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Scrollbar", "-scrollbar", style$k, scrollbarLight, props, mergedClsPrefixRef);
         const yBarSizeRef = computed(() => {
           const {
             value: containerHeight
@@ -19251,7 +19257,7 @@ ${style2}
       common: derived$1,
       self: self$X
     };
-    const style$i = cB("empty", `
+    const style$j = cB("empty", `
  display: flex;
  flex-direction: column;
  align-items: center;
@@ -19301,7 +19307,7 @@ ${style2}
           inlineThemeDisabled,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Empty", "-empty", style$i, emptyLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Empty", "-empty", style$j, emptyLight, props, mergedClsPrefixRef);
         const {
           localeRef
         } = useLocale("Empty");
@@ -19695,7 +19701,7 @@ ${style2}
         transform: `${originalTransform} scale(1)`
       })];
     }
-    const style$h = cB("base-select-menu", `
+    const style$i = cB("base-select-menu", `
  line-height: 1.5;
  outline: none;
  z-index: 0;
@@ -19882,7 +19888,7 @@ ${style2}
           mergedComponentPropsRef
         } = useConfig(props);
         const rtlEnabledRef = useRtl("InternalSelectMenu", mergedRtlRef, mergedClsPrefixRef);
-        const themeRef = useTheme("InternalSelectMenu", "-internal-select-menu", style$h, internalSelectMenuLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        const themeRef = useTheme("InternalSelectMenu", "-internal-select-menu", style$i, internalSelectMenuLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const selfRef = /* @__PURE__ */ ref(null);
         const virtualListRef = /* @__PURE__ */ ref(null);
         const scrollbarRef = /* @__PURE__ */ ref(null);
@@ -20350,7 +20356,7 @@ ${style2}
       right: "left"
     };
     const arrowSize = "var(--n-arrow-height) * 1.414";
-    const style$g = c$1([cB("popover", `
+    const style$h = c$1([cB("popover", `
  transition:
  box-shadow .3s var(--n-bezier),
  background-color .3s var(--n-bezier),
@@ -20565,7 +20571,7 @@ ${style2}
           inlineThemeDisabled,
           mergedRtlRef
         } = useConfig(props);
-        const themeRef = useTheme("Popover", "-popover", style$g, popoverLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Popover", "-popover", style$h, popoverLight, props, mergedClsPrefixRef);
         const rtlEnabledRef = useRtl("Popover", mergedRtlRef, mergedClsPrefixRef);
         const followerRef = /* @__PURE__ */ ref(null);
         const NPopover2 = inject("NPopover");
@@ -21691,7 +21697,7 @@ ${style2}
         default: void 0
       }
     };
-    const style$f = cB("tag", `
+    const style$g = cB("tag", `
  --n-close-margin: var(--n-close-margin-top) var(--n-close-margin-right) var(--n-close-margin-bottom) var(--n-close-margin-left);
  white-space: nowrap;
  position: relative;
@@ -21806,7 +21812,7 @@ ${style2}
           var _a, _b;
           return props.size || ((_b = (_a = mergedComponentPropsRef === null || mergedComponentPropsRef === void 0 ? void 0 : mergedComponentPropsRef.value) === null || _a === void 0 ? void 0 : _a.Tag) === null || _b === void 0 ? void 0 : _b.size) || "medium";
         });
-        const themeRef = useTheme("Tag", "-tag", style$f, tagLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Tag", "-tag", style$g, tagLight, props, mergedClsPrefixRef);
         provide(tagInjectionKey, {
           roundRef: /* @__PURE__ */ toRef(props, "round")
         });
@@ -22291,7 +22297,7 @@ ${style2}
       },
       self: self$T
     });
-    const style$e = c$1([cB("base-selection", `
+    const style$f = c$1([cB("base-selection", `
  --n-padding-single: var(--n-padding-single-top) var(--n-padding-single-right) var(--n-padding-single-bottom) var(--n-padding-single-left);
  --n-padding-multiple: var(--n-padding-multiple-top) var(--n-padding-multiple-right) var(--n-padding-multiple-bottom) var(--n-padding-multiple-left);
  position: relative;
@@ -22581,7 +22587,7 @@ ${style2}
         const showTagsPopoverRef = /* @__PURE__ */ ref(false);
         const patternInputFocusedRef = /* @__PURE__ */ ref(false);
         const hoverRef = /* @__PURE__ */ ref(false);
-        const themeRef = useTheme("InternalSelection", "-internal-selection", style$e, internalSelectionLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        const themeRef = useTheme("InternalSelection", "-internal-selection", style$f, internalSelectionLight, props, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const mergedClearableRef = computed(() => {
           return props.clearable && !props.disabled && (hoverRef.value || props.active);
         });
@@ -23433,7 +23439,7 @@ ${style2}
         transform: "translateY(60%)"
       })];
     }
-    const style$d = c$1([c$1("@keyframes n-base-slot-machine-fade-up-in", `
+    const style$e = c$1([c$1("@keyframes n-base-slot-machine-fade-up-in", `
  from {
  transform: translateY(60%);
  opacity: 0;
@@ -23555,7 +23561,7 @@ ${style2}
         }
       },
       setup(props) {
-        useStyle("-base-slot-machine", style$d, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-slot-machine", style$e, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const oldValueRef = /* @__PURE__ */ ref();
         const newValueRef = /* @__PURE__ */ ref();
         const numbersRef = computed(() => {
@@ -23620,7 +23626,7 @@ ${style2}
         };
       }
     });
-    const style$c = cB("base-wave", `
+    const style$d = cB("base-wave", `
  position: absolute;
  left: 0;
  right: 0;
@@ -23637,7 +23643,7 @@ ${style2}
         }
       },
       setup(props) {
-        useStyle("-base-wave", style$c, /* @__PURE__ */ toRef(props, "clsPrefix"));
+        useStyle("-base-wave", style$d, /* @__PURE__ */ toRef(props, "clsPrefix"));
         const selfRef = /* @__PURE__ */ ref(null);
         const activeRef = /* @__PURE__ */ ref(false);
         let animationTimerId = null;
@@ -24102,7 +24108,7 @@ ${style2}
       self: self$Q
     });
     const inputInjectionKey = createInjectionKey("n-input");
-    const style$b = cB("input", `
+    const style$c = cB("input", `
  max-width: 100%;
  cursor: text;
  line-height: 1.5;
@@ -24580,7 +24586,7 @@ ${style2}
           mergedRtlRef,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Input", "-input", style$b, inputLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Input", "-input", style$c, inputLight, props, mergedClsPrefixRef);
         if (isSafari) {
           useStyle("-input-safari", safariStyle, mergedClsPrefixRef);
         }
@@ -25894,7 +25900,7 @@ ${style2}
       common: derived,
       self: self$M
     };
-    const style$a = c$1([c$1("@keyframes badge-wave-spread", {
+    const style$b = c$1([c$1("@keyframes badge-wave-spread", {
       from: {
         boxShadow: "0 0 0.5px 0px var(--n-ripple-color)",
         opacity: 0.6
@@ -25991,7 +25997,7 @@ ${style2}
           inlineThemeDisabled,
           mergedRtlRef
         } = useConfig(props);
-        const themeRef = useTheme("Badge", "-badge", style$a, badgeLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Badge", "-badge", style$b, badgeLight, props, mergedClsPrefixRef);
         const appearedRef = /* @__PURE__ */ ref(false);
         const handleAfterEnter = () => {
           appearedRef.value = true;
@@ -26413,7 +26419,7 @@ ${style2}
         return commonSelf;
       }
     };
-    const style$9 = c$1([cB("button", `
+    const style$a = c$1([cB("button", `
  margin: 0;
  font-weight: var(--n-font-weight);
  line-height: 1;
@@ -26713,7 +26719,7 @@ ${style2}
         const handleBlur = () => {
           enterPressedRef.value = false;
         };
-        const themeRef = useTheme("Button", "-button", style$9, buttonLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Button", "-button", style$a, buttonLight, props, mergedClsPrefixRef);
         const rtlEnabledRef = useRtl("Button", mergedRtlRef, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const theme = themeRef.value;
@@ -27186,7 +27192,7 @@ ${style2}
  padding: 0 var(--n-padding-left) var(--n-padding-bottom) var(--n-padding-left);
  font-size: var(--n-font-size);
 `);
-    const style$8 = c$1([cB("card", `
+    const style$9 = c$1([cB("card", `
  font-size: var(--n-font-size);
  line-height: var(--n-line-height);
  display: flex;
@@ -27364,7 +27370,7 @@ ${style2}
           mergedRtlRef,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Card", "-card", style$8, cardLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Card", "-card", style$9, cardLight, props, mergedClsPrefixRef);
         const rtlEnabledRef = useRtl("Card", mergedRtlRef, mergedClsPrefixRef);
         const mergedSizeRef = computed(() => {
           var _a, _b;
@@ -28015,7 +28021,7 @@ ${style2}
       },
       self: self$B
     };
-    const style$7 = c$1([cB("select", `
+    const style$8 = c$1([cB("select", `
  z-index: auto;
  outline: none;
  width: 100%;
@@ -28164,7 +28170,7 @@ ${style2}
           inlineThemeDisabled,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("Select", "-select", style$7, selectLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Select", "-select", style$8, selectLight, props, mergedClsPrefixRef);
         const uncontrolledValueRef = /* @__PURE__ */ ref(props.defaultValue);
         const controlledValueRef = /* @__PURE__ */ toRef(props, "value");
         const mergedValueRef = useMergedState(controlledValueRef, uncontrolledValueRef);
@@ -29462,7 +29468,7 @@ ${style2}
       common: derived$1,
       self: self$w
     };
-    const style$6 = cB("icon", `
+    const style$7 = cB("icon", `
  height: 1em;
  width: 1em;
  line-height: 1em;
@@ -29497,7 +29503,7 @@ ${style2}
           mergedClsPrefixRef,
           inlineThemeDisabled
         } = useConfig(props);
-        const themeRef = useTheme("Icon", "-icon", style$6, iconLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Icon", "-icon", style$7, iconLight, props, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const {
             depth
@@ -29888,7 +29894,7 @@ ${style2}
       closeFocusable: Boolean
     };
     const dialogPropKeys = keysOf(dialogProps);
-    const style$5 = c$1([cB("dialog", `
+    const style$6 = c$1([cB("dialog", `
  --n-icon-margin: var(--n-icon-margin-top) var(--n-icon-margin-right) var(--n-icon-margin-bottom) var(--n-icon-margin-left);
  word-break: break-word;
  line-height: var(--n-line-height);
@@ -30010,7 +30016,7 @@ ${style2}
           } = props;
           if (onClose) onClose();
         }
-        const themeRef = useTheme("Dialog", "-dialog", style$5, dialogLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Dialog", "-dialog", style$6, dialogLight, props, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const {
             type
@@ -30618,7 +30624,7 @@ ${style2}
         })), [[vShow, this.displayDirective === "if" || this.displayed || this.show]]) : null;
       }
     });
-    const style$4 = c$1([cB("modal-container", `
+    const style$5 = c$1([cB("modal-container", `
  position: fixed;
  left: 0;
  top: 0;
@@ -30742,7 +30748,7 @@ ${style2}
           namespaceRef,
           inlineThemeDisabled
         } = useConfig(props);
-        const themeRef = useTheme("Modal", "-modal", style$4, modalLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Modal", "-modal", style$5, modalLight, props, mergedClsPrefixRef);
         const clickedRef = useClicked(64);
         const clickedPositionRef = useClickPosition();
         const isMountedRef = isMounted();
@@ -31101,7 +31107,7 @@ ${style2}
       onMouseenter: Function,
       onMouseleave: Function
     };
-    const style$3 = c$1([cB("message-wrapper", `
+    const style$4 = c$1([cB("message-wrapper", `
  margin: var(--n-margin);
  z-index: 0;
  transform-origin: top center;
@@ -31227,7 +31233,7 @@ ${style2}
           mergedClsPrefixRef
         } = inject(messageProviderInjectionKey);
         const rtlEnabledRef = useRtl("Message", mergedRtlRef, mergedClsPrefixRef);
-        const themeRef = useTheme("Message", "-message", style$3, messageLight, messageProviderProps2, mergedClsPrefixRef);
+        const themeRef = useTheme("Message", "-message", style$4, messageLight, messageProviderProps2, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const {
             type
@@ -32488,6 +32494,10 @@ ${style2}
         descriptionTextColorError: errorColor
       });
     }
+    const stepsLight = {
+      common: derived,
+      self: self$b
+    };
     const stepsDark = {
       name: "Steps",
       common: derived$1,
@@ -33194,7 +33204,7 @@ ${style2}
         };
       }
     };
-    const style$2 = c$1([cB("input-number-suffix", `
+    const style$3 = c$1([cB("input-number-suffix", `
  display: inline-block;
  margin-right: 10px;
  `), cB("input-number-prefix", `
@@ -33308,7 +33318,7 @@ ${style2}
           mergedRtlRef,
           mergedComponentPropsRef
         } = useConfig(props);
-        const themeRef = useTheme("InputNumber", "-input-number", style$2, inputNumberLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("InputNumber", "-input-number", style$3, inputNumberLight, props, mergedClsPrefixRef);
         const {
           localeRef
         } = useLocale("InputNumber");
@@ -34440,7 +34450,7 @@ ${style2}
         };
       }
     });
-    const style$1 = c$1([cB("progress", {
+    const style$2 = c$1([cB("progress", {
       display: "inline-block"
     }, [cB("progress-icon", `
  color: var(--n-icon-color);
@@ -34690,7 +34700,7 @@ ${style2}
           mergedClsPrefixRef,
           inlineThemeDisabled
         } = useConfig(props);
-        const themeRef = useTheme("Progress", "-progress", style$1, progressLight, props, mergedClsPrefixRef);
+        const themeRef = useTheme("Progress", "-progress", style$2, progressLight, props, mergedClsPrefixRef);
         const cssVarsRef = computed(() => {
           const {
             status
@@ -34853,6 +34863,370 @@ ${style2}
       name: "Split",
       common: derived$1
     };
+    const style$1 = cB("steps", `
+ width: 100%;
+ display: flex;
+`, [cB("step", `
+ position: relative;
+ display: flex;
+ flex: 1;
+ `, [cM("disabled", "cursor: not-allowed"), cM("clickable", `
+ cursor: pointer;
+ `), c$1("&:last-child", [cB("step-splitor", "display: none;")])]), cB("step-splitor", `
+ background-color: var(--n-splitor-color);
+ margin-top: calc(var(--n-step-header-font-size) / 2);
+ height: 1px;
+ flex: 1;
+ align-self: flex-start;
+ margin-left: 12px;
+ margin-right: 12px;
+ transition:
+ color .3s var(--n-bezier),
+ background-color .3s var(--n-bezier);
+ `), cB("step-content", "flex: 1;", [cB("step-content-header", `
+ color: var(--n-header-text-color);
+ margin-top: calc(var(--n-indicator-size) / 2 - var(--n-step-header-font-size) / 2);
+ line-height: var(--n-step-header-font-size);
+ font-size: var(--n-step-header-font-size);
+ position: relative;
+ display: flex;
+ font-weight: var(--n-step-header-font-weight);
+ margin-left: 9px;
+ transition:
+ color .3s var(--n-bezier),
+ background-color .3s var(--n-bezier);
+ `, [cE("title", `
+ white-space: nowrap;
+ flex: 0;
+ `)]), cE("description", `
+ color: var(--n-description-text-color);
+ margin-top: 12px;
+ margin-left: 9px;
+ transition:
+ color .3s var(--n-bezier),
+ background-color .3s var(--n-bezier);
+ `)]), cB("step-indicator", `
+ background-color: var(--n-indicator-color);
+ box-shadow: 0 0 0 1px var(--n-indicator-border-color);
+ height: var(--n-indicator-size);
+ width: var(--n-indicator-size);
+ border-radius: 50%;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transition:
+ background-color .3s var(--n-bezier),
+ box-shadow .3s var(--n-bezier);
+ `, [cB("step-indicator-slot", `
+ position: relative;
+ width: var(--n-indicator-icon-size);
+ height: var(--n-indicator-icon-size);
+ font-size: var(--n-indicator-icon-size);
+ line-height: var(--n-indicator-icon-size);
+ `, [cE("index", `
+ display: inline-block;
+ text-align: center;
+ position: absolute;
+ left: 0;
+ top: 0;
+ white-space: nowrap;
+ font-size: var(--n-indicator-index-font-size);
+ width: var(--n-indicator-icon-size);
+ height: var(--n-indicator-icon-size);
+ line-height: var(--n-indicator-icon-size);
+ color: var(--n-indicator-text-color);
+ transition: color .3s var(--n-bezier);
+ `, [iconSwitchTransition()]), cB("icon", `
+ color: var(--n-indicator-text-color);
+ transition: color .3s var(--n-bezier);
+ `, [iconSwitchTransition()]), cB("base-icon", `
+ color: var(--n-indicator-text-color);
+ transition: color .3s var(--n-bezier);
+ `, [iconSwitchTransition()])])]), cM("vertical", "flex-direction: column;", [cNotM("show-description", [c$1(">", [cB("step", "padding-bottom: 8px;")])]), c$1(">", [cB("step", "margin-bottom: 16px;", [c$1("&:last-child", "margin-bottom: 0;"), c$1(">", [cB("step-indicator", [c$1(">", [cB("step-splitor", `
+ position: absolute;
+ bottom: -8px;
+ width: 1px;
+ margin: 0 !important;
+ left: calc(var(--n-indicator-size) / 2);
+ height: calc(100% - var(--n-indicator-size));
+ `)])]), cB("step-content", [cE("description", "margin-top: 8px;")])])])])]), cM("content-bottom", [cNotM("vertical", [c$1(">", [cB("step", "flex-direction: column", [c$1(">", [cB("step-line", "display: flex;", [c$1(">", [cB("step-splitor", `
+ margin-top: 0;
+ align-self: center;
+ `)])])]), c$1(">", [cB("step-content", "margin-top: calc(var(--n-indicator-size) / 2 - var(--n-step-header-font-size) / 2);", [cB("step-content-header", `
+ margin-left: 0;
+ `), cB("step-content__description", `
+ margin-left: 0;
+ `)])])])])])])]);
+    function stepWithIndex(step, i) {
+      if (typeof step !== "object" || step === null || Array.isArray(step)) {
+        return null;
+      }
+      if (!step.props) step.props = {};
+      step.props.internalIndex = i + 1;
+      return step;
+    }
+    function stepsWithIndex(steps) {
+      return steps.map((step, i) => stepWithIndex(step, i));
+    }
+    const stepsProps = Object.assign(Object.assign({}, useTheme.props), {
+      current: Number,
+      status: {
+        type: String,
+        default: "process"
+      },
+      size: {
+        type: String,
+        default: "medium"
+      },
+      vertical: Boolean,
+      contentPlacement: {
+        type: String,
+        default: "right"
+      },
+      "onUpdate:current": [Function, Array],
+      onUpdateCurrent: [Function, Array]
+    });
+    const stepsInjectionKey = createInjectionKey("n-steps");
+    const NSteps = /* @__PURE__ */ defineComponent({
+      name: "Steps",
+      props: stepsProps,
+      slots: Object,
+      setup(props, {
+        slots
+      }) {
+        const {
+          mergedClsPrefixRef,
+          mergedRtlRef
+        } = useConfig(props);
+        const rtlEnabledRef = useRtl("Steps", mergedRtlRef, mergedClsPrefixRef);
+        const themeRef = useTheme("Steps", "-steps", style$1, stepsLight, props, mergedClsPrefixRef);
+        provide(stepsInjectionKey, {
+          props,
+          mergedThemeRef: themeRef,
+          mergedClsPrefixRef,
+          stepsSlots: slots
+        });
+        return {
+          mergedClsPrefix: mergedClsPrefixRef,
+          rtlEnabled: rtlEnabledRef
+        };
+      },
+      render() {
+        const {
+          mergedClsPrefix
+        } = this;
+        return h("div", {
+          class: [`${mergedClsPrefix}-steps`, this.rtlEnabled && `${mergedClsPrefix}-steps--rtl`, this.vertical && `${mergedClsPrefix}-steps--vertical`, this.contentPlacement === "bottom" && `${mergedClsPrefix}-steps--content-bottom`]
+        }, stepsWithIndex(flatten$1(getSlot(this))));
+      }
+    });
+    const stepProps = {
+      status: String,
+      title: String,
+      description: String,
+      disabled: Boolean,
+      // index will be filled by parent steps, not user
+      internalIndex: {
+        type: Number,
+        default: 0
+      }
+    };
+    const NStep = /* @__PURE__ */ defineComponent({
+      name: "Step",
+      props: stepProps,
+      slots: Object,
+      setup(props) {
+        const NSteps2 = inject(stepsInjectionKey, null);
+        if (!NSteps2) throwError("step", "`n-step` must be placed inside `n-steps`.");
+        const {
+          inlineThemeDisabled
+        } = useConfig();
+        const {
+          props: stepsProps2,
+          mergedThemeRef,
+          mergedClsPrefixRef,
+          stepsSlots
+        } = NSteps2;
+        const verticalRef = /* @__PURE__ */ toRef(stepsProps2, "vertical");
+        const contentPlacementRef = /* @__PURE__ */ toRef(stepsProps2, "contentPlacement");
+        const mergedStatusRef = computed(() => {
+          const {
+            status
+          } = props;
+          if (status) {
+            return status;
+          } else {
+            const {
+              internalIndex
+            } = props;
+            const {
+              current
+            } = stepsProps2;
+            if (current === void 0) return "process";
+            if (internalIndex < current) {
+              return "finish";
+            } else if (internalIndex === current) {
+              return stepsProps2.status || "process";
+            } else if (internalIndex > current) {
+              return "wait";
+            }
+          }
+          return "process";
+        });
+        const cssVarsRef = computed(() => {
+          const {
+            value: status
+          } = mergedStatusRef;
+          const {
+            size: size2
+          } = stepsProps2;
+          const {
+            common: {
+              cubicBezierEaseInOut: cubicBezierEaseInOut2
+            },
+            self: {
+              stepHeaderFontWeight,
+              [createKey("stepHeaderFontSize", size2)]: stepHeaderFontSize,
+              [createKey("indicatorIndexFontSize", size2)]: indicatorIndexFontSize,
+              [createKey("indicatorSize", size2)]: indicatorSize,
+              [createKey("indicatorIconSize", size2)]: indicatorIconSize,
+              [createKey("indicatorTextColor", status)]: indicatorTextColor,
+              [createKey("indicatorBorderColor", status)]: indicatorBorderColor,
+              [createKey("headerTextColor", status)]: headerTextColor,
+              [createKey("splitorColor", status)]: splitorColor,
+              [createKey("indicatorColor", status)]: indicatorColor,
+              [createKey("descriptionTextColor", status)]: descriptionTextColor
+            }
+          } = mergedThemeRef.value;
+          return {
+            "--n-bezier": cubicBezierEaseInOut2,
+            "--n-description-text-color": descriptionTextColor,
+            "--n-header-text-color": headerTextColor,
+            "--n-indicator-border-color": indicatorBorderColor,
+            "--n-indicator-color": indicatorColor,
+            "--n-indicator-icon-size": indicatorIconSize,
+            "--n-indicator-index-font-size": indicatorIndexFontSize,
+            "--n-indicator-size": indicatorSize,
+            "--n-indicator-text-color": indicatorTextColor,
+            "--n-splitor-color": splitorColor,
+            "--n-step-header-font-size": stepHeaderFontSize,
+            "--n-step-header-font-weight": stepHeaderFontWeight
+          };
+        });
+        const themeClassHandle = inlineThemeDisabled ? useThemeClass("step", computed(() => {
+          const {
+            value: status
+          } = mergedStatusRef;
+          const {
+            size: size2
+          } = stepsProps2;
+          return `${status[0]}${size2[0]}`;
+        }), cssVarsRef, stepsProps2) : void 0;
+        const handleStepClick = computed(() => {
+          if (props.disabled) return void 0;
+          const {
+            onUpdateCurrent,
+            "onUpdate:current": _onUpdateCurrent
+          } = stepsProps2;
+          return onUpdateCurrent || _onUpdateCurrent ? () => {
+            if (onUpdateCurrent) {
+              call(onUpdateCurrent, props.internalIndex);
+            }
+            if (_onUpdateCurrent) {
+              call(_onUpdateCurrent, props.internalIndex);
+            }
+          } : void 0;
+        });
+        return {
+          stepsSlots,
+          mergedClsPrefix: mergedClsPrefixRef,
+          vertical: verticalRef,
+          mergedStatus: mergedStatusRef,
+          handleStepClick,
+          cssVars: inlineThemeDisabled ? void 0 : cssVarsRef,
+          themeClass: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.themeClass,
+          onRender: themeClassHandle === null || themeClassHandle === void 0 ? void 0 : themeClassHandle.onRender,
+          contentPlacement: contentPlacementRef
+        };
+      },
+      render() {
+        const {
+          mergedClsPrefix,
+          onRender,
+          handleStepClick,
+          disabled,
+          contentPlacement,
+          vertical
+        } = this;
+        const descriptionNode = resolveWrappedSlot(this.$slots.default, (children) => {
+          const mergedDescription = children || this.description;
+          if (mergedDescription) {
+            return h("div", {
+              class: `${mergedClsPrefix}-step-content__description`
+            }, mergedDescription);
+          }
+          return null;
+        });
+        const splitorNode = h("div", {
+          class: `${mergedClsPrefix}-step-splitor`
+        });
+        const indicatorNode = (
+          // We need a key here to prevent reconcile progress from affecting styling.
+          // A DOM can be reused so if it is used both for A component & B component,
+          // the styling transition bewteen two components may be incorrect.
+          h("div", {
+            class: `${mergedClsPrefix}-step-indicator`,
+            key: contentPlacement
+          }, h("div", {
+            class: `${mergedClsPrefix}-step-indicator-slot`
+          }, h(NIconSwitchTransition, null, {
+            default: () => {
+              return resolveWrappedSlot(this.$slots.icon, (icon) => {
+                const {
+                  mergedStatus,
+                  stepsSlots
+                } = this;
+                return !(mergedStatus === "finish" || mergedStatus === "error") ? icon || h("div", {
+                  key: this.internalIndex,
+                  class: `${mergedClsPrefix}-step-indicator-slot__index`
+                }, this.internalIndex) : mergedStatus === "finish" ? h(NBaseIcon, {
+                  clsPrefix: mergedClsPrefix,
+                  key: "finish"
+                }, {
+                  default: () => resolveSlot(stepsSlots["finish-icon"], () => [h(FinishedIcon, null)])
+                }) : mergedStatus === "error" ? h(NBaseIcon, {
+                  clsPrefix: mergedClsPrefix,
+                  key: "error"
+                }, {
+                  default: () => resolveSlot(stepsSlots["error-icon"], () => [h(ErrorIcon$1, null)])
+                }) : null;
+              });
+            }
+          })), vertical ? splitorNode : null)
+        );
+        const contentNode = h("div", {
+          class: `${mergedClsPrefix}-step-content`
+        }, h("div", {
+          class: `${mergedClsPrefix}-step-content-header`
+        }, h("div", {
+          class: `${mergedClsPrefix}-step-content-header__title`
+        }, resolveSlot(this.$slots.title, () => [this.title])), !vertical && contentPlacement === "right" ? splitorNode : null), descriptionNode);
+        let stepNode;
+        if (!vertical && contentPlacement === "bottom") {
+          stepNode = h(Fragment, null, h("div", {
+            class: `${mergedClsPrefix}-step-line`
+          }, indicatorNode, splitorNode), contentNode);
+        } else {
+          stepNode = h(Fragment, null, indicatorNode, contentNode);
+        }
+        onRender === null || onRender === void 0 ? void 0 : onRender();
+        return h("div", {
+          class: [`${mergedClsPrefix}-step`, disabled && `${mergedClsPrefix}-step--disabled`, !disabled && handleStepClick && `${mergedClsPrefix}-step--clickable`, this.themeClass, descriptionNode && `${mergedClsPrefix}-step--show-description`, `${mergedClsPrefix}-step--${this.mergedStatus}-status`],
+          style: this.cssVars,
+          onClick: handleStepClick
+        }, stepNode);
+      }
+    });
     const tabsInjectionKey = createInjectionKey("n-tabs");
     const tabPaneProps = {
       tab: [String, Number, Object, Function],
@@ -36529,7 +36903,7 @@ ${style2}
       const settings = /* @__PURE__ */ ref(null);
       const downloadTasks = /* @__PURE__ */ ref(/* @__PURE__ */ new Map());
       const installLogs = /* @__PURE__ */ ref(/* @__PURE__ */ new Map());
-      const bestMirror = /* @__PURE__ */ ref("auto");
+      const bestMirror = /* @__PURE__ */ ref("huawei");
       function persistTasks() {
         void window.api.taskCache.save({
           downloadTasks: [...downloadTasks.value.entries()],
@@ -36772,17 +37146,38 @@ ${style2}
     const _hoisted_16$3 = { class: "url-tooltip" };
     const _hoisted_17$3 = { class: "url-tooltip" };
     const _hoisted_18$3 = { class: "url-tooltip" };
-    const _hoisted_19$2 = {
+    const _hoisted_19$2 = { class: "url-tooltip" };
+    const _hoisted_20$2 = {
       key: 2,
       class: "download-meta"
     };
-    const _hoisted_20$2 = { class: "mirror-badge" };
-    const _hoisted_21$1 = { class: "npm-registry-list" };
-    const _hoisted_22 = {
+    const _hoisted_21$1 = { class: "mirror-badge" };
+    const _hoisted_22 = { class: "npm-registry-list" };
+    const _hoisted_23 = {
       key: 0,
       class: "current-pill"
     };
-    const _hoisted_23 = { class: "npm-url" };
+    const _hoisted_24 = { class: "npm-url" };
+    const _hoisted_25 = {
+      key: 0,
+      class: "wizard-pane"
+    };
+    const _hoisted_26 = { class: "readonly-path" };
+    const _hoisted_27 = { class: "dir-row" };
+    const _hoisted_28 = {
+      key: 1,
+      class: "wizard-pane form-grid"
+    };
+    const _hoisted_29 = {
+      key: 2,
+      class: "wizard-pane"
+    };
+    const _hoisted_30 = {
+      key: 3,
+      class: "wizard-pane"
+    };
+    const _hoisted_31 = { class: "ready-box" };
+    const _hoisted_32 = { class: "wizard-footer" };
     const _sfc_main$3 = /* @__PURE__ */ defineComponent({
       __name: "ToolCard",
       props: {
@@ -36809,8 +37204,25 @@ ${style2}
         const settingNpmRegistry = /* @__PURE__ */ ref(false);
         const pendingRegistryUrl = /* @__PURE__ */ ref("");
         const npmRegistries = /* @__PURE__ */ ref([]);
-        const DYNAMIC_TOOLS = ["nodejs", "maven", "jdk", "python", "git", "codex", "claude-code"];
+        const cachedPackage = /* @__PURE__ */ ref(null);
+        const showMysqlWizard = /* @__PURE__ */ ref(false);
+        const mysqlStep = /* @__PURE__ */ ref(1);
+        const mysqlInstalling = /* @__PURE__ */ ref(false);
+        const mysqlForm = /* @__PURE__ */ ref({
+          installDir: "C:\\DevTools\\mysql",
+          serviceName: "MySQL",
+          host: "127.0.0.1",
+          port: 3306,
+          password: "123456"
+        });
+        const mysqlIniPreview = /* @__PURE__ */ ref("");
+        const DYNAMIC_TOOLS = ["nodejs", "maven", "jdk", "python", "mysql", "git", "codex", "claude-code"];
         const isDynamic = computed(() => DYNAMIC_TOOLS.includes(props.tool.id));
+        const selectedFilename = computed(() => {
+          const built = isDynamic.value ? buildDynamicUrls(selectedVersion.value) : void 0;
+          return built?.filename ?? props.tool.versions?.find((v) => v.version === selectedVersion.value)?.filename ?? "";
+        });
+        const showMysqlLocalInstall = computed(() => props.tool.id === "mysql" && !!cachedPackage.value);
         const versionOptions = computed(() => {
           if (isDynamic.value && dynamicVersions.value.length) {
             return dynamicVersions.value.map((v) => ({
@@ -36833,7 +37245,7 @@ ${style2}
           ]);
         }
         function buildDynamicUrls(version2) {
-          if (props.tool.id === "jdk" || props.tool.id === "git" || props.tool.id === "python" || props.tool.id === "codex" || props.tool.id === "claude-code") {
+          if (props.tool.id === "jdk" || props.tool.id === "git" || props.tool.id === "python" || props.tool.id === "mysql" || props.tool.id === "codex" || props.tool.id === "claude-code") {
             const ver = dynamicVersions.value.find((v) => v.version === version2);
             if (ver?.downloadUrls) return { urls: { ...ver.downloadUrls }, filename: ver.filename };
             return void 0;
@@ -36890,6 +37302,9 @@ ${style2}
             } else if (props.tool.id === "maven") {
               list = await window.api.maven.fetchVersions();
               selectedVersion.value = list[0]?.version ?? selectedVersion.value;
+            } else if (props.tool.id === "mysql") {
+              list = await window.api.mysql.fetchVersions();
+              selectedVersion.value = list[0]?.version ?? selectedVersion.value;
             } else if (props.tool.id === "git") {
               list = await window.api.git.fetchVersions();
               selectedVersion.value = list[0]?.version ?? selectedVersion.value;
@@ -36905,6 +37320,20 @@ ${style2}
             dynamicVersionsLoading.value = false;
           }
         });
+        watch(
+          [selectedVersion, dynamicVersions],
+          () => {
+            void refreshCachedPackage();
+          },
+          { deep: true, immediate: true }
+        );
+        watch(
+          mysqlForm,
+          () => {
+            mysqlIniPreview.value = buildMysqlIni();
+          },
+          { deep: true }
+        );
         async function handleJdkVendorChange(vendorId) {
           if (props.tool.id !== "jdk") return;
           dynamicVersionsLoading.value = true;
@@ -36965,6 +37394,7 @@ ${style2}
           const map2 = {
             backend: "后端",
             frontend: "前端",
+            database: "数据库",
             ai: "AI 工具",
             other: "其他"
           };
@@ -36976,6 +37406,8 @@ ${style2}
             maven: "Mvn",
             python: "Py",
             nodejs: "N",
+            mysql: "My",
+            redis: "R",
             claude: "C",
             openai: "AI",
             git: "G",
@@ -37048,6 +37480,88 @@ ${style2}
             settingNpmRegistry.value = false;
           }
         }
+        function normalizeIniPath(path) {
+          return path.replace(/\\/g, "/");
+        }
+        function buildMysqlIni() {
+          const installDir = normalizeIniPath(mysqlForm.value.installDir);
+          return `[mysqld]
+basedir=${installDir}
+datadir=${installDir}/data
+port=${mysqlForm.value.port || 3306}
+bind-address=${mysqlForm.value.host || "127.0.0.1"}
+character-set-server=utf8mb4
+default-storage-engine=INNODB
+sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+
+[client]
+port=${mysqlForm.value.port || 3306}
+default-character-set=utf8mb4
+
+[mysql]
+default-character-set=utf8mb4
+`;
+        }
+        async function refreshCachedPackage() {
+          if (props.tool.id !== "mysql") return;
+          const filename = selectedFilename.value;
+          if (!filename) {
+            cachedPackage.value = null;
+            return;
+          }
+          cachedPackage.value = await window.api.download.findCached(filename);
+        }
+        function openMysqlInstallWizard() {
+          if (!cachedPackage.value) return;
+          mysqlStep.value = 1;
+          mysqlForm.value = {
+            installDir: `C:\\DevTools\\mysql-${selectedVersion.value}`,
+            serviceName: "MySQL",
+            host: "127.0.0.1",
+            port: 3306,
+            password: "123456"
+          };
+          mysqlIniPreview.value = buildMysqlIni();
+          showMysqlWizard.value = true;
+        }
+        function closeMysqlWizard() {
+          if (mysqlInstalling.value) return;
+          showMysqlWizard.value = false;
+        }
+        async function selectMysqlInstallDir() {
+          const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir);
+          if (selected) mysqlForm.value.installDir = selected;
+        }
+        const canAdvanceMysqlStep = computed(() => {
+          if (mysqlStep.value === 1) return !!cachedPackage.value?.filePath && !!mysqlForm.value.installDir;
+          if (mysqlStep.value === 2) return !!mysqlForm.value.serviceName && !!mysqlForm.value.host && !!mysqlForm.value.port && !!mysqlForm.value.password;
+          if (mysqlStep.value === 3) return !!mysqlIniPreview.value.trim();
+          return true;
+        });
+        const canStartMysqlInstall = computed(() => canAdvanceMysqlStep.value && !!cachedPackage.value?.filePath && !!mysqlIniPreview.value.trim());
+        async function startMysqlLocalInstall() {
+          if (!cachedPackage.value || mysqlInstalling.value) return;
+          mysqlInstalling.value = true;
+          try {
+            const taskId = await window.api.mysql.installLocal({
+              version: selectedVersion.value,
+              filePath: cachedPackage.value.filePath,
+              installDir: mysqlForm.value.installDir,
+              serviceName: mysqlForm.value.serviceName,
+              host: mysqlForm.value.host,
+              port: Number(mysqlForm.value.port || 3306),
+              password: mysqlForm.value.password,
+              myIni: mysqlIniPreview.value
+            });
+            window.api.log("info", `[ToolCard] mysql local install taskId=${taskId}`);
+            showMysqlWizard.value = false;
+            await store.loadTools();
+          } catch (err) {
+            window.api.log("error", `[ToolCard] mysql local install ERROR: ${err?.message ?? err}`);
+          } finally {
+            mysqlInstalling.value = false;
+          }
+        }
         const canOpenPath = computed(() => {
           const p2 = props.tool.installed?.installPath;
           return !!p2 && p2 !== "system" && p2 !== "global";
@@ -37099,7 +37613,7 @@ ${style2}
                     type: "success",
                     size: "small"
                   }, {
-                    default: withCtx(() => [..._cache[3] || (_cache[3] = [
+                    default: withCtx(() => [..._cache[12] || (_cache[12] = [
                       createTextVNode("已安装", -1)
                     ])]),
                     _: 1
@@ -37108,7 +37622,7 @@ ${style2}
                     type: "default",
                     size: "small"
                   }, {
-                    default: withCtx(() => [..._cache[4] || (_cache[4] = [
+                    default: withCtx(() => [..._cache[13] || (_cache[13] = [
                       createTextVNode("未安装", -1)
                     ])]),
                     _: 1
@@ -37127,13 +37641,13 @@ ${style2}
                       class: normalizeClass(["install-path", { "install-path--clickable": canOpenPath.value }]),
                       onClick: handleOpenDir
                     }, [
-                      _cache[5] || (_cache[5] = createBaseVNode("span", { class: "install-path-icon" }, "📁", -1)),
+                      _cache[14] || (_cache[14] = createBaseVNode("span", { class: "install-path-icon" }, "📁", -1)),
                       createBaseVNode("span", _hoisted_9$3, toDisplayString(pathLabel.value), 1)
                     ], 2)
                   ]),
                   default: withCtx(() => [
                     __props.tool.installed.installPath === "system" ? (openBlock(), createElementBlock("div", _hoisted_10$3, [
-                      _cache[6] || (_cache[6] = createBaseVNode("div", { class: "path-tooltip-title" }, "系统 PATH 检测结果", -1)),
+                      _cache[15] || (_cache[15] = createBaseVNode("div", { class: "path-tooltip-title" }, "系统 PATH 检测结果", -1)),
                       systemPaths.value.length ? (openBlock(), createElementBlock("div", _hoisted_11$3, [
                         (openBlock(true), createElementBlock(Fragment, null, renderList(systemPaths.value, (p2) => {
                           return openBlock(), createElementBlock("div", {
@@ -37145,8 +37659,8 @@ ${style2}
                     ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                       canOpenPath.value ? (openBlock(), createElementBlock("span", _hoisted_13$3, [
                         createTextVNode(toDisplayString(__props.tool.installed.installPath), 1),
-                        _cache[7] || (_cache[7] = createBaseVNode("br", null, null, -1)),
-                        _cache[8] || (_cache[8] = createBaseVNode("span", { style: { "color": "#888", "font-size": "11px" } }, "点击在资源管理器中打开", -1))
+                        _cache[16] || (_cache[16] = createBaseVNode("br", null, null, -1)),
+                        _cache[17] || (_cache[17] = createBaseVNode("span", { style: { "color": "#888", "font-size": "11px" } }, "点击在资源管理器中打开", -1))
                       ])) : (openBlock(), createElementBlock("span", _hoisted_14$3, toDisplayString(pathTooltip.value), 1))
                     ], 64))
                   ]),
@@ -37178,7 +37692,8 @@ ${style2}
                   loading: dynamicVersionsLoading.value,
                   placeholder: "加载版本中..."
                 }, null, 8, ["value", "options", "disabled", "loading"]),
-                createVNode(unref(NTooltip), {
+                !showMysqlLocalInstall.value ? (openBlock(), createBlock(unref(NTooltip), {
+                  key: 1,
                   placement: "top",
                   delay: 300,
                   disabled: !downloadUrlPreview.value
@@ -37200,21 +37715,44 @@ ${style2}
                     createBaseVNode("span", _hoisted_16$3, toDisplayString(downloadUrlPreview.value), 1)
                   ]),
                   _: 1
-                }, 8, ["disabled"]),
+                }, 8, ["disabled"])) : (openBlock(), createBlock(unref(NTooltip), {
+                  key: 2,
+                  placement: "top",
+                  delay: 300
+                }, {
+                  trigger: withCtx(() => [
+                    createVNode(unref(Button), {
+                      size: "small",
+                      type: "primary",
+                      ghost: "",
+                      disabled: isDownloading.value,
+                      onClick: openMysqlInstallWizard
+                    }, {
+                      default: withCtx(() => [..._cache[18] || (_cache[18] = [
+                        createTextVNode(" 本地安装 ", -1)
+                      ])]),
+                      _: 1
+                    }, 8, ["disabled"])
+                  ]),
+                  default: withCtx(() => [
+                    createBaseVNode("span", _hoisted_17$3, toDisplayString(cachedPackage.value?.filePath), 1)
+                  ]),
+                  _: 1
+                })),
                 props.tool.id === "nodejs" ? (openBlock(), createBlock(unref(Button), {
-                  key: 1,
+                  key: 3,
                   size: "small",
                   loading: npmRegistryLoading.value,
                   disabled: npmRegistryLoading.value,
                   onClick: openNpmRegistryModal
                 }, {
-                  default: withCtx(() => [..._cache[9] || (_cache[9] = [
+                  default: withCtx(() => [..._cache[19] || (_cache[19] = [
                     createTextVNode(" 设置 npm 源 ", -1)
                   ])]),
                   _: 1
                 }, 8, ["loading", "disabled"])) : createCommentVNode("", true),
                 !isInstalled.value ? (openBlock(), createBlock(unref(NTooltip), {
-                  key: 2,
+                  key: 4,
                   placement: "top",
                   delay: 300,
                   disabled: !downloadUrlPreview.value
@@ -37224,7 +37762,7 @@ ${style2}
                       type: "primary",
                       size: "small",
                       loading: submitting.value || isDownloading.value,
-                      disabled: submitting.value || isDownloading.value,
+                      disabled: submitting.value || isDownloading.value || showMysqlLocalInstall.value,
                       onClick: handleInstall
                     }, {
                       default: withCtx(() => [
@@ -37234,11 +37772,11 @@ ${style2}
                     }, 8, ["loading", "disabled"])
                   ]),
                   default: withCtx(() => [
-                    createBaseVNode("span", _hoisted_17$3, toDisplayString(downloadUrlPreview.value), 1)
+                    createBaseVNode("span", _hoisted_18$3, toDisplayString(downloadUrlPreview.value), 1)
                   ]),
                   _: 1
-                }, 8, ["disabled"])) : versionDiff.value === "same" ? (openBlock(), createElementBlock(Fragment, { key: 3 }, [], 64)) : (openBlock(), createBlock(unref(NTooltip), {
-                  key: 4,
+                }, 8, ["disabled"])) : versionDiff.value === "same" ? (openBlock(), createElementBlock(Fragment, { key: 5 }, [], 64)) : (openBlock(), createBlock(unref(NTooltip), {
+                  key: 6,
                   placement: "top",
                   delay: 300,
                   disabled: !downloadUrlPreview.value
@@ -37258,7 +37796,7 @@ ${style2}
                     }, 8, ["type", "loading", "disabled"])
                   ]),
                   default: withCtx(() => [
-                    createBaseVNode("span", _hoisted_18$3, toDisplayString(downloadUrlPreview.value), 1)
+                    createBaseVNode("span", _hoisted_19$2, toDisplayString(downloadUrlPreview.value), 1)
                   ]),
                   _: 1
                 }, 8, ["disabled"]))
@@ -37270,10 +37808,10 @@ ${style2}
                 "show-indicator": false,
                 style: { "margin-top": "8px" }
               }, null, 8, ["percentage", "status"])) : createCommentVNode("", true),
-              activeTask.value ? (openBlock(), createElementBlock("div", _hoisted_19$2, [
+              activeTask.value ? (openBlock(), createElementBlock("div", _hoisted_20$2, [
                 createBaseVNode("span", null, toDisplayString(activeTask.value.downloadedSize) + " / " + toDisplayString(activeTask.value.totalSize), 1),
                 createBaseVNode("span", null, toDisplayString(activeTask.value.speed), 1),
-                createBaseVNode("span", _hoisted_20$2, toDisplayString(activeTask.value.mirrorUsed), 1)
+                createBaseVNode("span", _hoisted_21$1, toDisplayString(activeTask.value.mirrorUsed), 1)
               ])) : createCommentVNode("", true)
             ], 2),
             createVNode(unref(NModal), {
@@ -37285,8 +37823,8 @@ ${style2}
               "mask-closable": true
             }, {
               default: withCtx(() => [
-                createBaseVNode("div", _hoisted_21$1, [
-                  _cache[10] || (_cache[10] = createBaseVNode("div", { class: "npm-registry-head" }, [
+                createBaseVNode("div", _hoisted_22, [
+                  _cache[20] || (_cache[20] = createBaseVNode("div", { class: "npm-registry-head" }, [
                     createBaseVNode("span", null, "源名称"),
                     createBaseVNode("span", null, "URL"),
                     createBaseVNode("span", null, "可用性"),
@@ -37299,9 +37837,9 @@ ${style2}
                     }, [
                       createBaseVNode("span", null, [
                         createTextVNode(toDisplayString(item.name), 1),
-                        item.current ? (openBlock(), createElementBlock("span", _hoisted_22, "当前")) : createCommentVNode("", true)
+                        item.current ? (openBlock(), createElementBlock("span", _hoisted_23, "当前")) : createCommentVNode("", true)
                       ]),
-                      createBaseVNode("span", _hoisted_23, toDisplayString(item.url), 1),
+                      createBaseVNode("span", _hoisted_24, toDisplayString(item.url), 1),
                       createBaseVNode("span", {
                         class: normalizeClass(item.ok ? "ok" : "bad")
                       }, toDisplayString(item.ok ? `可用${item.latency ? ` (${item.latency}ms)` : ""}` : "不可用"), 3),
@@ -37322,6 +37860,141 @@ ${style2}
                 ])
               ]),
               _: 1
+            }, 8, ["show"]),
+            createVNode(unref(NModal), {
+              show: showMysqlWizard.value,
+              "onUpdate:show": _cache[11] || (_cache[11] = ($event) => showMysqlWizard.value = $event),
+              preset: "card",
+              title: "MySQL 本地安装",
+              style: { "width": "820px" },
+              "mask-closable": false
+            }, {
+              footer: withCtx(() => [
+                createBaseVNode("div", _hoisted_32, [
+                  createVNode(unref(Button), {
+                    disabled: mysqlInstalling.value,
+                    onClick: closeMysqlWizard
+                  }, {
+                    default: withCtx(() => [..._cache[30] || (_cache[30] = [
+                      createTextVNode("取消", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled"]),
+                  mysqlStep.value > 1 ? (openBlock(), createBlock(unref(Button), {
+                    key: 0,
+                    disabled: mysqlInstalling.value,
+                    onClick: _cache[9] || (_cache[9] = ($event) => mysqlStep.value--)
+                  }, {
+                    default: withCtx(() => [..._cache[31] || (_cache[31] = [
+                      createTextVNode("上一步", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled"])) : createCommentVNode("", true),
+                  mysqlStep.value < 4 ? (openBlock(), createBlock(unref(Button), {
+                    key: 1,
+                    type: "primary",
+                    disabled: !canAdvanceMysqlStep.value,
+                    onClick: _cache[10] || (_cache[10] = ($event) => mysqlStep.value++)
+                  }, {
+                    default: withCtx(() => [..._cache[32] || (_cache[32] = [
+                      createTextVNode("下一步", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled"])) : (openBlock(), createBlock(unref(Button), {
+                    key: 2,
+                    type: "primary",
+                    loading: mysqlInstalling.value,
+                    disabled: !canStartMysqlInstall.value,
+                    onClick: startMysqlLocalInstall
+                  }, {
+                    default: withCtx(() => [..._cache[33] || (_cache[33] = [
+                      createTextVNode(" 开始安装 ", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["loading", "disabled"]))
+                ])
+              ]),
+              default: withCtx(() => [
+                createVNode(unref(NSteps), {
+                  current: mysqlStep.value,
+                  size: "small",
+                  style: { "margin-bottom": "18px" }
+                }, {
+                  default: withCtx(() => [
+                    createVNode(unref(NStep), { title: "解压位置" }),
+                    createVNode(unref(NStep), { title: "服务配置" }),
+                    createVNode(unref(NStep), { title: "预览配置" }),
+                    createVNode(unref(NStep), { title: "开始安装" })
+                  ]),
+                  _: 1
+                }, 8, ["current"]),
+                mysqlStep.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_25, [
+                  _cache[22] || (_cache[22] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+                  createBaseVNode("div", _hoisted_26, toDisplayString(cachedPackage.value?.filePath), 1),
+                  _cache[23] || (_cache[23] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
+                  createBaseVNode("div", _hoisted_27, [
+                    createVNode(unref(NInput), {
+                      value: mysqlForm.value.installDir,
+                      "onUpdate:value": _cache[3] || (_cache[3] = ($event) => mysqlForm.value.installDir = $event)
+                    }, null, 8, ["value"]),
+                    createVNode(unref(Button), { onClick: selectMysqlInstallDir }, {
+                      default: withCtx(() => [..._cache[21] || (_cache[21] = [
+                        createTextVNode("选择", -1)
+                      ])]),
+                      _: 1
+                    })
+                  ])
+                ])) : mysqlStep.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_28, [
+                  createBaseVNode("div", null, [
+                    _cache[24] || (_cache[24] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
+                    createVNode(unref(NInput), {
+                      value: mysqlForm.value.serviceName,
+                      "onUpdate:value": _cache[4] || (_cache[4] = ($event) => mysqlForm.value.serviceName = $event)
+                    }, null, 8, ["value"])
+                  ]),
+                  createBaseVNode("div", null, [
+                    _cache[25] || (_cache[25] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
+                    createVNode(unref(NInput), {
+                      value: mysqlForm.value.host,
+                      "onUpdate:value": _cache[5] || (_cache[5] = ($event) => mysqlForm.value.host = $event)
+                    }, null, 8, ["value"])
+                  ]),
+                  createBaseVNode("div", null, [
+                    _cache[26] || (_cache[26] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
+                    createVNode(unref(NInputNumber), {
+                      value: mysqlForm.value.port,
+                      "onUpdate:value": _cache[6] || (_cache[6] = ($event) => mysqlForm.value.port = $event),
+                      min: 1,
+                      max: 65535,
+                      style: { "width": "100%" }
+                    }, null, 8, ["value"])
+                  ]),
+                  createBaseVNode("div", null, [
+                    _cache[27] || (_cache[27] = createBaseVNode("div", { class: "field-label" }, "root 密码", -1)),
+                    createVNode(unref(NInput), {
+                      value: mysqlForm.value.password,
+                      "onUpdate:value": _cache[7] || (_cache[7] = ($event) => mysqlForm.value.password = $event),
+                      type: "password",
+                      "show-password-on": "click"
+                    }, null, 8, ["value"])
+                  ])
+                ])) : mysqlStep.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_29, [
+                  _cache[28] || (_cache[28] = createBaseVNode("div", { class: "field-label" }, "my.ini", -1)),
+                  createVNode(unref(NInput), {
+                    value: mysqlIniPreview.value,
+                    "onUpdate:value": _cache[8] || (_cache[8] = ($event) => mysqlIniPreview.value = $event),
+                    type: "textarea",
+                    autosize: { minRows: 18, maxRows: 24 }
+                  }, null, 8, ["value"])
+                ])) : (openBlock(), createElementBlock("div", _hoisted_30, [
+                  createBaseVNode("div", _hoisted_31, [
+                    createBaseVNode("div", null, "安装目录：" + toDisplayString(mysqlForm.value.installDir), 1),
+                    createBaseVNode("div", null, "服务：" + toDisplayString(mysqlForm.value.serviceName) + " · " + toDisplayString(mysqlForm.value.host) + ":" + toDisplayString(mysqlForm.value.port), 1),
+                    _cache[29] || (_cache[29] = createBaseVNode("div", null, "确认后会解压、初始化数据目录、注册并启动 Windows 服务。", -1))
+                  ])
+                ]))
+              ]),
+              _: 1
             }, 8, ["show"])
           ], 64);
         };
@@ -37334,7 +38007,7 @@ ${style2}
       }
       return target;
     };
-    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-5494ccc8"]]);
+    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-dcf2c398"]]);
     const _hoisted_1$2 = { class: "dashboard" };
     const _hoisted_2$2 = { class: "page-header" };
     const _hoisted_3$2 = { class: "header-actions" };
@@ -37381,6 +38054,7 @@ ${style2}
           { label: "全部", value: "all" },
           { label: "后端", value: "backend" },
           { label: "前端", value: "frontend" },
+          { label: "数据库", value: "database" },
           { label: "AI 工具", value: "ai" },
           { label: "其他", value: "other" }
         ];
@@ -37537,7 +38211,7 @@ ${style2}
         };
       }
     });
-    const Dashboard = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-5c2a0141"]]);
+    const Dashboard = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-1c514af7"]]);
     const MIRROR_LABELS = {
       official: "官方源",
       aliyun: "阿里云镜像",

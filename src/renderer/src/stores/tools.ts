@@ -7,7 +7,7 @@ export const useToolsStore = defineStore('tools', () => {
   const settings = ref<AppSettings | null>(null)
   const downloadTasks = ref<Map<string, DownloadTask>>(new Map())
   const installLogs = ref<Map<string, string[]>>(new Map())
-  const bestMirror = ref<string>('auto')
+  const bestMirror = ref<string>('huawei')
 
   function persistTasks() {
     void window.api.taskCache.save({

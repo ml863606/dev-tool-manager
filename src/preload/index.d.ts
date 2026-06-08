@@ -1,4 +1,4 @@
-import type { AppSettings, DownloadTask, IpcDownloadPayload, NodeVersion } from '../shared/types'
+import type { AppSettings, DownloadTask, IpcDownloadPayload, MysqlInstallPayload, NodeVersion } from '../shared/types'
 
 declare global {
   interface Window {
@@ -36,6 +36,10 @@ declare global {
       maven: {
         fetchVersions: () => Promise<Array<{ version: string }>>
       }
+      mysql: {
+        fetchVersions: () => Promise<Array<{ version: string; date: string; lts: false; filename: string; downloadUrls: Record<string, string> }>>
+        installLocal: (payload: MysqlInstallPayload) => Promise<string>
+      }
       git: {
         fetchVersions: () => Promise<Array<{ version: string; date: string; lts: false; filename: string; downloadUrls: Record<string, string> }>>
       }
@@ -53,6 +57,7 @@ declare global {
       download: {
         start: (payload: IpcDownloadPayload) => Promise<string>
         pause: (taskId: string) => Promise<void>
+        findCached: (filename: string) => Promise<{ filePath: string; size: string } | null>
         openFile: (filePath: string) => Promise<void>
         onProgress: (cb: (task: DownloadTask) => void) => () => void
         onInstallStatus: (cb: (data: { taskId: string; msg: string }) => void) => () => void

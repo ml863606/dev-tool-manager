@@ -91,6 +91,7 @@ const tabs = [
   { label: '全部', value: 'all' },
   { label: '后端', value: 'backend' },
   { label: '前端', value: 'frontend' },
+  { label: '数据库', value: 'database' },
   { label: 'AI 工具', value: 'ai' },
   { label: '其他', value: 'other' }
 ]

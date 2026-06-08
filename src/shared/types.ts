@@ -20,7 +20,7 @@ export interface ToolConfig {
   id: string
   name: string
   description: string
-  category: 'backend' | 'frontend' | 'ai' | 'other'
+  category: 'backend' | 'frontend' | 'database' | 'ai' | 'other'
   icon: string
   homepage: string
   versions: ToolVersion[]
@@ -86,4 +86,15 @@ export interface IpcInstallPayload {
   version: string
   filePath: string
   installDir?: string
+}
+
+export interface MysqlInstallPayload {
+  version: string
+  filePath: string
+  installDir: string
+  serviceName: string
+  host: string
+  port: number
+  password: string
+  myIni: string
 }

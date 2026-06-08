@@ -28,11 +28,11 @@ const axios = require("axios");
 const crypto = require("crypto");
 const child_process = require("child_process");
 const util = require("util");
-const Store = require("electron-store");
 const fs = require("fs");
 const fsExtra = require("fs-extra");
-const events = require("events");
 const AdmZip = require("adm-zip");
+const Store = require("electron-store");
+const events = require("events");
 const sqlite3 = require("sqlite3");
 const is = {
   dev: !electron.app.isPackaged
@@ -151,6 +151,50 @@ const TOOLS_CONFIG = [
     ]
   },
   {
+    id: "mysql",
+    name: "MySQL",
+    description: "MySQL 数据库服务端与命令行工具",
+    category: "database",
+    icon: "mysql",
+    homepage: "https://www.mysql.com",
+    verifyCommand: "mysql --version",
+    pathAppend: "bin",
+    versions: [
+      {
+        version: "8.0.27",
+        filename: "mysql-8.0.27-winx64.zip",
+        downloadUrls: {
+          official: "https://cdn.mysql.com/archives/mysql-8.0/mysql-8.0.27-winx64.zip",
+          aliyun: "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.27-winx64.zip",
+          huawei: "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.27-winx64.zip",
+          tencent: "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.27-winx64.zip"
+        }
+      }
+    ]
+  },
+  {
+    id: "redis",
+    name: "Redis",
+    description: "Redis 内存数据库 Windows 版命令行工具",
+    category: "database",
+    icon: "redis",
+    homepage: "https://redis.io",
+    verifyCommand: "redis-server --version",
+    pathAppend: "bin",
+    versions: [
+      {
+        version: "7.4.3",
+        filename: "Redis-7.4.3-Windows-x64-msys2.zip",
+        downloadUrls: {
+          official: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip",
+          aliyun: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip",
+          huawei: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip",
+          tencent: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip"
+        }
+      }
+    ]
+  },
+  {
     id: "claude-code",
     name: "Claude Code",
     description: "Anthropic Claude Code CLI 工具",
@@ -240,18 +284,18 @@ const TOOLS_CONFIG = [
 const DEFAULT_SETTINGS = {
   installBaseDir: "C:\\DevTools",
   downloadDir: "C:\\DevTools\\_downloads",
-  preferredMirror: "auto",
+  preferredMirror: "huawei",
   probeTimeoutMs: 3e3,
   concurrentDownloads: 2,
   autoDetectInstalled: true
 };
-function formatBytes(bytes) {
+function formatBytes$1(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 function formatSpeed(bytesPerSec) {
-  return `${formatBytes(bytesPerSec)}/s`;
+  return `${formatBytes$1(bytesPerSec)}/s`;
 }
 class Downloader extends events.EventEmitter {
   controllers = /* @__PURE__ */ new Map();
@@ -292,8 +336,8 @@ class Downloader extends events.EventEmitter {
           lastBytes = downloaded;
           onProgress({
             progress: total ? Math.floor(downloaded / total * 100) : 0,
-            downloadedSize: formatBytes(downloaded),
-            totalSize: total ? formatBytes(total) : "未知",
+            downloadedSize: formatBytes$1(downloaded),
+            totalSize: total ? formatBytes$1(total) : "未知",
             speed: formatSpeed(speed),
             status: "downloading"
           });
@@ -422,6 +466,14 @@ async function configureEnvVar(toolId, installPath, pathAppend) {
     } else if (toolId === "python") {
       await execAsync$1(
         `powershell -Command "[Environment]::SetEnvironmentVariable('PYTHON_HOME', '${installPath}', 'Machine')"`
+      );
+    } else if (toolId === "mysql") {
+      await execAsync$1(
+        `powershell -Command "[Environment]::SetEnvironmentVariable('MYSQL_HOME', '${installPath}', 'Machine')"`
+      );
+    } else if (toolId === "redis") {
+      await execAsync$1(
+        `powershell -Command "[Environment]::SetEnvironmentVariable('REDIS_HOME', '${installPath}', 'Machine')"`
       );
     }
   } catch (err) {
@@ -761,6 +813,7 @@ async function upsertTask(task) {
 const CATEGORY_NAME_MAP = {
   backend: "后端",
   frontend: "前端",
+  database: "数据库",
   ai: "AI 工具",
   other: "其他"
 };
@@ -866,6 +919,28 @@ const execAsync = util.promisify(child_process.exec);
 function generateId() {
   return crypto.randomBytes(4).toString("hex");
 }
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+function runLoggedProcess(command, args, cwd, onLog) {
+  return new Promise((resolve, reject) => {
+    onLog(`> ${command} ${args.join(" ")}`);
+    const child = child_process.spawn(command, args, { cwd, windowsHide: true, shell: false });
+    child.stdout.on("data", (chunk) => {
+      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line));
+    });
+    child.stderr.on("data", (chunk) => {
+      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line));
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`${path.basename(command)} 退出码: ${code}`));
+    });
+  });
+}
 const store = new Store({
   defaults: {
     settings: DEFAULT_SETTINGS,
@@ -899,7 +974,8 @@ function registerIpcHandlers(mainWindow2) {
   }
   async function getToolsCatalog() {
     const fromDb = await loadToolsCatalog();
-    if (fromDb.length > 0) return fromDb;
+    const hasLatestTools = TOOLS_CONFIG.every((tool) => fromDb.some((cached) => cached.id === tool.id));
+    if (fromDb.length > 0 && hasLatestTools) return fromDb;
     await saveToolsCatalog(TOOLS_CONFIG);
     return TOOLS_CONFIG;
   }
@@ -967,7 +1043,15 @@ function registerIpcHandlers(mainWindow2) {
       installed: installed[tool.id] ?? null
     }));
   });
-  electron.ipcMain.handle("settings:get", () => store.get("settings"));
+  electron.ipcMain.handle("settings:get", () => {
+    const settings = store.get("settings");
+    if (settings.preferredMirror === "auto") {
+      const next = { ...settings, preferredMirror: DEFAULT_SETTINGS.preferredMirror };
+      store.set("settings", next);
+      return next;
+    }
+    return settings;
+  });
   electron.ipcMain.handle("settings:save", (_event, settings) => {
     store.set("settings", settings);
     return true;
@@ -1022,6 +1106,49 @@ function registerIpcHandlers(mainWindow2) {
     }
     versionConfig ??= toolConfig.versions[0];
     log.info(`[download:start] final versionConfig: version=${versionConfig.version} filename=${versionConfig.filename}`);
+    const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
+    const cachedFilePath = path.join(downloadDir, versionConfig.filename);
+    if (!versionConfig.downloadUrls[settings.preferredMirror === "auto" ? "huawei" : settings.preferredMirror]?.startsWith("npm:") && fs.existsSync(cachedFilePath)) {
+      const taskId2 = generateId();
+      const stat = fs.statSync(cachedFilePath);
+      const cachedTask = {
+        id: taskId2,
+        toolId: payload.toolId,
+        toolName: toolConfig.name,
+        version: versionConfig.version,
+        status: "completed",
+        progress: 100,
+        speed: "0 B/s",
+        totalSize: formatBytes(stat.size),
+        downloadedSize: formatBytes(stat.size),
+        mirrorUsed: settings.preferredMirror === "auto" ? "huawei" : settings.preferredMirror,
+        filePath: cachedFilePath,
+        downloadUrl: cachedFilePath,
+        startedAt: (/* @__PURE__ */ new Date()).toISOString(),
+        completedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      mainWindow2.webContents.send("download:progress", cachedTask);
+      await upsertTask(cachedTask);
+      mainWindow2.webContents.send("install:status", { taskId: taskId2, msg: `检测到本地缓存，跳过下载: ${cachedFilePath}` });
+      if (payload.downloadOnly || payload.toolId === "mysql") {
+        return taskId2;
+      }
+      const result = await installTool(
+        payload.toolId,
+        cachedFilePath,
+        settings.installBaseDir,
+        (msg) => mainWindow2.webContents.send("install:status", { taskId: taskId2, msg }),
+        toolConfig
+      );
+      mainWindow2.webContents.send("install:complete", {
+        taskId: taskId2,
+        toolId: payload.toolId,
+        success: result.success,
+        installPath: result.installPath,
+        error: result.error
+      });
+      return taskId2;
+    }
     log.info(`[download:start] probing mirrors...`);
     const { url, mirror } = await resolveBestDownloadUrl(
       versionConfig,
@@ -1031,7 +1158,6 @@ function registerIpcHandlers(mainWindow2) {
     const finalUrl = await resolveDownloadUrl(url);
     log.info(`[download:start] resolved: mirror=${mirror} url=${url} finalUrl=${finalUrl}`);
     const taskId = generateId();
-    const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
     log.info(`[download:start] taskId=${taskId} downloadDir=${downloadDir}`);
     const task = {
       id: taskId,
@@ -1130,6 +1256,108 @@ function registerIpcHandlers(mainWindow2) {
   });
   electron.ipcMain.handle("download:openFile", (_event, filePath) => {
     electron.shell.showItemInFolder(filePath);
+  });
+  electron.ipcMain.handle("download:findCached", async (_event, filename) => {
+    const settings = store.get("settings");
+    const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
+    const filePath = path.join(downloadDir, filename);
+    if (!fs.existsSync(filePath)) return null;
+    const stat = fs.statSync(filePath);
+    return { filePath, size: formatBytes(stat.size) };
+  });
+  electron.ipcMain.handle("mysql:installLocal", async (_event, payload) => {
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "mysql");
+    const taskId = generateId();
+    const task = {
+      id: taskId,
+      toolId: "mysql",
+      toolName: toolConfig?.name ?? "MySQL",
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
+      downloadedSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
+      mirrorUsed: "huawei",
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    mainWindow2.webContents.send("download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
+    const done = async (patch) => {
+      const next = { ...task, ...patch, completedAt: (/* @__PURE__ */ new Date()).toISOString() };
+      mainWindow2.webContents.send("download:progress", next);
+      await upsertTask(next);
+    };
+    try {
+      if (!fs.existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`);
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("MySQL 本地安装仅支持 zip 包");
+      const installDir = payload.installDir;
+      const dataDir = path.join(installDir, "data");
+      const binDir = path.join(installDir, "bin");
+      const mysqld = path.join(binDir, "mysqld.exe");
+      const mysqladmin = path.join(binDir, "mysqladmin.exe");
+      const myIniPath = path.join(installDir, "my.ini");
+      sendLog(`开始 MySQL 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧解压目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (await fsExtra.pathExists(path.join(subDir, "bin", "mysqld.exe"))) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+        }
+      }
+      sendLog("解压完成");
+      if (!fs.existsSync(mysqld)) throw new Error(`未找到 mysqld.exe: ${mysqld}`);
+      await fsExtra.ensureDir(dataDir);
+      fs.writeFileSync(myIniPath, payload.myIni, "utf8");
+      sendLog(`已写入配置文件: ${myIniPath}`);
+      await runLoggedProcess(mysqld, [`--defaults-file=${myIniPath}`, "--initialize-insecure", `--console`], installDir, sendLog);
+      sendLog("数据目录初始化完成");
+      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
+      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
+      await runLoggedProcess(mysqld, [`--install`, payload.serviceName, `--defaults-file=${myIniPath}`], installDir, sendLog);
+      sendLog(`服务注册完成: ${payload.serviceName}`);
+      await runLoggedProcess("net", ["start", payload.serviceName], installDir, sendLog);
+      sendLog("服务启动完成");
+      if (payload.password) {
+        await runLoggedProcess(mysqladmin, ["-u", "root", "-h", payload.host, `-P${payload.port}`, "password", payload.password], installDir, sendLog);
+        sendLog("root 密码设置完成");
+      }
+      const installed = store.get("installed");
+      installed.mysql = {
+        id: "mysql",
+        version: payload.version,
+        installPath: installDir,
+        exePath: path.join(binDir, "mysql.exe"),
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store.set("installed", installed);
+      sendLog("MySQL 安装完成");
+      await done({ status: "completed", progress: 100 });
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "mysql", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`安装失败: ${message}`);
+      await done({ status: "error", error: message });
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "mysql", success: false, error: message });
+      return taskId;
+    }
   });
   electron.ipcMain.handle("tool:verify", async (_event, toolId) => {
     const toolsCatalog = await getToolsCatalog();
@@ -1381,6 +1609,74 @@ function registerIpcHandlers(mainWindow2) {
       }
     }
     return [];
+  });
+  electron.ipcMain.handle("mysql:fetchVersions", async () => {
+    const seriesSources = [
+      {
+        series: "8.0",
+        urls: [
+          "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/",
+          "https://mirrors.aliyun.com/mysql/Downloads/MySQL-8.0/"
+        ]
+      },
+      {
+        series: "5.7",
+        urls: [
+          "https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/",
+          "https://mirrors.aliyun.com/mysql/Downloads/MySQL-5.7/"
+        ]
+      }
+    ];
+    function buildMysqlVersion(version, series, mirrorBaseUrl, date = "") {
+      const filename = `mysql-${version}-winx64.zip`;
+      return {
+        version,
+        date,
+        lts: false,
+        filename,
+        downloadUrls: {
+          official: `https://cdn.mysql.com/archives/mysql-${series}/${filename}`,
+          aliyun: `${mirrorBaseUrl}${filename}`,
+          huawei: `${mirrorBaseUrl}${filename}`,
+          tencent: `${mirrorBaseUrl}${filename}`
+        }
+      };
+    }
+    const allVersions = /* @__PURE__ */ new Map();
+    for (const source of seriesSources) {
+      for (const url of source.urls) {
+        try {
+          log.info(`[mysql versions] 尝试: ${url}`);
+          const res = await axios.get(url, { timeout: 6e3 });
+          const html = res.data;
+          const regex = new RegExp(`mysql-(${source.series.replace(".", "\\.")}\\.\\d+)-winx64\\.zip[\\s\\S]{0,160}?(\\d{4}-\\d{2}-\\d{2}|\\d{2}-[A-Za-z]{3}-\\d{4})?`, "g");
+          let m;
+          while ((m = regex.exec(html)) !== null) {
+            allVersions.set(m[1], buildMysqlVersion(m[1], source.series, url, m[2] ?? ""));
+          }
+          log.info(`[mysql versions] ${source.series} 来源 ${url} 解析到 ${allVersions.size} 个累计版本`);
+          break;
+        } catch (e) {
+          log.warn(`[mysql versions] ${source.series} 失败: ${url} — ${e.message}`);
+        }
+      }
+    }
+    const sorted = [...allVersions.values()].sort((a, b) => {
+      const pa = a.version.split(".").map(Number);
+      const pb = b.version.split(".").map(Number);
+      for (let i = 0; i < 3; i++) {
+        if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
+      }
+      return 0;
+    });
+    if (sorted.length) {
+      log.info(`[mysql versions] 成功，共 ${sorted.length} 个版本`);
+      return sorted.slice(0, 40);
+    }
+    return [
+      buildMysqlVersion("8.0.27", "8.0", "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/"),
+      buildMysqlVersion("5.7.38", "5.7", "https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/")
+    ];
   });
   electron.ipcMain.handle("nodejs:fetchVersions", async () => {
     const urls = [

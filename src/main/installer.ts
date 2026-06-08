@@ -128,6 +128,14 @@ async function configureEnvVar(
       await execAsync(
         `powershell -Command "[Environment]::SetEnvironmentVariable('PYTHON_HOME', '${installPath}', 'Machine')"`
       )
+    } else if (toolId === 'mysql') {
+      await execAsync(
+        `powershell -Command "[Environment]::SetEnvironmentVariable('MYSQL_HOME', '${installPath}', 'Machine')"`
+      )
+    } else if (toolId === 'redis') {
+      await execAsync(
+        `powershell -Command "[Environment]::SetEnvironmentVariable('REDIS_HOME', '${installPath}', 'Machine')"`
+      )
     }
   } catch (err) {
     log.warn('配置环境变量失败（可能需要管理员权限）:', err)

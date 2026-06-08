@@ -38,6 +38,10 @@ const api = {
   maven: {
     fetchVersions: () => electron.ipcRenderer.invoke("maven:fetchVersions")
   },
+  mysql: {
+    fetchVersions: () => electron.ipcRenderer.invoke("mysql:fetchVersions"),
+    installLocal: (payload) => electron.ipcRenderer.invoke("mysql:installLocal", payload)
+  },
   git: {
     fetchVersions: () => electron.ipcRenderer.invoke("git:fetchVersions")
   },
@@ -55,6 +59,7 @@ const api = {
   download: {
     start: (payload) => electron.ipcRenderer.invoke("download:start", payload),
     pause: (taskId) => electron.ipcRenderer.invoke("download:pause", taskId),
+    findCached: (filename) => electron.ipcRenderer.invoke("download:findCached", filename),
     openFile: (filePath) => electron.ipcRenderer.invoke("download:openFile", filePath),
     onProgress: (cb) => {
       electron.ipcRenderer.on("download:progress", (_e, task) => cb(task));

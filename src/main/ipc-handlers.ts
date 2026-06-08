@@ -1,9 +1,12 @@
 import { ipcMain, shell, dialog } from 'electron'
 import axios from 'axios'
-import { join } from 'path'
+import { basename, dirname, extname, join } from 'path'
 import { randomBytes } from 'crypto'
-import { exec } from 'child_process'
+import { exec, spawn } from 'child_process'
 import { promisify } from 'util'
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'fs'
+import { ensureDir, move, pathExists, remove } from 'fs-extra'
+import AdmZip from 'adm-zip'
 import log from 'electron-log'
 import Store from 'electron-store'
 import { TOOLS_CONFIG, DEFAULT_SETTINGS } from '../shared/tools.config'
@@ -11,11 +14,40 @@ import { downloader } from './downloader'
 import { installTool, verifyInstall, findCommandPath, extractVersion } from './installer'
 import { resolveBestDownloadUrl, detectBestMirror, probeAll } from './network'
 import { loadTaskCache, loadToolsCatalog, saveTaskCache, saveToolsCatalog, upsertTask } from './task-db'
-import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, IpcInstallPayload, ToolConfig } from '../shared/types'
+import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, MysqlInstallPayload, ToolConfig } from '../shared/types'
 const execAsync = promisify(exec)
 
 function generateId(): string {
   return randomBytes(4).toString('hex')
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
+function runLoggedProcess(
+  command: string,
+  args: string[],
+  cwd: string,
+  onLog: (line: string) => void
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    onLog(`> ${command} ${args.join(' ')}`)
+    const child = spawn(command, args, { cwd, windowsHide: true, shell: false })
+    child.stdout.on('data', (chunk) => {
+      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line))
+    })
+    child.stderr.on('data', (chunk) => {
+      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line))
+    })
+    child.on('error', reject)
+    child.on('close', (code) => {
+      if (code === 0) resolve()
+      else reject(new Error(`${basename(command)} 退出码: ${code}`))
+    })
+  })
 }
 
 const store = new Store<{
@@ -56,7 +88,8 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
   async function getToolsCatalog(): Promise<ToolConfig[]> {
     const fromDb = await loadToolsCatalog()
-    if (fromDb.length > 0) return fromDb
+    const hasLatestTools = TOOLS_CONFIG.every((tool) => fromDb.some((cached) => cached.id === tool.id))
+    if (fromDb.length > 0 && hasLatestTools) return fromDb
     await saveToolsCatalog(TOOLS_CONFIG)
     return TOOLS_CONFIG
   }
@@ -134,7 +167,15 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     }))
   })
 
-  ipcMain.handle('settings:get', () => store.get('settings'))
+  ipcMain.handle('settings:get', () => {
+    const settings = store.get('settings') as AppSettings
+    if (settings.preferredMirror === 'auto') {
+      const next = { ...settings, preferredMirror: DEFAULT_SETTINGS.preferredMirror }
+      store.set('settings', next)
+      return next
+    }
+    return settings
+  })
 
   ipcMain.handle('settings:save', (_event, settings: AppSettings) => {
     store.set('settings', settings)
@@ -201,6 +242,50 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     versionConfig ??= toolConfig.versions[0]
     log.info(`[download:start] final versionConfig: version=${versionConfig.version} filename=${versionConfig.filename}`)
 
+    const downloadDir = settings.downloadDir || join(settings.installBaseDir, '_downloads')
+    const cachedFilePath = join(downloadDir, versionConfig.filename)
+    if (!versionConfig.downloadUrls[settings.preferredMirror === 'auto' ? 'huawei' : settings.preferredMirror]?.startsWith('npm:') && existsSync(cachedFilePath)) {
+      const taskId = generateId()
+      const stat = statSync(cachedFilePath)
+      const cachedTask: DownloadTask = {
+        id: taskId,
+        toolId: payload.toolId,
+        toolName: toolConfig.name,
+        version: versionConfig.version,
+        status: 'completed',
+        progress: 100,
+        speed: '0 B/s',
+        totalSize: formatBytes(stat.size),
+        downloadedSize: formatBytes(stat.size),
+        mirrorUsed: settings.preferredMirror === 'auto' ? 'huawei' : settings.preferredMirror,
+        filePath: cachedFilePath,
+        downloadUrl: cachedFilePath,
+        startedAt: new Date().toISOString(),
+        completedAt: new Date().toISOString()
+      }
+      mainWindow.webContents.send('download:progress', cachedTask)
+      await upsertTask(cachedTask)
+      mainWindow.webContents.send('install:status', { taskId, msg: `检测到本地缓存，跳过下载: ${cachedFilePath}` })
+      if (payload.downloadOnly || payload.toolId === 'mysql') {
+        return taskId
+      }
+      const result = await installTool(
+        payload.toolId,
+        cachedFilePath,
+        settings.installBaseDir,
+        (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
+        toolConfig
+      )
+      mainWindow.webContents.send('install:complete', {
+        taskId,
+        toolId: payload.toolId,
+        success: result.success,
+        installPath: result.installPath,
+        error: result.error
+      })
+      return taskId
+    }
+
     log.info(`[download:start] probing mirrors...`)
     const { url, mirror } = await resolveBestDownloadUrl(
       versionConfig,
@@ -211,7 +296,6 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     log.info(`[download:start] resolved: mirror=${mirror} url=${url} finalUrl=${finalUrl}`)
 
     const taskId = generateId()
-    const downloadDir = settings.downloadDir || join(settings.installBaseDir, '_downloads')
     log.info(`[download:start] taskId=${taskId} downloadDir=${downloadDir}`)
 
     const task: DownloadTask = {
@@ -320,6 +404,122 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
   ipcMain.handle('download:openFile', (_event, filePath: string) => {
     shell.showItemInFolder(filePath)
+  })
+
+  ipcMain.handle('download:findCached', async (_event, filename: string) => {
+    const settings = store.get('settings') as AppSettings
+    const downloadDir = settings.downloadDir || join(settings.installBaseDir, '_downloads')
+    const filePath = join(downloadDir, filename)
+    if (!existsSync(filePath)) return null
+    const stat = statSync(filePath)
+    return { filePath, size: formatBytes(stat.size) }
+  })
+
+  ipcMain.handle('mysql:installLocal', async (_event, payload: MysqlInstallPayload) => {
+    const toolsCatalog = await getToolsCatalog()
+    const toolConfig = toolsCatalog.find((t) => t.id === 'mysql')
+    const taskId = generateId()
+    const task: DownloadTask = {
+      id: taskId,
+      toolId: 'mysql',
+      toolName: toolConfig?.name ?? 'MySQL',
+      version: payload.version,
+      status: 'completed',
+      progress: 100,
+      speed: '0 B/s',
+      totalSize: existsSync(payload.filePath) ? formatBytes(statSync(payload.filePath).size) : '未知',
+      downloadedSize: existsSync(payload.filePath) ? formatBytes(statSync(payload.filePath).size) : '未知',
+      mirrorUsed: 'huawei',
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: new Date().toISOString()
+    }
+    mainWindow.webContents.send('download:progress', task)
+    await upsertTask(task)
+
+    const sendLog = (msg: string) => mainWindow.webContents.send('install:status', { taskId, msg })
+    const done = async (patch: Partial<DownloadTask>) => {
+      const next = { ...task, ...patch, completedAt: new Date().toISOString() } as DownloadTask
+      mainWindow.webContents.send('download:progress', next)
+      await upsertTask(next)
+    }
+
+    try {
+      if (!existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`)
+      if (extname(payload.filePath).toLowerCase() !== '.zip') throw new Error('MySQL 本地安装仅支持 zip 包')
+
+      const installDir = payload.installDir
+      const dataDir = join(installDir, 'data')
+      const binDir = join(installDir, 'bin')
+      const mysqld = join(binDir, 'mysqld.exe')
+      const mysqladmin = join(binDir, 'mysqladmin.exe')
+      const myIniPath = join(installDir, 'my.ini')
+
+      sendLog(`开始 MySQL 本地安装: ${payload.version}`)
+      sendLog(`安装包: ${payload.filePath}`)
+      sendLog(`解压目录: ${installDir}`)
+
+      if (await pathExists(installDir)) {
+        await remove(installDir)
+        sendLog('已清理旧解压目录')
+      }
+      await ensureDir(dirname(installDir))
+      const zip = new AdmZip(payload.filePath)
+      zip.extractAllTo(installDir, true)
+      const entries = await import('fs').then((fs) => fs.readdirSync(installDir))
+      if (entries.length === 1) {
+        const subDir = join(installDir, entries[0])
+        if (await pathExists(join(subDir, 'bin', 'mysqld.exe'))) {
+          const tmpDir = `${installDir}_tmp`
+          await move(subDir, tmpDir)
+          await remove(installDir)
+          await move(tmpDir, installDir)
+        }
+      }
+      sendLog('解压完成')
+
+      if (!existsSync(mysqld)) throw new Error(`未找到 mysqld.exe: ${mysqld}`)
+      await ensureDir(dataDir)
+      writeFileSync(myIniPath, payload.myIni, 'utf8')
+      sendLog(`已写入配置文件: ${myIniPath}`)
+
+      await runLoggedProcess(mysqld, [`--defaults-file=${myIniPath}`, '--initialize-insecure', `--console`], installDir, sendLog)
+      sendLog('数据目录初始化完成')
+
+      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false)
+      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`)
+
+      await runLoggedProcess(mysqld, [`--install`, payload.serviceName, `--defaults-file=${myIniPath}`], installDir, sendLog)
+      sendLog(`服务注册完成: ${payload.serviceName}`)
+
+      await runLoggedProcess('net', ['start', payload.serviceName], installDir, sendLog)
+      sendLog('服务启动完成')
+
+      if (payload.password) {
+        await runLoggedProcess(mysqladmin, ['-u', 'root', '-h', payload.host, `-P${payload.port}`, 'password', payload.password], installDir, sendLog)
+        sendLog('root 密码设置完成')
+      }
+
+      const installed = store.get('installed') as Record<string, InstalledTool>
+      installed.mysql = {
+        id: 'mysql',
+        version: payload.version,
+        installPath: installDir,
+        exePath: join(binDir, 'mysql.exe'),
+        installedAt: new Date().toISOString()
+      }
+      store.set('installed', installed)
+      sendLog('MySQL 安装完成')
+      await done({ status: 'completed', progress: 100 })
+      mainWindow.webContents.send('install:complete', { taskId, toolId: 'mysql', success: true, installPath: installDir })
+      return taskId
+    } catch (err: any) {
+      const message = err?.message ?? String(err)
+      sendLog(`安装失败: ${message}`)
+      await done({ status: 'error', error: message })
+      mainWindow.webContents.send('install:complete', { taskId, toolId: 'mysql', success: false, error: message })
+      return taskId
+    }
   })
 
   ipcMain.handle('tool:verify', async (_event, toolId: string) => {
@@ -591,6 +791,79 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       }
     }
     return []
+  })
+
+  ipcMain.handle('mysql:fetchVersions', async () => {
+    const seriesSources = [
+      {
+        series: '8.0',
+        urls: [
+          'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/',
+          'https://mirrors.aliyun.com/mysql/Downloads/MySQL-8.0/'
+        ]
+      },
+      {
+        series: '5.7',
+        urls: [
+          'https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/',
+          'https://mirrors.aliyun.com/mysql/Downloads/MySQL-5.7/'
+        ]
+      }
+    ]
+
+    function buildMysqlVersion(version: string, series: string, mirrorBaseUrl: string, date = '') {
+      const filename = `mysql-${version}-winx64.zip`
+      return {
+        version,
+        date,
+        lts: false,
+        filename,
+        downloadUrls: {
+          official: `https://cdn.mysql.com/archives/mysql-${series}/${filename}`,
+          aliyun: `${mirrorBaseUrl}${filename}`,
+          huawei: `${mirrorBaseUrl}${filename}`,
+          tencent: `${mirrorBaseUrl}${filename}`
+        }
+      }
+    }
+
+    const allVersions = new Map<string, ReturnType<typeof buildMysqlVersion>>()
+    for (const source of seriesSources) {
+      for (const url of source.urls) {
+        try {
+          log.info(`[mysql versions] 尝试: ${url}`)
+          const res = await axios.get<string>(url, { timeout: 6000 })
+          const html = res.data
+          const regex = new RegExp(`mysql-(${source.series.replace('.', '\\.')}\\.\\d+)-winx64\\.zip[\\s\\S]{0,160}?(\\d{4}-\\d{2}-\\d{2}|\\d{2}-[A-Za-z]{3}-\\d{4})?`, 'g')
+          let m: RegExpExecArray | null
+          while ((m = regex.exec(html)) !== null) {
+            allVersions.set(m[1], buildMysqlVersion(m[1], source.series, url, m[2] ?? ''))
+          }
+          log.info(`[mysql versions] ${source.series} 来源 ${url} 解析到 ${allVersions.size} 个累计版本`)
+          break
+        } catch (e: any) {
+          log.warn(`[mysql versions] ${source.series} 失败: ${url} — ${e.message}`)
+        }
+      }
+    }
+
+    const sorted = [...allVersions.values()].sort((a, b) => {
+      const pa = a.version.split('.').map(Number)
+      const pb = b.version.split('.').map(Number)
+      for (let i = 0; i < 3; i++) {
+        if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0)
+      }
+      return 0
+    })
+    if (sorted.length) {
+      log.info(`[mysql versions] 成功，共 ${sorted.length} 个版本`)
+      return sorted.slice(0, 40)
+    }
+
+    return [
+      buildMysqlVersion('8.0.27', '8.0', 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/'),
+      buildMysqlVersion('5.7.38', '5.7', 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/')
+    ]
   })
 
   ipcMain.handle('nodejs:fetchVersions', async () => {

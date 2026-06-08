@@ -271,6 +271,7 @@ export async function upsertTask(task: DownloadTask): Promise<void> {
 const CATEGORY_NAME_MAP: Record<string, string> = {
   backend: '后端',
   frontend: '前端',
+  database: '数据库',
   ai: 'AI 工具',
   other: '其他'
 }
