@@ -141,13 +141,13 @@ export const TOOLS_CONFIG: ToolConfig[] = [
     pathAppend: 'bin',
     versions: [
       {
-        version: '7.4.3',
-        filename: 'Redis-7.4.3-Windows-x64-msys2.zip',
+        version: '8.8.0',
+        filename: 'Redis-8.8.0-Windows-x64-msys2-with-Service.zip',
         downloadUrls: {
-          official: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip',
-          aliyun: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip',
-          huawei: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip',
-          tencent: 'https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip'
+          official: 'https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip',
+          aliyun: 'https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip',
+          huawei: 'https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip',
+          tencent: 'https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip'
         }
       }
     ]
@@ -253,5 +253,6 @@ export const DEFAULT_SETTINGS = {
   preferredMirror: 'huawei' as const,
   probeTimeoutMs: 3000,
   concurrentDownloads: 2,
-  autoDetectInstalled: true
+  autoDetectInstalled: true,
+  githubProxyPrefix: 'https://gh.zwy.one'
 }

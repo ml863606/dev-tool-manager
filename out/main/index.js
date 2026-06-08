@@ -183,13 +183,13 @@ const TOOLS_CONFIG = [
     pathAppend: "bin",
     versions: [
       {
-        version: "7.4.3",
-        filename: "Redis-7.4.3-Windows-x64-msys2.zip",
+        version: "8.8.0",
+        filename: "Redis-8.8.0-Windows-x64-msys2-with-Service.zip",
         downloadUrls: {
-          official: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip",
-          aliyun: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip",
-          huawei: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip",
-          tencent: "https://github.com/redis-windows/redis-windows/releases/download/7.4.3/Redis-7.4.3-Windows-x64-msys2.zip"
+          official: "https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip",
+          aliyun: "https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip",
+          huawei: "https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip",
+          tencent: "https://github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip"
         }
       }
     ]
@@ -287,7 +287,8 @@ const DEFAULT_SETTINGS = {
   preferredMirror: "huawei",
   probeTimeoutMs: 3e3,
   concurrentDownloads: 2,
-  autoDetectInstalled: true
+  autoDetectInstalled: true,
+  githubProxyPrefix: "https://gh.zwy.one"
 };
 function formatBytes$1(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -968,7 +969,18 @@ const store = new Store({
   }
 });
 function registerIpcHandlers(mainWindow2) {
+  function applyGithubProxy(url) {
+    const settings = store.get("settings");
+    const prefix = (settings.githubProxyPrefix || DEFAULT_SETTINGS.githubProxyPrefix).trim().replace(/\/+$/, "");
+    if (!prefix || !/^https?:\/\/github\.com\//i.test(url)) return url;
+    return `${prefix}/${url.replace(/^https?:\/\//i, "")}`;
+  }
   async function resolveDownloadUrl(url) {
+    const proxiedUrl = applyGithubProxy(url);
+    if (proxiedUrl !== url) {
+      log.info(`[download] GitHub 镜像加速: ${proxiedUrl}`);
+      return proxiedUrl;
+    }
     if (!url.includes("api.foojay.io") || !url.includes("/redirect")) return url;
     try {
       const res = await axios.get(url, {
@@ -979,14 +991,14 @@ function registerIpcHandlers(mainWindow2) {
       const location = String(res.headers?.location ?? "").trim();
       if (location) {
         log.info(`[download] foojay redirect resolved: ${location}`);
-        return location;
+        return applyGithubProxy(location);
       }
       return url;
     } catch (e) {
       const location = String(e?.response?.headers?.location ?? "").trim();
       if (location) {
         log.info(`[download] foojay redirect resolved(from error): ${location}`);
-        return location;
+        return applyGithubProxy(location);
       }
       log.warn(`[download] resolve redirect failed, fallback original: ${e?.message ?? e}`);
       return url;
@@ -995,7 +1007,11 @@ function registerIpcHandlers(mainWindow2) {
   async function getToolsCatalog() {
     const fromDb = await loadToolsCatalog();
     const hasLatestTools = TOOLS_CONFIG.every((tool) => fromDb.some((cached) => cached.id === tool.id));
-    if (fromDb.length > 0 && hasLatestTools) return fromDb;
+    const hasLatestVersions = TOOLS_CONFIG.every((tool) => {
+      const cached = fromDb.find((item) => item.id === tool.id);
+      return cached && JSON.stringify(cached.versions) === JSON.stringify(tool.versions);
+    });
+    if (fromDb.length > 0 && hasLatestTools && hasLatestVersions) return fromDb;
     await saveToolsCatalog(TOOLS_CONFIG);
     return TOOLS_CONFIG;
   }
@@ -1065,8 +1081,12 @@ function registerIpcHandlers(mainWindow2) {
   });
   electron.ipcMain.handle("settings:get", () => {
     const settings = store.get("settings");
-    if (settings.preferredMirror === "auto") {
-      const next = { ...settings, preferredMirror: DEFAULT_SETTINGS.preferredMirror };
+    if (settings.preferredMirror === "auto" || !settings.githubProxyPrefix) {
+      const next = {
+        ...settings,
+        preferredMirror: settings.preferredMirror === "auto" ? DEFAULT_SETTINGS.preferredMirror : settings.preferredMirror,
+        githubProxyPrefix: settings.githubProxyPrefix || DEFAULT_SETTINGS.githubProxyPrefix
+      };
       store.set("settings", next);
       return next;
     }

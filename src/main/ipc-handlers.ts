@@ -82,7 +82,19 @@ const store = new Store<{
 })
 
 export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
+  function applyGithubProxy(url: string): string {
+    const settings = store.get('settings') as AppSettings
+    const prefix = (settings.githubProxyPrefix || DEFAULT_SETTINGS.githubProxyPrefix).trim().replace(/\/+$/, '')
+    if (!prefix || !/^https?:\/\/github\.com\//i.test(url)) return url
+    return `${prefix}/${url.replace(/^https?:\/\//i, '')}`
+  }
+
   async function resolveDownloadUrl(url: string): Promise<string> {
+    const proxiedUrl = applyGithubProxy(url)
+    if (proxiedUrl !== url) {
+      log.info(`[download] GitHub 镜像加速: ${proxiedUrl}`)
+      return proxiedUrl
+    }
     if (!url.includes('api.foojay.io') || !url.includes('/redirect')) return url
     try {
       const res = await axios.get(url, {
@@ -93,14 +105,14 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       const location = String(res.headers?.location ?? '').trim()
       if (location) {
         log.info(`[download] foojay redirect resolved: ${location}`)
-        return location
+        return applyGithubProxy(location)
       }
       return url
     } catch (e: any) {
       const location = String(e?.response?.headers?.location ?? '').trim()
       if (location) {
         log.info(`[download] foojay redirect resolved(from error): ${location}`)
-        return location
+        return applyGithubProxy(location)
       }
       log.warn(`[download] resolve redirect failed, fallback original: ${e?.message ?? e}`)
       return url
@@ -110,7 +122,11 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
   async function getToolsCatalog(): Promise<ToolConfig[]> {
     const fromDb = await loadToolsCatalog()
     const hasLatestTools = TOOLS_CONFIG.every((tool) => fromDb.some((cached) => cached.id === tool.id))
-    if (fromDb.length > 0 && hasLatestTools) return fromDb
+    const hasLatestVersions = TOOLS_CONFIG.every((tool) => {
+      const cached = fromDb.find((item) => item.id === tool.id)
+      return cached && JSON.stringify(cached.versions) === JSON.stringify(tool.versions)
+    })
+    if (fromDb.length > 0 && hasLatestTools && hasLatestVersions) return fromDb
     await saveToolsCatalog(TOOLS_CONFIG)
     return TOOLS_CONFIG
   }
@@ -190,8 +206,12 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
   ipcMain.handle('settings:get', () => {
     const settings = store.get('settings') as AppSettings
-    if (settings.preferredMirror === 'auto') {
-      const next = { ...settings, preferredMirror: DEFAULT_SETTINGS.preferredMirror }
+    if (settings.preferredMirror === 'auto' || !settings.githubProxyPrefix) {
+      const next = {
+        ...settings,
+        preferredMirror: settings.preferredMirror === 'auto' ? DEFAULT_SETTINGS.preferredMirror : settings.preferredMirror,
+        githubProxyPrefix: settings.githubProxyPrefix || DEFAULT_SETTINGS.githubProxyPrefix
+      }
       store.set('settings', next)
       return next
     }

@@ -44,6 +44,15 @@
           <div class="field-hint">选择"自动"时，程序会探测各源连通性并选择最快的可用源</div>
         </div>
         <div class="field">
+          <label>GitHub 镜像下载前缀</label>
+          <n-input
+            v-model:value="form.githubProxyPrefix"
+            placeholder="https://gh.zwy.one"
+            clearable
+          />
+          <div class="field-hint">GitHub 下载地址会自动拼接为：{{ githubProxyExample }}</div>
+        </div>
+        <div class="field">
           <label>连通性探测超时 (ms)</label>
           <n-input-number v-model:value="form.probeTimeoutMs" :min="500" :max="10000" :step="500" style="width: 100%" />
         </div>
@@ -100,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { NInput, NInputNumber, NSelect, NButton, NTooltip, useMessage } from 'naive-ui'
 import { useToolsStore } from '../stores/tools'
 import type { AppSettings } from '../../../shared/types'
@@ -119,6 +128,11 @@ const probing = ref(false)
 const selectingInstallDir = ref(false)
 const selectingDownloadDir = ref(false)
 const form = ref<AppSettings | null>(null)
+
+const githubProxyExample = computed(() => {
+  const prefix = (form.value?.githubProxyPrefix || 'https://gh.zwy.one').trim().replace(/\/+$/, '')
+  return `${prefix}/github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip`
+})
 
 const mirrorOptions = [
   { label: '自动探测', value: 'auto' },
@@ -188,6 +202,7 @@ async function handleSave() {
   if (!form.value) return
   saving.value = true
   try {
+    form.value.githubProxyPrefix = (form.value.githubProxyPrefix || 'https://gh.zwy.one').trim().replace(/\/+$/, '')
     await store.saveSettings(form.value)
     message.success('设置已保存')
   } catch (err: any) {

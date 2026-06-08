@@ -63,6 +63,7 @@ export interface AppSettings {
   probeTimeoutMs: number
   concurrentDownloads: number
   autoDetectInstalled: boolean
+  githubProxyPrefix: string
 }
 
 export interface NodeVersion {

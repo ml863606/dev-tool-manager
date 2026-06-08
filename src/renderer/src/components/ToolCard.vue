@@ -554,20 +554,27 @@ const activeTask = computed(() =>
 
 const isDownloading = computed(() => !!activeTask.value)
 
+function applyGithubProxyPreview(url: string) {
+  const prefix = (store.settings?.githubProxyPrefix || 'https://gh.zwy.one').trim().replace(/\/+$/, '')
+  if (!prefix || !/^https?:\/\/github\.com\//i.test(url)) return url
+  return `${prefix}/${url.replace(/^https?:\/\//i, '')}`
+}
+
 const downloadUrlPreview = computed(() => {
   const mirror = (store.bestMirror ?? 'official') as string
+  let url = ''
   if (isDynamic.value) {
     const built = buildDynamicUrls(selectedVersion.value)
-    if (built?.urls) return built.urls[mirror] ?? built.urls['official'] ?? Object.values(built.urls)[0] ?? ''
-    return ''
+    if (built?.urls) url = built.urls[mirror] ?? built.urls['official'] ?? Object.values(built.urls)[0] ?? ''
+    return applyGithubProxyPreview(url)
   }
   const verCfg = props.tool.versions?.find((v: any) => v.version === selectedVersion.value)
     ?? props.tool.versions?.[0]
   if (verCfg?.downloadUrls) {
     const urls = verCfg.downloadUrls as Record<string, string>
-    return urls[mirror] ?? urls['official'] ?? Object.values(urls)[0] ?? ''
+    url = urls[mirror] ?? urls['official'] ?? Object.values(urls)[0] ?? ''
   }
-  return ''
+  return applyGithubProxyPreview(url)
 })
 
 const progressStatus = computed(() => {

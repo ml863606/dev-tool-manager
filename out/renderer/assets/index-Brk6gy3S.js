@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-FX1Dophw.js"(exports, module) {
+  "assets/index-Brk6gy3S.js"(exports, module) {
     /**
     * @vue/shared v3.5.33
     * (c) 2018-present Yuxi (Evan) You and Vue contributors
@@ -45672,8 +45672,8 @@ ${style2}
       class: "download-meta"
     };
     const _hoisted_21$1 = { class: "mirror-badge" };
-    const _hoisted_22 = { class: "npm-registry-list" };
-    const _hoisted_23 = {
+    const _hoisted_22$1 = { class: "npm-registry-list" };
+    const _hoisted_23$1 = {
       key: 0,
       class: "current-pill"
     };
@@ -45943,19 +45943,25 @@ ${style2}
           )
         );
         const isDownloading = computed(() => !!activeTask.value);
+        function applyGithubProxyPreview(url) {
+          const prefix2 = (store.settings?.githubProxyPrefix || "https://gh.zwy.one").trim().replace(/\/+$/, "");
+          if (!prefix2 || !/^https?:\/\/github\.com\//i.test(url)) return url;
+          return `${prefix2}/${url.replace(/^https?:\/\//i, "")}`;
+        }
         const downloadUrlPreview = computed(() => {
           const mirror = store.bestMirror ?? "official";
+          let url = "";
           if (isDynamic.value) {
             const built = buildDynamicUrls(selectedVersion.value);
-            if (built?.urls) return built.urls[mirror] ?? built.urls["official"] ?? Object.values(built.urls)[0] ?? "";
-            return "";
+            if (built?.urls) url = built.urls[mirror] ?? built.urls["official"] ?? Object.values(built.urls)[0] ?? "";
+            return applyGithubProxyPreview(url);
           }
           const verCfg = props.tool.versions?.find((v) => v.version === selectedVersion.value) ?? props.tool.versions?.[0];
           if (verCfg?.downloadUrls) {
             const urls = verCfg.downloadUrls;
-            return urls[mirror] ?? urls["official"] ?? Object.values(urls)[0] ?? "";
+            url = urls[mirror] ?? urls["official"] ?? Object.values(urls)[0] ?? "";
           }
-          return "";
+          return applyGithubProxyPreview(url);
         });
         const progressStatus = computed(() => {
           if (!activeTask.value) return "default";
@@ -46504,7 +46510,7 @@ ${password}
               "mask-closable": true
             }, {
               default: withCtx(() => [
-                createBaseVNode("div", _hoisted_22, [
+                createBaseVNode("div", _hoisted_22$1, [
                   _cache[29] || (_cache[29] = createBaseVNode("div", { class: "npm-registry-head" }, [
                     createBaseVNode("span", null, "源名称"),
                     createBaseVNode("span", null, "URL"),
@@ -46518,7 +46524,7 @@ ${password}
                     }, [
                       createBaseVNode("span", null, [
                         createTextVNode(toDisplayString(item.name), 1),
-                        item.current ? (openBlock(), createElementBlock("span", _hoisted_23, "当前")) : createCommentVNode("", true)
+                        item.current ? (openBlock(), createElementBlock("span", _hoisted_23$1, "当前")) : createCommentVNode("", true)
                       ]),
                       createBaseVNode("span", _hoisted_24, toDisplayString(item.url), 1),
                       createBaseVNode("span", {
@@ -46825,7 +46831,7 @@ ${password}
       }
       return target;
     };
-    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-abd27adb"]]);
+    const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-4e8e7dec"]]);
     const _hoisted_1$3 = { class: "dashboard" };
     const _hoisted_2$3 = { class: "page-header" };
     const _hoisted_3$3 = { class: "header-actions" };
@@ -47454,19 +47460,21 @@ ${password}
     const _hoisted_9 = { class: "section" };
     const _hoisted_10 = { class: "field" };
     const _hoisted_11 = { class: "field" };
-    const _hoisted_12 = { class: "field" };
-    const _hoisted_13 = { class: "section" };
-    const _hoisted_14 = { class: "probe-result" };
-    const _hoisted_15 = { class: "probe-sources" };
-    const _hoisted_16 = { class: "probe-label" };
-    const _hoisted_17 = {
+    const _hoisted_12 = { class: "field-hint" };
+    const _hoisted_13 = { class: "field" };
+    const _hoisted_14 = { class: "field" };
+    const _hoisted_15 = { class: "section" };
+    const _hoisted_16 = { class: "probe-result" };
+    const _hoisted_17 = { class: "probe-sources" };
+    const _hoisted_18 = { class: "probe-label" };
+    const _hoisted_19 = {
       key: 0,
       class: "probe-best-tag"
     };
-    const _hoisted_18 = { class: "probe-tooltip" };
-    const _hoisted_19 = { class: "probe-tooltip-url" };
-    const _hoisted_20 = { class: "probe-tooltip-status" };
-    const _hoisted_21 = {
+    const _hoisted_20 = { class: "probe-tooltip" };
+    const _hoisted_21 = { class: "probe-tooltip-url" };
+    const _hoisted_22 = { class: "probe-tooltip-status" };
+    const _hoisted_23 = {
       key: 1,
       class: "form-actions"
     };
@@ -47486,6 +47494,10 @@ ${password}
         const selectingInstallDir = /* @__PURE__ */ ref(false);
         const selectingDownloadDir = /* @__PURE__ */ ref(false);
         const form = /* @__PURE__ */ ref(null);
+        const githubProxyExample = computed(() => {
+          const prefix2 = (form.value?.githubProxyPrefix || "https://gh.zwy.one").trim().replace(/\/+$/, "");
+          return `${prefix2}/github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip`;
+        });
         const mirrorOptions = [
           { label: "自动探测", value: "auto" },
           { label: "阿里云镜像", value: "aliyun" },
@@ -47552,6 +47564,7 @@ ${password}
           if (!form.value) return;
           saving.value = true;
           try {
+            form.value.githubProxyPrefix = (form.value.githubProxyPrefix || "https://gh.zwy.one").trim().replace(/\/+$/, "");
             await store.saveSettings(form.value);
             message.success("设置已保存");
           } catch (err) {
@@ -47571,15 +47584,15 @@ ${password}
         });
         return (_ctx, _cache) => {
           return openBlock(), createElementBlock("div", _hoisted_1, [
-            _cache[20] || (_cache[20] = createBaseVNode("div", { class: "page-header" }, [
+            _cache[22] || (_cache[22] = createBaseVNode("div", { class: "page-header" }, [
               createBaseVNode("h1", null, "设置"),
               createBaseVNode("p", null, "配置下载源和安装目录")
             ], -1)),
             form.value ? (openBlock(), createElementBlock("div", _hoisted_2, [
               createBaseVNode("div", _hoisted_3, [
-                _cache[10] || (_cache[10] = createBaseVNode("div", { class: "section-title" }, "目录设置", -1)),
+                _cache[11] || (_cache[11] = createBaseVNode("div", { class: "section-title" }, "目录设置", -1)),
                 createBaseVNode("div", _hoisted_4, [
-                  _cache[6] || (_cache[6] = createBaseVNode("label", null, "统一安装根目录", -1)),
+                  _cache[7] || (_cache[7] = createBaseVNode("label", null, "统一安装根目录", -1)),
                   createBaseVNode("div", _hoisted_5, [
                     createVNode(unref(NInput), {
                       value: form.value.installBaseDir,
@@ -47592,7 +47605,7 @@ ${password}
                       onClick: selectInstallDir,
                       loading: selectingInstallDir.value
                     }, {
-                      default: withCtx(() => [..._cache[5] || (_cache[5] = [
+                      default: withCtx(() => [..._cache[6] || (_cache[6] = [
                         createTextVNode("浏览...", -1)
                       ])]),
                       _: 1
@@ -47601,7 +47614,7 @@ ${password}
                   createBaseVNode("div", _hoisted_6, "所有工具将安装在此目录的子目录中，例如 " + toDisplayString(form.value.installBaseDir) + "\\jdk-21", 1)
                 ]),
                 createBaseVNode("div", _hoisted_7, [
-                  _cache[8] || (_cache[8] = createBaseVNode("label", null, "下载缓存目录", -1)),
+                  _cache[9] || (_cache[9] = createBaseVNode("label", null, "下载缓存目录", -1)),
                   createBaseVNode("div", _hoisted_8, [
                     createVNode(unref(NInput), {
                       value: form.value.downloadDir,
@@ -47614,52 +47627,62 @@ ${password}
                       onClick: selectDownloadDir,
                       loading: selectingDownloadDir.value
                     }, {
-                      default: withCtx(() => [..._cache[7] || (_cache[7] = [
+                      default: withCtx(() => [..._cache[8] || (_cache[8] = [
                         createTextVNode("浏览...", -1)
                       ])]),
                       _: 1
                     }, 8, ["loading"])
                   ]),
-                  _cache[9] || (_cache[9] = createBaseVNode("div", { class: "field-hint" }, "安装包下载后暂存于此目录，安装完成后可手动清理", -1))
+                  _cache[10] || (_cache[10] = createBaseVNode("div", { class: "field-hint" }, "安装包下载后暂存于此目录，安装完成后可手动清理", -1))
                 ])
               ]),
               createBaseVNode("div", _hoisted_9, [
-                _cache[15] || (_cache[15] = createBaseVNode("div", { class: "section-title" }, "下载源设置", -1)),
+                _cache[17] || (_cache[17] = createBaseVNode("div", { class: "section-title" }, "下载源设置", -1)),
                 createBaseVNode("div", _hoisted_10, [
-                  _cache[11] || (_cache[11] = createBaseVNode("label", null, "首选镜像源", -1)),
+                  _cache[12] || (_cache[12] = createBaseVNode("label", null, "首选镜像源", -1)),
                   createVNode(unref(NSelect), {
                     value: form.value.preferredMirror,
                     "onUpdate:value": _cache[2] || (_cache[2] = ($event) => form.value.preferredMirror = $event),
                     options: mirrorOptions
                   }, null, 8, ["value"]),
-                  _cache[12] || (_cache[12] = createBaseVNode("div", { class: "field-hint" }, '选择"自动"时，程序会探测各源连通性并选择最快的可用源', -1))
+                  _cache[13] || (_cache[13] = createBaseVNode("div", { class: "field-hint" }, '选择"自动"时，程序会探测各源连通性并选择最快的可用源', -1))
                 ]),
                 createBaseVNode("div", _hoisted_11, [
-                  _cache[13] || (_cache[13] = createBaseVNode("label", null, "连通性探测超时 (ms)", -1)),
+                  _cache[14] || (_cache[14] = createBaseVNode("label", null, "GitHub 镜像下载前缀", -1)),
+                  createVNode(unref(NInput), {
+                    value: form.value.githubProxyPrefix,
+                    "onUpdate:value": _cache[3] || (_cache[3] = ($event) => form.value.githubProxyPrefix = $event),
+                    placeholder: "https://gh.zwy.one",
+                    clearable: ""
+                  }, null, 8, ["value"]),
+                  createBaseVNode("div", _hoisted_12, "GitHub 下载地址会自动拼接为：" + toDisplayString(githubProxyExample.value), 1)
+                ]),
+                createBaseVNode("div", _hoisted_13, [
+                  _cache[15] || (_cache[15] = createBaseVNode("label", null, "连通性探测超时 (ms)", -1)),
                   createVNode(unref(NInputNumber), {
                     value: form.value.probeTimeoutMs,
-                    "onUpdate:value": _cache[3] || (_cache[3] = ($event) => form.value.probeTimeoutMs = $event),
+                    "onUpdate:value": _cache[4] || (_cache[4] = ($event) => form.value.probeTimeoutMs = $event),
                     min: 500,
                     max: 1e4,
                     step: 500,
                     style: { "width": "100%" }
                   }, null, 8, ["value"])
                 ]),
-                createBaseVNode("div", _hoisted_12, [
-                  _cache[14] || (_cache[14] = createBaseVNode("label", null, "最大并发下载数", -1)),
+                createBaseVNode("div", _hoisted_14, [
+                  _cache[16] || (_cache[16] = createBaseVNode("label", null, "最大并发下载数", -1)),
                   createVNode(unref(NInputNumber), {
                     value: form.value.concurrentDownloads,
-                    "onUpdate:value": _cache[4] || (_cache[4] = ($event) => form.value.concurrentDownloads = $event),
+                    "onUpdate:value": _cache[5] || (_cache[5] = ($event) => form.value.concurrentDownloads = $event),
                     min: 1,
                     max: 5,
                     style: { "width": "100%" }
                   }, null, 8, ["value"])
                 ])
               ]),
-              createBaseVNode("div", _hoisted_13, [
-                _cache[17] || (_cache[17] = createBaseVNode("div", { class: "section-title" }, "网络探测", -1)),
-                createBaseVNode("div", _hoisted_14, [
-                  createBaseVNode("div", _hoisted_15, [
+              createBaseVNode("div", _hoisted_15, [
+                _cache[19] || (_cache[19] = createBaseVNode("div", { class: "section-title" }, "网络探测", -1)),
+                createBaseVNode("div", _hoisted_16, [
+                  createBaseVNode("div", _hoisted_17, [
                     (openBlock(true), createElementBlock(Fragment, null, renderList(probeResults.value, (source) => {
                       return openBlock(), createBlock(unref(NTooltip), {
                         key: source.region,
@@ -47676,17 +47699,17 @@ ${password}
                             createBaseVNode("div", {
                               class: normalizeClass(["probe-dot", probeClass(source)])
                             }, null, 2),
-                            createBaseVNode("span", _hoisted_16, toDisplayString(source.label), 1),
+                            createBaseVNode("span", _hoisted_18, toDisplayString(source.label), 1),
                             createBaseVNode("span", {
                               class: normalizeClass(["probe-latency", { "probe-latency--fail": source.probed && !source.ok }])
                             }, toDisplayString(!source.probed ? probing.value ? "..." : "—" : `${source.latency}ms`), 3),
-                            source.region === unref(store).bestMirror ? (openBlock(), createElementBlock("span", _hoisted_17, "最优")) : createCommentVNode("", true)
+                            source.region === unref(store).bestMirror ? (openBlock(), createElementBlock("span", _hoisted_19, "最优")) : createCommentVNode("", true)
                           ], 2)
                         ]),
                         default: withCtx(() => [
-                          createBaseVNode("div", _hoisted_18, [
-                            createBaseVNode("div", _hoisted_19, toDisplayString(source.url), 1),
-                            createBaseVNode("div", _hoisted_20, toDisplayString(!source.probed ? probing.value ? "探测中..." : "未探测" : source.ok ? `连通，延迟 ${source.latency}ms` : `不可达，超时 ${source.latency}ms`), 1)
+                          createBaseVNode("div", _hoisted_20, [
+                            createBaseVNode("div", _hoisted_21, toDisplayString(source.url), 1),
+                            createBaseVNode("div", _hoisted_22, toDisplayString(!source.probed ? probing.value ? "探测中..." : "未探测" : source.ok ? `连通，延迟 ${source.latency}ms` : `不可达，超时 ${source.latency}ms`), 1)
                           ])
                         ]),
                         _: 2
@@ -47698,7 +47721,7 @@ ${password}
                     loading: probing.value,
                     onClick: runProbe
                   }, {
-                    default: withCtx(() => [..._cache[16] || (_cache[16] = [
+                    default: withCtx(() => [..._cache[18] || (_cache[18] = [
                       createTextVNode("重新探测", -1)
                     ])]),
                     _: 1
@@ -47706,19 +47729,19 @@ ${password}
                 ])
               ])
             ])) : createCommentVNode("", true),
-            form.value ? (openBlock(), createElementBlock("div", _hoisted_21, [
+            form.value ? (openBlock(), createElementBlock("div", _hoisted_23, [
               createVNode(unref(Button), {
                 type: "primary",
                 loading: saving.value,
                 onClick: handleSave
               }, {
-                default: withCtx(() => [..._cache[18] || (_cache[18] = [
+                default: withCtx(() => [..._cache[20] || (_cache[20] = [
                   createTextVNode("保存设置", -1)
                 ])]),
                 _: 1
               }, 8, ["loading"]),
               createVNode(unref(Button), { onClick: resetForm }, {
-                default: withCtx(() => [..._cache[19] || (_cache[19] = [
+                default: withCtx(() => [..._cache[21] || (_cache[21] = [
                   createTextVNode("还原", -1)
                 ])]),
                 _: 1
@@ -47728,7 +47751,7 @@ ${password}
         };
       }
     });
-    const Settings = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-85f924fa"]]);
+    const Settings = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-6064b1f3"]]);
     const router = createRouter({
       history: createWebHashHistory(),
       routes: [
