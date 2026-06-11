@@ -64,6 +64,7 @@ declare global {
         pause: (taskId: string) => Promise<void>
         findCached: (filename: string) => Promise<{ filePath: string; size: string } | null>
         openFile: (filePath: string) => Promise<void>
+        openDirOfFile: (filePath: string) => Promise<void>
         onProgress: (cb: (task: DownloadTask) => void) => () => void
         onInstallStatus: (cb: (data: { taskId: string; msg: string }) => void) => () => void
         onInstallComplete: (cb: (data: any) => void) => () => void

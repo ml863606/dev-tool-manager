@@ -375,8 +375,19 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         cachedFilePath,
         settings.installBaseDir,
         (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       )
+      if (result.success) {
+        const installed = store.get('installed') as Record<string, InstalledTool>
+        installed[payload.toolId] = {
+          id: payload.toolId,
+          version: versionConfig.version,
+          installPath: result.installPath,
+          installedAt: new Date().toISOString()
+        }
+        store.set('installed', installed)
+      }
       mainWindow.webContents.send('install:complete', {
         taskId,
         toolId: payload.toolId,
@@ -423,7 +434,8 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         finalUrl,
         settings.installBaseDir,
         (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       )
       if (result.success) {
         const installed = store.get('installed') as Record<string, InstalledTool>
@@ -492,7 +504,8 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
           filePath,
           settings.installBaseDir,
           (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
-          toolConfig
+          toolConfig,
+          payload.installDir
         )
         if (result.success) {
           const installed = store.get('installed') as Record<string, InstalledTool>
@@ -531,6 +544,10 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
   ipcMain.handle('download:openFile', (_event, filePath: string) => {
     shell.showItemInFolder(filePath)
+  })
+
+  ipcMain.handle('download:openDirOfFile', (_event, filePath: string) => {
+    return shell.openPath(dirname(filePath))
   })
 
   ipcMain.handle('download:findCached', async (_event, filename: string) => {

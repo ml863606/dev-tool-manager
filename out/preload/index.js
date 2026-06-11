@@ -66,6 +66,7 @@ const api = {
     pause: (taskId) => electron.ipcRenderer.invoke("download:pause", taskId),
     findCached: (filename) => electron.ipcRenderer.invoke("download:findCached", filename),
     openFile: (filePath) => electron.ipcRenderer.invoke("download:openFile", filePath),
+    openDirOfFile: (filePath) => electron.ipcRenderer.invoke("download:openDirOfFile", filePath),
     onProgress: (cb) => {
       electron.ipcRenderer.on("download:progress", (_e, task) => cb(task));
       return () => electron.ipcRenderer.removeAllListeners("download:progress");

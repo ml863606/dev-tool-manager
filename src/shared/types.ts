@@ -80,6 +80,7 @@ export interface IpcDownloadPayload {
   dynamicUrls?: Record<MirrorRegion | 'official', string>
   dynamicFilename?: string
   downloadOnly?: boolean
+  installDir?: string
 }
 
 export interface IpcInstallPayload {

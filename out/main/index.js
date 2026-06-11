@@ -389,12 +389,12 @@ async function extractZip(zipPath, destDir) {
   const zip = new AdmZip(zipPath);
   zip.extractAllTo(destDir, true);
 }
-async function installTool(toolId, filePath, installBaseDir, onStatus, toolConfig) {
+async function installTool(toolId, filePath, installBaseDir, onStatus, toolConfig, installDir) {
   const config = toolConfig ?? TOOLS_CONFIG.find((t) => t.id === toolId);
   if (!config) {
     return { success: false, installPath: "", error: `找不到工具配置: ${toolId}` };
   }
-  const installPath = path.join(installBaseDir, toolId);
+  const installPath = installDir || path.join(installBaseDir, toolId);
   await fsExtra.ensureDir(installPath);
   try {
     if (filePath.startsWith("npm:")) {
@@ -1227,8 +1227,19 @@ function registerIpcHandlers(mainWindow2) {
         cachedFilePath,
         settings.installBaseDir,
         (msg) => mainWindow2.webContents.send("install:status", { taskId: taskId2, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       );
+      if (result.success) {
+        const installed = store.get("installed");
+        installed[payload.toolId] = {
+          id: payload.toolId,
+          version: versionConfig.version,
+          installPath: result.installPath,
+          installedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        store.set("installed", installed);
+      }
       mainWindow2.webContents.send("install:complete", {
         taskId: taskId2,
         toolId: payload.toolId,
@@ -1270,7 +1281,8 @@ function registerIpcHandlers(mainWindow2) {
         finalUrl,
         settings.installBaseDir,
         (msg) => mainWindow2.webContents.send("install:status", { taskId, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       );
       if (result.success) {
         const installed = store.get("installed");
@@ -1336,7 +1348,8 @@ function registerIpcHandlers(mainWindow2) {
         filePath,
         settings.installBaseDir,
         (msg) => mainWindow2.webContents.send("install:status", { taskId, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       );
       if (result.success) {
         const installed = store.get("installed");
@@ -1371,6 +1384,9 @@ function registerIpcHandlers(mainWindow2) {
   });
   electron.ipcMain.handle("download:openFile", (_event, filePath) => {
     electron.shell.showItemInFolder(filePath);
+  });
+  electron.ipcMain.handle("download:openDirOfFile", (_event, filePath) => {
+    return electron.shell.openPath(path.dirname(filePath));
   });
   electron.ipcMain.handle("download:findCached", async (_event, filename) => {
     const settings = store.get("settings");

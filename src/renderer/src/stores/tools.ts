@@ -48,8 +48,15 @@ export const useToolsStore = defineStore('tools', () => {
     bestMirror.value = await window.api.network.detect()
   }
 
-  async function startDownload(toolId: string, version: string, dynamicUrls?: Record<string, string>, dynamicFilename?: string, downloadOnly?: boolean) {
-    const taskId = await window.api.download.start({ toolId, version, dynamicUrls, dynamicFilename, downloadOnly } as any)
+  async function startDownload(
+    toolId: string,
+    version: string,
+    dynamicUrls?: Record<string, string>,
+    dynamicFilename?: string,
+    downloadOnly?: boolean,
+    installDir?: string
+  ) {
+    const taskId = await window.api.download.start({ toolId, version, dynamicUrls, dynamicFilename, downloadOnly, installDir } as any)
     return taskId
   }
 

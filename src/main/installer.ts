@@ -31,14 +31,15 @@ export async function installTool(
   filePath: string,
   installBaseDir: string,
   onStatus: (msg: string) => void,
-  toolConfig?: ToolConfig
+  toolConfig?: ToolConfig,
+  installDir?: string
 ): Promise<{ success: boolean; installPath: string; error?: string }> {
   const config = toolConfig ?? TOOLS_CONFIG.find((t) => t.id === toolId)
   if (!config) {
     return { success: false, installPath: '', error: `找不到工具配置: ${toolId}` }
   }
 
-  const installPath = join(installBaseDir, toolId)
+  const installPath = installDir || join(installBaseDir, toolId)
   await ensureDir(installPath)
 
   try {

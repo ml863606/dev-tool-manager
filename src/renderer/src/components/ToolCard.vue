@@ -95,7 +95,21 @@
       </n-tooltip>
       <n-tooltip v-else placement="top" :delay="300">
         <template #trigger>
-          <n-button size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
+          <div v-if="props.tool.id === 'git'" class="local-install-stack">
+            <n-button size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
+              本地安装
+            </n-button>
+            <button
+              class="cached-package-link"
+              type="button"
+              :title="cachedPackage?.filePath"
+              @click.stop="openCachedPackageDir"
+            >
+              <span class="cached-package-link__icon">📦</span>
+              <span>打开下载目录</span>
+            </button>
+          </div>
+          <n-button v-else size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
             本地安装
           </n-button>
         </template>
@@ -299,6 +313,29 @@
       </div>
     </template>
   </n-modal>
+
+  <n-modal v-model:show="showGitConfirm" preset="card" title="Git 本地重新安装" style="width: 640px" :mask-closable="!gitInstalling">
+    <div class="wizard-pane">
+      <div class="field-label">安装包</div>
+      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
+      <div class="field-label">安装目录</div>
+      <div class="dir-row">
+        <n-input v-model:value="gitForm.installDir" />
+        <n-button :disabled="gitInstalling" @click="selectGitInstallDir">选择</n-button>
+      </div>
+      <div class="field-hint">
+        将使用已下载的 Git 安装包重新执行静默安装。安装过程中不会弹出 Git 官方安装向导，请在下方任务日志查看进度。
+      </div>
+    </div>
+    <template #footer>
+      <div class="modal-actions">
+        <n-button :disabled="gitInstalling" @click="closeGitConfirm">取消</n-button>
+        <n-button type="primary" :loading="gitInstalling" :disabled="!cachedPackage?.filePath || !gitForm.installDir" @click="startGitLocalInstall">
+          开始重新安装
+        </n-button>
+      </div>
+    </template>
+  </n-modal>
 </template>
 
 <script setup lang="ts">
@@ -360,6 +397,11 @@ const redisForm = ref({
   password: '123456'
 })
 const redisConfigPreview = ref('')
+const showGitConfirm = ref(false)
+const gitInstalling = ref(false)
+const gitForm = ref({
+  installDir: 'C:\\DevTools\\git'
+})
 const portChecking = ref(false)
 const portStatus = ref<{ available: boolean; port: number; pid?: number; processName?: string; path?: string; state?: string } | null>(null)
 let portCheckTimer: ReturnType<typeof setTimeout> | null = null
@@ -745,8 +787,16 @@ function openLocalInstallWizard() {
   if (props.tool.id === 'mysql') openMysqlInstallWizard()
   else if (props.tool.id === 'redis') openRedisInstallWizard()
   else if (props.tool.id === 'git') {
-    void handleInstall()
+    openGitInstallConfirm()
   }
+}
+
+function openGitInstallConfirm() {
+  if (!cachedPackage.value) return
+  gitForm.value = {
+    installDir: `${(store.settings?.installBaseDir || 'C:\\DevTools').replace(/\\+$/, '')}\\git`
+  }
+  showGitConfirm.value = true
 }
 
 function openMysqlInstallWizard() {
@@ -791,6 +841,11 @@ function closeRedisWizard() {
   showRedisWizard.value = false
 }
 
+function closeGitConfirm() {
+  if (gitInstalling.value) return
+  showGitConfirm.value = false
+}
+
 async function selectMysqlInstallDir() {
   const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir)
   if (selected) mysqlForm.value.installDir = selected
@@ -799,6 +854,18 @@ async function selectMysqlInstallDir() {
 async function selectRedisInstallDir() {
   const selected = await window.api.dialog.selectDir(redisForm.value.installDir)
   if (selected) redisForm.value.installDir = selected
+}
+
+async function selectGitInstallDir() {
+  const selected = await window.api.dialog.selectDir(gitForm.value.installDir)
+  if (selected) gitForm.value.installDir = selected
+}
+
+async function openCachedPackageDir() {
+  const packagePath = cachedPackage.value?.filePath
+  if (!packagePath) return
+  window.api.log('info', `[ToolCard] open cached package directory: ${packagePath}`)
+  await window.api.download.openDirOfFile(packagePath)
 }
 
 function schedulePortCheck() {
@@ -903,6 +970,24 @@ async function startRedisLocalInstall() {
     window.api.log('error', `[ToolCard] redis local install ERROR: ${err?.message ?? err}`)
   } finally {
     redisInstalling.value = false
+  }
+}
+
+async function startGitLocalInstall() {
+  if (!cachedPackage.value || gitInstalling.value || !gitForm.value.installDir) return
+  gitInstalling.value = true
+  try {
+    const built =
+      isDynamic.value && dynamicVersions.value.length
+        ? buildDynamicUrls(selectedVersion.value)
+        : undefined
+    const taskId = await store.startDownload(props.tool.id, selectedVersion.value, built?.urls, built?.filename, false, gitForm.value.installDir)
+    window.api.log('info', `[ToolCard] git local reinstall taskId=${taskId} file=${cachedPackage.value.filePath} installDir=${gitForm.value.installDir}`)
+    showGitConfirm.value = false
+  } catch (err: any) {
+    window.api.log('error', `[ToolCard] git local reinstall ERROR: ${err?.message ?? err}`)
+  } finally {
+    gitInstalling.value = false
   }
 }
 
@@ -1080,6 +1165,43 @@ function handleOpenDir() {
   word-break: break-all;
   max-width: 360px;
   display: block;
+}
+
+.local-install-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.cached-package-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 24px;
+  border: 1px solid #353557;
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: linear-gradient(180deg, rgba(42, 42, 64, 0.92), rgba(22, 22, 35, 0.92));
+  color: #c8c5ff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.cached-package-link:hover {
+  border-color: #6f63d8;
+  background: linear-gradient(180deg, rgba(59, 55, 95, 0.98), rgba(31, 29, 52, 0.98));
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cached-package-link__icon {
+  font-size: 12px;
+  line-height: 1;
 }
 
 .mirror-badge {
