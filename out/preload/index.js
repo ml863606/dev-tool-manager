@@ -38,7 +38,8 @@ const api = {
     fetchVersions: () => electron.ipcRenderer.invoke("nodejs:fetchVersions")
   },
   maven: {
-    fetchVersions: () => electron.ipcRenderer.invoke("maven:fetchVersions")
+    fetchVersions: () => electron.ipcRenderer.invoke("maven:fetchVersions"),
+    installLocal: (payload) => electron.ipcRenderer.invoke("maven:installLocal", payload)
   },
   mysql: {
     fetchVersions: () => electron.ipcRenderer.invoke("mysql:fetchVersions"),

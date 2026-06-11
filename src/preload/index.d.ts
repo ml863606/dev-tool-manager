@@ -1,4 +1,4 @@
-import type { AppSettings, DownloadTask, IpcDownloadPayload, MysqlInstallPayload, NodeVersion, RedisInstallPayload } from '../shared/types'
+import type { AppSettings, DownloadTask, IpcDownloadPayload, MavenInstallPayload, MysqlInstallPayload, NodeVersion, RedisInstallPayload } from '../shared/types'
 
 declare global {
   interface Window {
@@ -37,6 +37,7 @@ declare global {
       }
       maven: {
         fetchVersions: () => Promise<Array<{ version: string }>>
+        installLocal: (payload: MavenInstallPayload) => Promise<string>
       }
       mysql: {
         fetchVersions: () => Promise<Array<{ version: string; date: string; lts: false; filename: string; downloadUrls: Record<string, string> }>>

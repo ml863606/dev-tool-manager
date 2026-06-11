@@ -11,10 +11,10 @@ import log from 'electron-log'
 import Store from 'electron-store'
 import { TOOLS_CONFIG, DEFAULT_SETTINGS } from '../shared/tools.config'
 import { downloader } from './downloader'
-import { installTool, verifyInstall, findCommandPath, extractVersion } from './installer'
+import { configureEnvVar, installTool, verifyInstall, findCommandPath, extractVersion } from './installer'
 import { resolveBestDownloadUrl, detectBestMirror, probeAll } from './network'
 import { loadTaskCache, loadToolsCatalog, saveTaskCache, saveToolsCatalog, upsertTask } from './task-db'
-import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, MysqlInstallPayload, RedisInstallPayload, ToolConfig } from '../shared/types'
+import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, MavenInstallPayload, MysqlInstallPayload, RedisInstallPayload, ToolConfig } from '../shared/types'
 const execAsync = promisify(exec)
 
 function generateId(): string {
@@ -567,6 +567,90 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       }
     }
     return null
+  })
+
+  ipcMain.handle('maven:installLocal', async (_event, payload: MavenInstallPayload) => {
+    const toolsCatalog = await getToolsCatalog()
+    const toolConfig = toolsCatalog.find((t) => t.id === 'maven')
+    if (!toolConfig) throw new Error('Maven 配置不存在')
+
+    const taskId = generateId()
+    const stat = statSync(payload.filePath)
+    const task: DownloadTask = {
+      id: taskId,
+      toolId: 'maven',
+      toolName: toolConfig.name,
+      version: payload.version,
+      status: 'completed',
+      progress: 100,
+      speed: '0 B/s',
+      totalSize: formatBytes(stat.size),
+      downloadedSize: formatBytes(stat.size),
+      mirrorUsed: payload.mirrorId,
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString()
+    }
+    mainWindow.webContents.send('download:progress', task)
+    await upsertTask(task)
+
+    const sendLog = (msg: string) => mainWindow.webContents.send('install:status', { taskId, msg })
+    try {
+      if (extname(payload.filePath).toLowerCase() !== '.zip') throw new Error('Maven 本地安装仅支持 zip 包')
+
+      const installDir = payload.installDir
+      sendLog(`开始 Maven 本地安装: ${payload.version}`)
+      sendLog(`安装包: ${payload.filePath}`)
+      sendLog(`解压目录: ${installDir}`)
+      sendLog(`依赖仓库目录: ${payload.repositoryDir}`)
+      sendLog(`镜像仓库: ${payload.mirrorName} (${payload.mirrorUrl})`)
+
+      if (await pathExists(installDir)) {
+        await remove(installDir)
+        sendLog('已清理旧安装目录')
+      }
+      await ensureDir(dirname(installDir))
+      const zip = new AdmZip(payload.filePath)
+      zip.extractAllTo(installDir, true)
+
+      const entries = await import('fs').then((fs) => fs.readdirSync(installDir))
+      if (entries.length === 1) {
+        const subDir = join(installDir, entries[0])
+        if (statSync(subDir).isDirectory()) {
+          const tmpDir = `${installDir}_tmp`
+          await move(subDir, tmpDir)
+          await remove(installDir)
+          await move(tmpDir, installDir)
+          sendLog('已整理 Maven 顶层目录')
+        }
+      }
+
+      const settingsPath = join(installDir, 'conf', 'settings.xml')
+      await ensureDir(dirname(settingsPath))
+      await ensureDir(payload.repositoryDir)
+      writeFileSync(settingsPath, payload.settingsXml, 'utf-8')
+      sendLog(`已写入 Maven 配置: ${settingsPath}`)
+
+      await configureEnvVar('maven', installDir, toolConfig.pathAppend)
+      sendLog('环境变量配置完成')
+
+      const installed = store.get('installed') as Record<string, InstalledTool>
+      installed.maven = {
+        id: 'maven',
+        version: payload.version,
+        installPath: installDir,
+        installedAt: new Date().toISOString()
+      }
+      store.set('installed', installed)
+      mainWindow.webContents.send('install:complete', { taskId, toolId: 'maven', success: true, installPath: installDir })
+      return taskId
+    } catch (err: any) {
+      const message = err?.message ?? String(err)
+      sendLog(`Maven 安装失败: ${message}`)
+      mainWindow.webContents.send('install:complete', { taskId, toolId: 'maven', success: false, error: message })
+      return taskId
+    }
   })
 
   ipcMain.handle('mysql:installLocal', async (_event, payload: MysqlInstallPayload) => {

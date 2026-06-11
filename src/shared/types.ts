@@ -101,6 +101,17 @@ export interface MysqlInstallPayload {
   myIni: string
 }
 
+export interface MavenInstallPayload {
+  version: string
+  filePath: string
+  installDir: string
+  repositoryDir: string
+  mirrorId: 'huawei' | 'tencent' | 'aliyun'
+  mirrorName: string
+  mirrorUrl: string
+  settingsXml: string
+}
+
 export interface RedisInstallPayload {
   version: string
   filePath: string

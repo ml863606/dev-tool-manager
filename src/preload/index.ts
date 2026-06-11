@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppSettings, IpcDownloadPayload, MysqlInstallPayload, RedisInstallPayload } from '../shared/types'
+import type { AppSettings, IpcDownloadPayload, MavenInstallPayload, MysqlInstallPayload, RedisInstallPayload } from '../shared/types'
 
 const api = {
   tools: {
@@ -40,7 +40,8 @@ const api = {
     fetchVersions: () => ipcRenderer.invoke('nodejs:fetchVersions')
   },
   maven: {
-    fetchVersions: () => ipcRenderer.invoke('maven:fetchVersions')
+    fetchVersions: () => ipcRenderer.invoke('maven:fetchVersions'),
+    installLocal: (payload: MavenInstallPayload) => ipcRenderer.invoke('maven:installLocal', payload)
   },
   mysql: {
     fetchVersions: () => ipcRenderer.invoke('mysql:fetchVersions'),

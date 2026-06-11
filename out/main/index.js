@@ -1405,6 +1405,81 @@ function registerIpcHandlers(mainWindow2) {
     }
     return null;
   });
+  electron.ipcMain.handle("maven:installLocal", async (_event, payload) => {
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "maven");
+    if (!toolConfig) throw new Error("Maven 配置不存在");
+    const taskId = generateId();
+    const stat = fs.statSync(payload.filePath);
+    const task = {
+      id: taskId,
+      toolId: "maven",
+      toolName: toolConfig.name,
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: formatBytes(stat.size),
+      downloadedSize: formatBytes(stat.size),
+      mirrorUsed: payload.mirrorId,
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      completedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    mainWindow2.webContents.send("download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
+    try {
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Maven 本地安装仅支持 zip 包");
+      const installDir = payload.installDir;
+      sendLog(`开始 Maven 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      sendLog(`依赖仓库目录: ${payload.repositoryDir}`);
+      sendLog(`镜像仓库: ${payload.mirrorName} (${payload.mirrorUrl})`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧安装目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (fs.statSync(subDir).isDirectory()) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+          sendLog("已整理 Maven 顶层目录");
+        }
+      }
+      const settingsPath = path.join(installDir, "conf", "settings.xml");
+      await fsExtra.ensureDir(path.dirname(settingsPath));
+      await fsExtra.ensureDir(payload.repositoryDir);
+      fs.writeFileSync(settingsPath, payload.settingsXml, "utf-8");
+      sendLog(`已写入 Maven 配置: ${settingsPath}`);
+      await configureEnvVar("maven", installDir, toolConfig.pathAppend);
+      sendLog("环境变量配置完成");
+      const installed = store.get("installed");
+      installed.maven = {
+        id: "maven",
+        version: payload.version,
+        installPath: installDir,
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store.set("installed", installed);
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "maven", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`Maven 安装失败: ${message}`);
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "maven", success: false, error: message });
+      return taskId;
+    }
+  });
   electron.ipcMain.handle("mysql:installLocal", async (_event, payload) => {
     const toolsCatalog = await getToolsCatalog();
     const toolConfig = toolsCatalog.find((t) => t.id === "mysql");

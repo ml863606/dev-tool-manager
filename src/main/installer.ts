@@ -96,7 +96,7 @@ export async function installTool(
   }
 }
 
-async function configureEnvVar(
+export async function configureEnvVar(
   toolId: string,
   installPath: string,
   pathAppend?: string
