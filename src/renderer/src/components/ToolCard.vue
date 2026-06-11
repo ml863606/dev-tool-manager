@@ -324,7 +324,7 @@ const dynamicVersions = ref<Array<{
   downloadUrls?: Record<string, string>
 }>>([])
 const dynamicVersionsLoading = ref(false)
-const selectedJdkVendor = ref('eclipse')
+const selectedJdkVendor = ref('bellsoft')
 const jdkVendorOptions = ref<Array<{ label: string; value: string }>>([
   { label: 'Eclipse Temurin', value: 'eclipse' },
   { label: 'OpenJDK', value: 'openjdk' },
@@ -371,7 +371,7 @@ const selectedFilename = computed(() => {
   const built = isDynamic.value ? buildDynamicUrls(selectedVersion.value) : undefined
   return built?.filename ?? props.tool.versions?.find((v: any) => v.version === selectedVersion.value)?.filename ?? ''
 })
-const showLocalInstall = computed(() => ['mysql', 'redis'].includes(props.tool.id) && !!cachedPackage.value)
+const showLocalInstall = computed(() => ['mysql', 'redis', 'git'].includes(props.tool.id) && !!cachedPackage.value)
 
 const versionOptions = computed(() => {
   if (isDynamic.value && dynamicVersions.value.length) {
@@ -732,7 +732,7 @@ ${password}
 }
 
 async function refreshCachedPackage() {
-  if (!['mysql', 'redis'].includes(props.tool.id)) return
+  if (!['mysql', 'redis', 'git'].includes(props.tool.id)) return
   const filename = selectedFilename.value
   if (!filename) {
     cachedPackage.value = null
@@ -744,6 +744,9 @@ async function refreshCachedPackage() {
 function openLocalInstallWizard() {
   if (props.tool.id === 'mysql') openMysqlInstallWizard()
   else if (props.tool.id === 'redis') openRedisInstallWizard()
+  else if (props.tool.id === 'git') {
+    void handleInstall()
+  }
 }
 
 function openMysqlInstallWizard() {

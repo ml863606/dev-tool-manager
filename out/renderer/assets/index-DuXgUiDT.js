@@ -45741,7 +45741,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const submittingDownload = /* @__PURE__ */ ref(false);
     const dynamicVersions = /* @__PURE__ */ ref([]);
     const dynamicVersionsLoading = /* @__PURE__ */ ref(false);
-    const selectedJdkVendor = /* @__PURE__ */ ref("eclipse");
+    const selectedJdkVendor = /* @__PURE__ */ ref("bellsoft");
     const jdkVendorOptions = /* @__PURE__ */ ref([
       { label: "Eclipse Temurin", value: "eclipse" },
       { label: "OpenJDK", value: "openjdk" },

@@ -1281,9 +1281,35 @@ function registerIpcHandlers(mainWindow2) {
           installedAt: (/* @__PURE__ */ new Date()).toISOString()
         };
         store.set("installed", installed);
-        const doneTask = { ...task, status: "completed", progress: 100 };
+        const doneTask = {
+          ...task,
+          status: "completed",
+          progress: 100,
+          completedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
         mainWindow2.webContents.send("download:progress", doneTask);
         await upsertTask(doneTask);
+        mainWindow2.webContents.send("install:complete", {
+          taskId,
+          toolId: payload.toolId,
+          success: true,
+          installPath: result.installPath
+        });
+      } else {
+        const failedTask = {
+          ...task,
+          status: "error",
+          error: result.error ?? "npm 安装失败",
+          completedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        mainWindow2.webContents.send("download:progress", failedTask);
+        await upsertTask(failedTask);
+        mainWindow2.webContents.send("install:complete", {
+          taskId,
+          toolId: payload.toolId,
+          success: false,
+          error: result.error
+        });
       }
       return taskId;
     }
@@ -1706,7 +1732,7 @@ function registerIpcHandlers(mainWindow2) {
   }
   electron.ipcMain.handle("jdk:fetchVendors", async () => jdkVendors.map((v) => ({ id: v.id, name: v.name })));
   electron.ipcMain.handle("jdk:fetchVersions", async (_event, vendorId) => {
-    const vendor = jdkVendors.find((v) => v.id === (vendorId || "eclipse")) ?? jdkVendors[1];
+    const vendor = jdkVendors.find((v) => v.id === (vendorId || "bellsoft")) ?? jdkVendors[2];
     try {
       let items = [];
       const baseParams = {
