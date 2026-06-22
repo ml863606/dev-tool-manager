@@ -1,1 +1,4 @@
 node_modules
+!resources/
+!resources/aria2/
+!resources/aria2/aria2c.exe

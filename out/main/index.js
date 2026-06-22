@@ -290,13 +290,13 @@ const TOOLS_CONFIG = [
     verifyCommand: "code --version",
     versions: [
       {
-        version: "1.89.0",
-        filename: "VSCodeSetup-x64-1.89.0.exe",
+        version: "1.125.1",
+        filename: "VSCodeUserSetup-x64-1.125.1.exe",
         downloadUrls: {
-          official: "https://update.code.visualstudio.com/1.89.0/win32-x64/stable",
-          aliyun: "https://vscode.cdn.azure.cn/stable/b58957e67ee1e712cebf466b995adf4c5307b2bd/VSCodeSetup-x64-1.89.0.exe",
-          huawei: "https://repo.huaweicloud.com/VSCode/1.89.0/VSCodeSetup-x64-1.89.0.exe",
-          tencent: "https://mirrors.cloud.tencent.com/vscode/1.89.0/VSCodeSetup-x64-1.89.0.exe"
+          official: "https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe",
+          aliyun: "https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe",
+          huawei: "https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe",
+          tencent: "https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe"
         }
       }
     ],
@@ -322,8 +322,113 @@ function formatSpeed(bytesPerSec) {
 }
 class Downloader extends events.EventEmitter {
   controllers = /* @__PURE__ */ new Map();
+  aria2Processes = /* @__PURE__ */ new Map();
+  pausedTasks = /* @__PURE__ */ new Set();
   async download(taskId, url, destDir, filename, onProgress) {
     await fsExtra.ensureDir(destDir);
+    try {
+      return await this.downloadWithAria2(taskId, url, destDir, filename, onProgress);
+    } catch (err) {
+      if (err?.message === "下载已暂停") throw err;
+      onProgress({ status: "downloading", speed: "回退到内置下载器" });
+      return this.downloadWithAxios(taskId, url, destDir, filename, onProgress);
+    }
+  }
+  resolveAria2Path() {
+    const candidates = [
+      path.join(process.cwd(), "resources", "aria2", "aria2c.exe"),
+      path.join(electron.app.getAppPath(), "resources", "aria2", "aria2c.exe"),
+      path.join(process.resourcesPath, "app.asar.unpacked", "resources", "aria2", "aria2c.exe"),
+      path.join(process.resourcesPath, "resources", "aria2", "aria2c.exe"),
+      path.join(process.resourcesPath, "aria2", "aria2c.exe")
+    ];
+    return candidates.find((item) => fs.existsSync(item)) ?? null;
+  }
+  async downloadWithAria2(taskId, url, destDir, filename, onProgress) {
+    const aria2Path = this.resolveAria2Path();
+    if (!aria2Path) throw new Error("aria2c.exe not found");
+    const filePath = path.join(destDir, filename);
+    const startedAt = Date.now();
+    let lastBytes = fs.existsSync(filePath) ? fs.statSync(filePath).size : 0;
+    let lastTime = startedAt;
+    let totalBytes = 0;
+    let stderrTail = [];
+    onProgress({ status: "downloading", speed: "aria2 启动中" });
+    const child = child_process.spawn(aria2Path, [
+      "--allow-overwrite=true",
+      "--auto-file-renaming=false",
+      "--continue=true",
+      "--max-connection-per-server=16",
+      "--split=16",
+      "--min-split-size=1M",
+      "--file-allocation=none",
+      "--summary-interval=0",
+      "--console-log-level=warn",
+      "--download-result=hide",
+      "--dir",
+      destDir,
+      "--out",
+      filename,
+      url
+    ], { windowsHide: true });
+    this.aria2Processes.set(taskId, child);
+    const progressTimer = setInterval(() => {
+      const current = fs.existsSync(filePath) ? fs.statSync(filePath).size : 0;
+      const now = Date.now();
+      const elapsed = Math.max((now - lastTime) / 1e3, 1e-3);
+      const speed = (current - lastBytes) / elapsed;
+      lastBytes = current;
+      lastTime = now;
+      onProgress({
+        status: "downloading",
+        progress: totalBytes ? Math.min(99, Math.floor(current / totalBytes * 100)) : 0,
+        downloadedSize: formatBytes$1(current),
+        totalSize: totalBytes ? formatBytes$1(totalBytes) : "未知",
+        speed: formatSpeed(Math.max(speed, 0))
+      });
+    }, 500);
+    const collectOutput = (chunk) => {
+      const text = chunk.toString();
+      const lengthMatch = text.match(/Length:\s*([0-9]+)/i);
+      if (lengthMatch) totalBytes = Number(lengthMatch[1]);
+      stderrTail = [...stderrTail, ...text.split(/\r?\n/).filter(Boolean)].slice(-8);
+    };
+    child.stdout.on("data", collectOutput);
+    child.stderr.on("data", collectOutput);
+    return new Promise((resolve, reject) => {
+      child.on("error", (err) => {
+        clearInterval(progressTimer);
+        this.aria2Processes.delete(taskId);
+        reject(err);
+      });
+      child.on("close", (code) => {
+        clearInterval(progressTimer);
+        this.aria2Processes.delete(taskId);
+        if (this.pausedTasks.has(taskId)) {
+          this.pausedTasks.delete(taskId);
+          onProgress({ status: "paused" });
+          reject(new Error("下载已暂停"));
+          return;
+        }
+        if (code === 0 && fs.existsSync(filePath)) {
+          const size = fs.statSync(filePath).size;
+          onProgress({
+            status: "completed",
+            progress: 100,
+            filePath,
+            downloadedSize: formatBytes$1(size),
+            totalSize: formatBytes$1(size),
+            speed: "0 B/s"
+          });
+          resolve(filePath);
+          return;
+        }
+        const detail = stderrTail.length ? `: ${stderrTail.join(" | ")}` : "";
+        reject(new Error(`aria2 下载失败，退出码 ${code}${detail}`));
+      });
+    });
+  }
+  async downloadWithAxios(taskId, url, destDir, filename, onProgress) {
     const filePath = path.join(destDir, filename);
     const controller = new AbortController();
     this.controllers.set(taskId, controller);
@@ -390,6 +495,9 @@ class Downloader extends events.EventEmitter {
     });
   }
   pause(taskId) {
+    this.pausedTasks.add(taskId);
+    this.aria2Processes.get(taskId)?.kill();
+    this.aria2Processes.delete(taskId);
     this.controllers.get(taskId)?.abort();
     this.controllers.delete(taskId);
   }

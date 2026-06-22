@@ -248,13 +248,13 @@ export const TOOLS_CONFIG: ToolConfig[] = [
     verifyCommand: 'code --version',
     versions: [
       {
-        version: '1.89.0',
-        filename: 'VSCodeSetup-x64-1.89.0.exe',
+        version: '1.125.1',
+        filename: 'VSCodeUserSetup-x64-1.125.1.exe',
         downloadUrls: {
-          official: 'https://update.code.visualstudio.com/1.89.0/win32-x64/stable',
-          aliyun: 'https://vscode.cdn.azure.cn/stable/b58957e67ee1e712cebf466b995adf4c5307b2bd/VSCodeSetup-x64-1.89.0.exe',
-          huawei: 'https://repo.huaweicloud.com/VSCode/1.89.0/VSCodeSetup-x64-1.89.0.exe',
-          tencent: 'https://mirrors.cloud.tencent.com/vscode/1.89.0/VSCodeSetup-x64-1.89.0.exe'
+          official: 'https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe',
+          aliyun: 'https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe',
+          huawei: 'https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe',
+          tencent: 'https://vscode.download.prss.microsoft.com/dbazure/download/stable/fcf604774b9f2674b473065736ee75077e256353/VSCodeUserSetup-x64-1.125.1.exe'
         }
       }
     ],
