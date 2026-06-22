@@ -47,7 +47,7 @@
           <label>GitHub 镜像下载前缀</label>
           <n-input
             v-model:value="form.githubProxyPrefix"
-            placeholder="https://gh.zwy.one"
+            placeholder="https://cdn.akaere.online"
             clearable
           />
           <div class="field-hint">GitHub 下载地址会自动拼接为：{{ githubProxyExample }}</div>
@@ -130,7 +130,7 @@ const selectingDownloadDir = ref(false)
 const form = ref<AppSettings | null>(null)
 
 const githubProxyExample = computed(() => {
-  const prefix = (form.value?.githubProxyPrefix || 'https://gh.zwy.one').trim().replace(/\/+$/, '')
+  const prefix = (form.value?.githubProxyPrefix || 'https://cdn.akaere.online').trim().replace(/\/+$/, '')
   return `${prefix}/github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip`
 })
 
@@ -202,7 +202,7 @@ async function handleSave() {
   if (!form.value) return
   saving.value = true
   try {
-    form.value.githubProxyPrefix = (form.value.githubProxyPrefix || 'https://gh.zwy.one').trim().replace(/\/+$/, '')
+    form.value.githubProxyPrefix = (form.value.githubProxyPrefix || 'https://cdn.akaere.online').trim().replace(/\/+$/, '')
     await store.saveSettings(form.value)
     message.success('设置已保存')
   } catch (err: any) {

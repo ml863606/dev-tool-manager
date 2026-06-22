@@ -254,5 +254,5 @@ export const DEFAULT_SETTINGS = {
   probeTimeoutMs: 3000,
   concurrentDownloads: 2,
   autoDetectInstalled: true,
-  githubProxyPrefix: 'https://gh.zwy.one'
+  githubProxyPrefix: 'https://cdn.akaere.online'
 }

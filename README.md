@@ -37,13 +37,13 @@
 默认 GitHub 镜像前缀：
 
 ```text
-https://gh.zwy.one
+https://cdn.akaere.online
 ```
 
 示例加速链接：
 
 ```text
-https://gh.zwy.one/github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip
+https://cdn.akaere.online/github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip
 ```
 
 ## 快速开始

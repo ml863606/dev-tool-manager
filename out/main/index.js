@@ -288,7 +288,7 @@ const DEFAULT_SETTINGS = {
   probeTimeoutMs: 3e3,
   concurrentDownloads: 2,
   autoDetectInstalled: true,
-  githubProxyPrefix: "https://gh.zwy.one"
+  githubProxyPrefix: "https://cdn.akaere.online"
 };
 function formatBytes$1(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -916,6 +916,335 @@ async function saveToolsCatalog(catalog) {
     }
   });
 }
+function plainIpcPayload(value) {
+  if (value instanceof Error) {
+    return { name: value.name, message: value.message, stack: value.stack };
+  }
+  if (value === null || typeof value !== "object") return value;
+  if (Array.isArray(value)) return value.map((item) => plainIpcPayload(item));
+  const plain = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item !== "function" && typeof item !== "symbol") {
+      plain[key] = plainIpcPayload(item);
+    }
+  }
+  return plain;
+}
+function sendToRenderer(mainWindow2, channel, payload) {
+  mainWindow2.webContents.send(channel, plainIpcPayload(payload));
+}
+function buildMysqlVersion(version, series, mirrorBaseUrl, date = "") {
+  const filename = `mysql-${version}-winx64.zip`;
+  return {
+    version,
+    date,
+    lts: false,
+    filename,
+    downloadUrls: {
+      official: `https://cdn.mysql.com/archives/mysql-${series}/${filename}`,
+      aliyun: `${mirrorBaseUrl}${filename}`,
+      huawei: `${mirrorBaseUrl}${filename}`,
+      tencent: `${mirrorBaseUrl}${filename}`
+    }
+  };
+}
+function registerMysqlHandlers(options) {
+  const { mainWindow: mainWindow2, store: store2, getToolsCatalog, generateId: generateId2, formatBytes: formatBytes2, checkPortUsage: checkPortUsage2, isWindowsElevated: isWindowsElevated2, runLoggedProcess: runLoggedProcess2, execAsync: execAsync2 } = options;
+  electron.ipcMain.handle("mysql:installLocal", async (_event, payload) => {
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "mysql");
+    const taskId = generateId2();
+    const task = {
+      id: taskId,
+      toolId: "mysql",
+      toolName: toolConfig?.name ?? "MySQL",
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: fs.existsSync(payload.filePath) ? formatBytes2(fs.statSync(payload.filePath).size) : "未知",
+      downloadedSize: fs.existsSync(payload.filePath) ? formatBytes2(fs.statSync(payload.filePath).size) : "未知",
+      mirrorUsed: "huawei",
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    sendToRenderer(mainWindow2, "download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg });
+    const done = async (patch) => {
+      const next = { ...task, ...patch, completedAt: (/* @__PURE__ */ new Date()).toISOString() };
+      sendToRenderer(mainWindow2, "download:progress", next);
+      await upsertTask(next);
+    };
+    try {
+      if (!fs.existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`);
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("MySQL 本地安装仅支持 zip 包");
+      const installDir = payload.installDir;
+      const dataDir = path.join(installDir, "data");
+      const binDir = path.join(installDir, "bin");
+      const mysqld = path.join(binDir, "mysqld.exe");
+      const mysqladmin = path.join(binDir, "mysqladmin.exe");
+      const myIniPath = path.join(installDir, "my.ini");
+      sendLog(`开始 MySQL 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      const portUsage = await checkPortUsage2(payload.port);
+      if (!portUsage.available) {
+        const owner = portUsage.processName ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ""}` : portUsage.pid ? `PID ${portUsage.pid}` : "未知进程";
+        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`);
+      }
+      sendLog(`端口 ${payload.port} 可用`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧解压目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (await fsExtra.pathExists(path.join(subDir, "bin", "mysqld.exe"))) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+        }
+      }
+      sendLog("解压完成");
+      if (!fs.existsSync(mysqld)) throw new Error(`未找到 mysqld.exe: ${mysqld}`);
+      await fsExtra.ensureDir(dataDir);
+      fs.writeFileSync(myIniPath, payload.myIni, "utf8");
+      sendLog(`已写入配置文件: ${myIniPath}`);
+      await runLoggedProcess2(mysqld, [`--defaults-file=${myIniPath}`, "--initialize-insecure", `--console`], installDir, sendLog);
+      sendLog("数据目录初始化完成");
+      const serviceExists = await execAsync2(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
+      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
+      if (!await isWindowsElevated2()) {
+        throw new Error("安装 MySQL Windows 服务需要管理员权限，请关闭当前 dev 窗口后，用管理员身份启动 npm run dev 再安装。");
+      }
+      await runLoggedProcess2(mysqld, [`--install`, payload.serviceName, `--defaults-file=${myIniPath}`], installDir, sendLog);
+      sendLog(`服务注册完成: ${payload.serviceName}`);
+      await runLoggedProcess2("net", ["start", payload.serviceName], installDir, sendLog);
+      sendLog("服务启动完成");
+      if (payload.password) {
+        await runLoggedProcess2(mysqladmin, ["-u", "root", "-h", payload.host, `-P${payload.port}`, "password", payload.password], installDir, sendLog);
+        sendLog("root 密码设置完成");
+      }
+      const installed = store2.get("installed");
+      installed.mysql = {
+        id: "mysql",
+        version: payload.version,
+        installPath: installDir,
+        exePath: path.join(binDir, "mysql.exe"),
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store2.set("installed", installed);
+      sendLog("MySQL 安装完成");
+      await done({ status: "completed", progress: 100 });
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "mysql", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`安装失败: ${message}`);
+      await done({ status: "error", error: message });
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "mysql", success: false, error: message });
+      return taskId;
+    }
+  });
+  electron.ipcMain.handle("mysql:fetchVersions", async () => {
+    const seriesSources = [
+      {
+        series: "8.0",
+        urls: [
+          "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/",
+          "https://mirrors.aliyun.com/mysql/Downloads/MySQL-8.0/"
+        ]
+      },
+      {
+        series: "5.7",
+        urls: [
+          "https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/",
+          "https://mirrors.aliyun.com/mysql/Downloads/MySQL-5.7/"
+        ]
+      }
+    ];
+    const allVersions = /* @__PURE__ */ new Map();
+    for (const source of seriesSources) {
+      for (const url of source.urls) {
+        try {
+          log.info(`[mysql versions] 尝试: ${url}`);
+          const res = await axios.get(url, { timeout: 6e3 });
+          const html = res.data;
+          const regex = new RegExp(`mysql-(${source.series.replace(".", "\\.")}\\.\\d+)-winx64\\.zip[\\s\\S]{0,160}?(\\d{4}-\\d{2}-\\d{2}|\\d{2}-[A-Za-z]{3}-\\d{4})?`, "g");
+          let m;
+          while ((m = regex.exec(html)) !== null) {
+            allVersions.set(m[1], buildMysqlVersion(m[1], source.series, url, m[2] ?? ""));
+          }
+          log.info(`[mysql versions] ${source.series} 来源 ${url} 解析到 ${allVersions.size} 个累计版本`);
+          break;
+        } catch (e) {
+          log.warn(`[mysql versions] ${source.series} 失败: ${url} — ${e.message}`);
+        }
+      }
+    }
+    const sorted = [...allVersions.values()].sort((a, b) => {
+      const pa = a.version.split(".").map(Number);
+      const pb = b.version.split(".").map(Number);
+      for (let i = 0; i < 3; i++) {
+        if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
+      }
+      return 0;
+    });
+    if (sorted.length) {
+      log.info(`[mysql versions] 成功，共 ${sorted.length} 个版本`);
+      return sorted.slice(0, 40);
+    }
+    return [
+      buildMysqlVersion("8.0.27", "8.0", "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/"),
+      buildMysqlVersion("5.7.38", "5.7", "https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/")
+    ];
+  });
+}
+function isValidZipFile$1(filePath) {
+  let fd = null;
+  try {
+    const stat = fs.statSync(filePath);
+    if (stat.size < 22) return false;
+    const tailSize = Math.min(stat.size, 65557);
+    const buffer = Buffer.alloc(tailSize);
+    fd = fs.openSync(filePath, "r");
+    fs.readSync(fd, buffer, 0, tailSize, stat.size - tailSize);
+    return buffer.includes(Buffer.from([80, 75, 5, 6]));
+  } catch {
+    return false;
+  } finally {
+    if (fd !== null) fs.closeSync(fd);
+  }
+}
+function registerRedisHandlers(options) {
+  const { mainWindow: mainWindow2, store: store2, getToolsCatalog, generateId: generateId2, formatBytes: formatBytes2, checkPortUsage: checkPortUsage2, isWindowsElevated: isWindowsElevated2, runLoggedProcess: runLoggedProcess2, execAsync: execAsync2 } = options;
+  electron.ipcMain.handle("redis:installLocal", async (_event, payload) => {
+    log.info(`[redis install] start version=${payload.version} file=${payload.filePath} installDir=${payload.installDir}`);
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "redis");
+    const taskId = generateId2();
+    const task = {
+      id: taskId,
+      toolId: "redis",
+      toolName: toolConfig?.name ?? "Redis",
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: fs.existsSync(payload.filePath) ? formatBytes2(fs.statSync(payload.filePath).size) : "未知",
+      downloadedSize: fs.existsSync(payload.filePath) ? formatBytes2(fs.statSync(payload.filePath).size) : "未知",
+      mirrorUsed: "huawei",
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    sendToRenderer(mainWindow2, "download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg });
+    const done = async (patch) => {
+      const next = { ...task, ...patch, completedAt: (/* @__PURE__ */ new Date()).toISOString() };
+      sendToRenderer(mainWindow2, "download:progress", next);
+      await upsertTask(next);
+    };
+    try {
+      if (!fs.existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`);
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Redis 本地安装仅支持 zip 包");
+      if (!isValidZipFile$1(payload.filePath)) {
+        throw new Error(`Redis 安装包不是有效 zip 文件，可能下载不完整或下载到了错误页面。请删除后重新下载: ${payload.filePath}`);
+      }
+      const installDir = payload.installDir;
+      const redisServer = path.join(installDir, "redis-server.exe");
+      const redisService = path.join(installDir, "RedisService.exe");
+      const redisCli = path.join(installDir, "redis-cli.exe");
+      const redisConf = path.join(installDir, "redis.conf");
+      sendLog(`开始 Redis 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      const portUsage = await checkPortUsage2(payload.port);
+      if (!portUsage.available) {
+        const owner = portUsage.processName ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ""}` : portUsage.pid ? `PID ${portUsage.pid}` : "未知进程";
+        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`);
+      }
+      sendLog(`端口 ${payload.port} 可用`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧解压目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (await fsExtra.pathExists(path.join(subDir, "redis-server.exe")) || await fsExtra.pathExists(path.join(subDir, "RedisService.exe"))) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+        }
+      }
+      sendLog("解压完成");
+      if (!fs.existsSync(redisServer)) throw new Error(`未找到 redis-server.exe: ${redisServer}`);
+      if (!fs.existsSync(redisService)) throw new Error(`未找到 RedisService.exe: ${redisService}`);
+      fs.writeFileSync(redisConf, payload.configText, "utf8");
+      sendLog(`已写入配置文件: ${redisConf}`);
+      const serviceExists = await execAsync2(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
+      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
+      if (!await isWindowsElevated2()) {
+        throw new Error("安装 Redis Windows 服务需要管理员权限，请关闭当前 dev 窗口后，用管理员身份启动 npm run dev 再安装。");
+      }
+      await runLoggedProcess2(redisService, [
+        "install",
+        "-c",
+        redisConf,
+        "--dir",
+        installDir,
+        "--port",
+        String(payload.port),
+        "--service-name",
+        payload.serviceName,
+        "--display-name",
+        payload.serviceName,
+        "--description",
+        `Redis ${payload.version}`,
+        "--start-mode",
+        "auto",
+        "--loglevel",
+        "notice"
+      ], installDir, sendLog);
+      sendLog(`服务注册完成: ${payload.serviceName}`);
+      await runLoggedProcess2("net", ["start", payload.serviceName], installDir, sendLog);
+      sendLog("服务启动完成");
+      const installed = store2.get("installed");
+      installed.redis = {
+        id: "redis",
+        version: payload.version,
+        installPath: installDir,
+        exePath: redisCli,
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store2.set("installed", installed);
+      sendLog("Redis 安装完成");
+      await done({ status: "completed", progress: 100 });
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "redis", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`安装失败: ${message}`);
+      await done({ status: "error", error: message });
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "redis", success: false, error: message });
+      log.error(`[redis install] failed: ${message}`);
+      throw new Error(message);
+    }
+  });
+}
 const execAsync = util.promisify(child_process.exec);
 function generateId() {
   return crypto.randomBytes(4).toString("hex");
@@ -925,22 +1254,68 @@ function formatBytes(bytes) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
+function isValidZipFile(filePath) {
+  let fd = null;
+  try {
+    const stat = fs.statSync(filePath);
+    if (stat.size < 22) return false;
+    const tailSize = Math.min(stat.size, 65557);
+    const buffer = Buffer.alloc(tailSize);
+    fd = fs.openSync(filePath, "r");
+    fs.readSync(fd, buffer, 0, tailSize, stat.size - tailSize);
+    return buffer.includes(Buffer.from([80, 75, 5, 6]));
+  } catch {
+    return false;
+  } finally {
+    if (fd !== null) fs.closeSync(fd);
+  }
+}
+function isValidCachedPackage(filePath) {
+  if (path.extname(filePath).toLowerCase() !== ".zip") return true;
+  return isValidZipFile(filePath);
+}
 function runLoggedProcess(command, args, cwd, onLog) {
   return new Promise((resolve, reject) => {
     onLog(`> ${command} ${args.join(" ")}`);
+    const outputTail = [];
+    const pushOutput = (line) => {
+      outputTail.push(line);
+      if (outputTail.length > 8) outputTail.shift();
+      onLog(line);
+    };
+    const decodeChunk = (chunk) => {
+      if (process.platform !== "win32") return chunk.toString();
+      try {
+        return new TextDecoder("gb18030").decode(chunk);
+      } catch {
+        return chunk.toString();
+      }
+    };
     const child = child_process.spawn(command, args, { cwd, windowsHide: true, shell: false });
     child.stdout.on("data", (chunk) => {
-      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line));
+      decodeChunk(chunk).split(/\r?\n/).filter(Boolean).forEach(pushOutput);
     });
     child.stderr.on("data", (chunk) => {
-      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line));
+      decodeChunk(chunk).split(/\r?\n/).filter(Boolean).forEach(pushOutput);
     });
     child.on("error", reject);
     child.on("close", (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`${path.basename(command)} 退出码: ${code}`));
+      else {
+        const detail = outputTail.length ? `, recent output: ${outputTail.join(" | ")}` : "";
+        reject(new Error(`${path.basename(command)} exit code: ${code}${detail}`));
+      }
     });
   });
+}
+async function isWindowsElevated() {
+  if (process.platform !== "win32") return true;
+  try {
+    await execAsync("net session", { timeout: 3e3, windowsHide: true });
+    return true;
+  } catch {
+    return false;
+  }
 }
 async function checkPortUsage(port) {
   const safePort = Number(port);
@@ -1032,7 +1407,7 @@ function registerIpcHandlers(mainWindow2) {
     const installed = store.get("installed");
     let changed = false;
     for (const tool of toolsCatalog) {
-      mainWindow2.webContents.send("tools:detectProgress", {
+      sendToRenderer(mainWindow2, "tools:detectProgress", {
         toolId: tool.id,
         toolName: tool.name,
         status: "checking"
@@ -1052,7 +1427,7 @@ function registerIpcHandlers(mainWindow2) {
           installedAt: installed[tool.id]?.installedAt ?? (/* @__PURE__ */ new Date()).toISOString()
         };
         changed = true;
-        mainWindow2.webContents.send("tools:detectProgress", {
+        sendToRenderer(mainWindow2, "tools:detectProgress", {
           toolId: tool.id,
           toolName: tool.name,
           status: "found",
@@ -1065,7 +1440,7 @@ function registerIpcHandlers(mainWindow2) {
           delete installed[tool.id];
           changed = true;
         }
-        mainWindow2.webContents.send("tools:detectProgress", {
+        sendToRenderer(mainWindow2, "tools:detectProgress", {
           toolId: tool.id,
           toolName: tool.name,
           status: "not_found"
@@ -1073,7 +1448,7 @@ function registerIpcHandlers(mainWindow2) {
       }
     }
     if (changed) store.set("installed", installed);
-    mainWindow2.webContents.send("tools:detectProgress", { status: "done" });
+    sendToRenderer(mainWindow2, "tools:detectProgress", { status: "done" });
     return toolsCatalog.map((tool) => ({
       ...tool,
       installed: installed[tool.id] ?? null
@@ -1081,11 +1456,12 @@ function registerIpcHandlers(mainWindow2) {
   });
   electron.ipcMain.handle("settings:get", () => {
     const settings = store.get("settings");
-    if (settings.preferredMirror === "auto" || !settings.githubProxyPrefix) {
+    const shouldMigrateGithubProxy = !settings.githubProxyPrefix || settings.githubProxyPrefix.replace(/\/+$/, "") === "https://gh.zwy.one";
+    if (settings.preferredMirror === "auto" || shouldMigrateGithubProxy) {
       const next = {
         ...settings,
         preferredMirror: settings.preferredMirror === "auto" ? DEFAULT_SETTINGS.preferredMirror : settings.preferredMirror,
-        githubProxyPrefix: settings.githubProxyPrefix || DEFAULT_SETTINGS.githubProxyPrefix
+        githubProxyPrefix: shouldMigrateGithubProxy ? DEFAULT_SETTINGS.githubProxyPrefix : settings.githubProxyPrefix
       };
       store.set("settings", next);
       return next;
@@ -1197,6 +1573,14 @@ function registerIpcHandlers(mainWindow2) {
     log.info(`[download:start] final versionConfig: version=${versionConfig.version} filename=${versionConfig.filename}`);
     const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
     const cachedFilePath = path.join(downloadDir, versionConfig.filename);
+    if (payload.forceDownload && fs.existsSync(cachedFilePath)) {
+      log.info(`[download:start] force download, overwrite cached package: ${cachedFilePath}`);
+      fs.unlinkSync(cachedFilePath);
+    }
+    if (!versionConfig.downloadUrls[settings.preferredMirror === "auto" ? "huawei" : settings.preferredMirror]?.startsWith("npm:") && fs.existsSync(cachedFilePath) && !isValidCachedPackage(cachedFilePath)) {
+      log.warn(`[download:start] invalid cached package removed: ${cachedFilePath}`);
+      fs.unlinkSync(cachedFilePath);
+    }
     if (!versionConfig.downloadUrls[settings.preferredMirror === "auto" ? "huawei" : settings.preferredMirror]?.startsWith("npm:") && fs.existsSync(cachedFilePath)) {
       const taskId2 = generateId();
       const stat = fs.statSync(cachedFilePath);
@@ -1216,9 +1600,9 @@ function registerIpcHandlers(mainWindow2) {
         startedAt: (/* @__PURE__ */ new Date()).toISOString(),
         completedAt: (/* @__PURE__ */ new Date()).toISOString()
       };
-      mainWindow2.webContents.send("download:progress", cachedTask);
+      sendToRenderer(mainWindow2, "download:progress", cachedTask);
       await upsertTask(cachedTask);
-      mainWindow2.webContents.send("install:status", { taskId: taskId2, msg: `检测到本地缓存，跳过下载: ${cachedFilePath}` });
+      sendToRenderer(mainWindow2, "install:status", { taskId: taskId2, msg: `检测到本地缓存，跳过下载: ${cachedFilePath}` });
       if (payload.downloadOnly || payload.toolId === "mysql") {
         return taskId2;
       }
@@ -1226,7 +1610,7 @@ function registerIpcHandlers(mainWindow2) {
         payload.toolId,
         cachedFilePath,
         settings.installBaseDir,
-        (msg) => mainWindow2.webContents.send("install:status", { taskId: taskId2, msg }),
+        (msg) => sendToRenderer(mainWindow2, "install:status", { taskId: taskId2, msg }),
         toolConfig,
         payload.installDir
       );
@@ -1240,7 +1624,7 @@ function registerIpcHandlers(mainWindow2) {
         };
         store.set("installed", installed);
       }
-      mainWindow2.webContents.send("install:complete", {
+      sendToRenderer(mainWindow2, "install:complete", {
         taskId: taskId2,
         toolId: payload.toolId,
         success: result.success,
@@ -1273,14 +1657,14 @@ function registerIpcHandlers(mainWindow2) {
       downloadUrl: finalUrl,
       startedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    mainWindow2.webContents.send("download:progress", task);
+    sendToRenderer(mainWindow2, "download:progress", task);
     await upsertTask(task);
     if (finalUrl.startsWith("npm:")) {
       const result = await installTool(
         payload.toolId,
         finalUrl,
         settings.installBaseDir,
-        (msg) => mainWindow2.webContents.send("install:status", { taskId, msg }),
+        (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg }),
         toolConfig,
         payload.installDir
       );
@@ -1299,9 +1683,9 @@ function registerIpcHandlers(mainWindow2) {
           progress: 100,
           completedAt: (/* @__PURE__ */ new Date()).toISOString()
         };
-        mainWindow2.webContents.send("download:progress", doneTask);
+        sendToRenderer(mainWindow2, "download:progress", doneTask);
         await upsertTask(doneTask);
-        mainWindow2.webContents.send("install:complete", {
+        sendToRenderer(mainWindow2, "install:complete", {
           taskId,
           toolId: payload.toolId,
           success: true,
@@ -1314,9 +1698,9 @@ function registerIpcHandlers(mainWindow2) {
           error: result.error ?? "npm 安装失败",
           completedAt: (/* @__PURE__ */ new Date()).toISOString()
         };
-        mainWindow2.webContents.send("download:progress", failedTask);
+        sendToRenderer(mainWindow2, "download:progress", failedTask);
         await upsertTask(failedTask);
-        mainWindow2.webContents.send("install:complete", {
+        sendToRenderer(mainWindow2, "install:complete", {
           taskId,
           toolId: payload.toolId,
           success: false,
@@ -1328,12 +1712,12 @@ function registerIpcHandlers(mainWindow2) {
     downloader.download(taskId, finalUrl, downloadDir, versionConfig.filename, (patch) => {
       if (patch.status === "completed") patch.completedAt = (/* @__PURE__ */ new Date()).toISOString();
       const updatedTask = { ...task, ...patch };
-      mainWindow2.webContents.send("download:progress", updatedTask);
+      sendToRenderer(mainWindow2, "download:progress", updatedTask);
       void upsertTask(updatedTask);
       if (patch.filePath) task.filePath = patch.filePath;
     }).then(async (filePath) => {
       if (payload.downloadOnly) {
-        mainWindow2.webContents.send("install:complete", {
+        sendToRenderer(mainWindow2, "install:complete", {
           taskId,
           toolId: payload.toolId,
           success: true,
@@ -1342,12 +1726,12 @@ function registerIpcHandlers(mainWindow2) {
         });
         return;
       }
-      mainWindow2.webContents.send("install:status", { taskId, msg: "下载完成，准备安装..." });
+      sendToRenderer(mainWindow2, "install:status", { taskId, msg: "下载完成，准备安装..." });
       const result = await installTool(
         payload.toolId,
         filePath,
         settings.installBaseDir,
-        (msg) => mainWindow2.webContents.send("install:status", { taskId, msg }),
+        (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg }),
         toolConfig,
         payload.installDir
       );
@@ -1360,14 +1744,14 @@ function registerIpcHandlers(mainWindow2) {
           installedAt: (/* @__PURE__ */ new Date()).toISOString()
         };
         store.set("installed", installed);
-        mainWindow2.webContents.send("install:complete", {
+        sendToRenderer(mainWindow2, "install:complete", {
           taskId,
           toolId: payload.toolId,
           success: true,
           installPath: result.installPath
         });
       } else {
-        mainWindow2.webContents.send("install:complete", {
+        sendToRenderer(mainWindow2, "install:complete", {
           taskId,
           toolId: payload.toolId,
           success: false,
@@ -1393,12 +1777,14 @@ function registerIpcHandlers(mainWindow2) {
     const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
     const filePath = path.join(downloadDir, filename);
     if (fs.existsSync(filePath)) {
+      if (!isValidCachedPackage(filePath)) return null;
       const stat = fs.statSync(filePath);
       return { filePath, size: formatBytes(stat.size) };
     }
     const cache = await loadTaskCache();
     for (const [, task] of cache.downloadTasks) {
       if (task.filePath && path.basename(task.filePath) === filename && fs.existsSync(task.filePath)) {
+        if (!isValidCachedPackage(task.filePath)) continue;
         const stat = fs.statSync(task.filePath);
         return { filePath: task.filePath, size: formatBytes(stat.size) };
       }
@@ -1427,9 +1813,9 @@ function registerIpcHandlers(mainWindow2) {
       startedAt: (/* @__PURE__ */ new Date()).toISOString(),
       completedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    mainWindow2.webContents.send("download:progress", task);
+    sendToRenderer(mainWindow2, "download:progress", task);
     await upsertTask(task);
-    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
+    const sendLog = (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg });
     try {
       if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Maven 本地安装仅支持 zip 包");
       const installDir = payload.installDir;
@@ -1471,225 +1857,36 @@ function registerIpcHandlers(mainWindow2) {
         installedAt: (/* @__PURE__ */ new Date()).toISOString()
       };
       store.set("installed", installed);
-      mainWindow2.webContents.send("install:complete", { taskId, toolId: "maven", success: true, installPath: installDir });
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "maven", success: true, installPath: installDir });
       return taskId;
     } catch (err) {
       const message = err?.message ?? String(err);
       sendLog(`Maven 安装失败: ${message}`);
-      mainWindow2.webContents.send("install:complete", { taskId, toolId: "maven", success: false, error: message });
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "maven", success: false, error: message });
       return taskId;
     }
   });
-  electron.ipcMain.handle("mysql:installLocal", async (_event, payload) => {
-    const toolsCatalog = await getToolsCatalog();
-    const toolConfig = toolsCatalog.find((t) => t.id === "mysql");
-    const taskId = generateId();
-    const task = {
-      id: taskId,
-      toolId: "mysql",
-      toolName: toolConfig?.name ?? "MySQL",
-      version: payload.version,
-      status: "completed",
-      progress: 100,
-      speed: "0 B/s",
-      totalSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
-      downloadedSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
-      mirrorUsed: "huawei",
-      filePath: payload.filePath,
-      downloadUrl: payload.filePath,
-      startedAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    mainWindow2.webContents.send("download:progress", task);
-    await upsertTask(task);
-    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
-    const done = async (patch) => {
-      const next = { ...task, ...patch, completedAt: (/* @__PURE__ */ new Date()).toISOString() };
-      mainWindow2.webContents.send("download:progress", next);
-      await upsertTask(next);
-    };
-    try {
-      if (!fs.existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`);
-      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("MySQL 本地安装仅支持 zip 包");
-      const installDir = payload.installDir;
-      const dataDir = path.join(installDir, "data");
-      const binDir = path.join(installDir, "bin");
-      const mysqld = path.join(binDir, "mysqld.exe");
-      const mysqladmin = path.join(binDir, "mysqladmin.exe");
-      const myIniPath = path.join(installDir, "my.ini");
-      sendLog(`开始 MySQL 本地安装: ${payload.version}`);
-      sendLog(`安装包: ${payload.filePath}`);
-      sendLog(`解压目录: ${installDir}`);
-      const portUsage = await checkPortUsage(payload.port);
-      if (!portUsage.available) {
-        const owner = portUsage.processName ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ""}` : portUsage.pid ? `PID ${portUsage.pid}` : "未知进程";
-        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`);
-      }
-      sendLog(`端口 ${payload.port} 可用`);
-      if (await fsExtra.pathExists(installDir)) {
-        await fsExtra.remove(installDir);
-        sendLog("已清理旧解压目录");
-      }
-      await fsExtra.ensureDir(path.dirname(installDir));
-      const zip = new AdmZip(payload.filePath);
-      zip.extractAllTo(installDir, true);
-      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
-      if (entries.length === 1) {
-        const subDir = path.join(installDir, entries[0]);
-        if (await fsExtra.pathExists(path.join(subDir, "bin", "mysqld.exe"))) {
-          const tmpDir = `${installDir}_tmp`;
-          await fsExtra.move(subDir, tmpDir);
-          await fsExtra.remove(installDir);
-          await fsExtra.move(tmpDir, installDir);
-        }
-      }
-      sendLog("解压完成");
-      if (!fs.existsSync(mysqld)) throw new Error(`未找到 mysqld.exe: ${mysqld}`);
-      await fsExtra.ensureDir(dataDir);
-      fs.writeFileSync(myIniPath, payload.myIni, "utf8");
-      sendLog(`已写入配置文件: ${myIniPath}`);
-      await runLoggedProcess(mysqld, [`--defaults-file=${myIniPath}`, "--initialize-insecure", `--console`], installDir, sendLog);
-      sendLog("数据目录初始化完成");
-      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
-      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
-      await runLoggedProcess(mysqld, [`--install`, payload.serviceName, `--defaults-file=${myIniPath}`], installDir, sendLog);
-      sendLog(`服务注册完成: ${payload.serviceName}`);
-      await runLoggedProcess("net", ["start", payload.serviceName], installDir, sendLog);
-      sendLog("服务启动完成");
-      if (payload.password) {
-        await runLoggedProcess(mysqladmin, ["-u", "root", "-h", payload.host, `-P${payload.port}`, "password", payload.password], installDir, sendLog);
-        sendLog("root 密码设置完成");
-      }
-      const installed = store.get("installed");
-      installed.mysql = {
-        id: "mysql",
-        version: payload.version,
-        installPath: installDir,
-        exePath: path.join(binDir, "mysql.exe"),
-        installedAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      store.set("installed", installed);
-      sendLog("MySQL 安装完成");
-      await done({ status: "completed", progress: 100 });
-      mainWindow2.webContents.send("install:complete", { taskId, toolId: "mysql", success: true, installPath: installDir });
-      return taskId;
-    } catch (err) {
-      const message = err?.message ?? String(err);
-      sendLog(`安装失败: ${message}`);
-      await done({ status: "error", error: message });
-      mainWindow2.webContents.send("install:complete", { taskId, toolId: "mysql", success: false, error: message });
-      return taskId;
-    }
+  registerMysqlHandlers({
+    mainWindow: mainWindow2,
+    store,
+    getToolsCatalog,
+    generateId,
+    formatBytes,
+    checkPortUsage,
+    isWindowsElevated,
+    runLoggedProcess,
+    execAsync
   });
-  electron.ipcMain.handle("redis:installLocal", async (_event, payload) => {
-    const toolsCatalog = await getToolsCatalog();
-    const toolConfig = toolsCatalog.find((t) => t.id === "redis");
-    const taskId = generateId();
-    const task = {
-      id: taskId,
-      toolId: "redis",
-      toolName: toolConfig?.name ?? "Redis",
-      version: payload.version,
-      status: "completed",
-      progress: 100,
-      speed: "0 B/s",
-      totalSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
-      downloadedSize: fs.existsSync(payload.filePath) ? formatBytes(fs.statSync(payload.filePath).size) : "未知",
-      mirrorUsed: "huawei",
-      filePath: payload.filePath,
-      downloadUrl: payload.filePath,
-      startedAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    mainWindow2.webContents.send("download:progress", task);
-    await upsertTask(task);
-    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
-    const done = async (patch) => {
-      const next = { ...task, ...patch, completedAt: (/* @__PURE__ */ new Date()).toISOString() };
-      mainWindow2.webContents.send("download:progress", next);
-      await upsertTask(next);
-    };
-    try {
-      if (!fs.existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`);
-      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Redis 本地安装仅支持 zip 包");
-      const installDir = payload.installDir;
-      const redisServer = path.join(installDir, "redis-server.exe");
-      const redisService = path.join(installDir, "RedisService.exe");
-      const redisCli = path.join(installDir, "redis-cli.exe");
-      const redisConf = path.join(installDir, "redis.conf");
-      sendLog(`开始 Redis 本地安装: ${payload.version}`);
-      sendLog(`安装包: ${payload.filePath}`);
-      sendLog(`解压目录: ${installDir}`);
-      const portUsage = await checkPortUsage(payload.port);
-      if (!portUsage.available) {
-        const owner = portUsage.processName ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ""}` : portUsage.pid ? `PID ${portUsage.pid}` : "未知进程";
-        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`);
-      }
-      sendLog(`端口 ${payload.port} 可用`);
-      if (await fsExtra.pathExists(installDir)) {
-        await fsExtra.remove(installDir);
-        sendLog("已清理旧解压目录");
-      }
-      await fsExtra.ensureDir(path.dirname(installDir));
-      const zip = new AdmZip(payload.filePath);
-      zip.extractAllTo(installDir, true);
-      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
-      if (entries.length === 1) {
-        const subDir = path.join(installDir, entries[0]);
-        if (await fsExtra.pathExists(path.join(subDir, "redis-server.exe")) || await fsExtra.pathExists(path.join(subDir, "RedisService.exe"))) {
-          const tmpDir = `${installDir}_tmp`;
-          await fsExtra.move(subDir, tmpDir);
-          await fsExtra.remove(installDir);
-          await fsExtra.move(tmpDir, installDir);
-        }
-      }
-      sendLog("解压完成");
-      if (!fs.existsSync(redisServer)) throw new Error(`未找到 redis-server.exe: ${redisServer}`);
-      if (!fs.existsSync(redisService)) throw new Error(`未找到 RedisService.exe: ${redisService}`);
-      fs.writeFileSync(redisConf, payload.configText, "utf8");
-      sendLog(`已写入配置文件: ${redisConf}`);
-      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false);
-      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`);
-      await runLoggedProcess(redisService, [
-        "install",
-        "-c",
-        redisConf,
-        "--dir",
-        installDir,
-        "--port",
-        String(payload.port),
-        "--service-name",
-        payload.serviceName,
-        "--display-name",
-        payload.serviceName,
-        "--description",
-        `Redis ${payload.version}`,
-        "--start-mode",
-        "auto",
-        "--loglevel",
-        "notice"
-      ], installDir, sendLog);
-      sendLog(`服务注册完成: ${payload.serviceName}`);
-      await runLoggedProcess("net", ["start", payload.serviceName], installDir, sendLog);
-      sendLog("服务启动完成");
-      const installed = store.get("installed");
-      installed.redis = {
-        id: "redis",
-        version: payload.version,
-        installPath: installDir,
-        exePath: redisCli,
-        installedAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      store.set("installed", installed);
-      sendLog("Redis 安装完成");
-      await done({ status: "completed", progress: 100 });
-      mainWindow2.webContents.send("install:complete", { taskId, toolId: "redis", success: true, installPath: installDir });
-      return taskId;
-    } catch (err) {
-      const message = err?.message ?? String(err);
-      sendLog(`安装失败: ${message}`);
-      await done({ status: "error", error: message });
-      mainWindow2.webContents.send("install:complete", { taskId, toolId: "redis", success: false, error: message });
-      return taskId;
-    }
+  registerRedisHandlers({
+    mainWindow: mainWindow2,
+    store,
+    getToolsCatalog,
+    generateId,
+    formatBytes,
+    checkPortUsage,
+    isWindowsElevated,
+    runLoggedProcess,
+    execAsync
   });
   electron.ipcMain.handle("tool:verify", async (_event, toolId) => {
     const toolsCatalog = await getToolsCatalog();
@@ -1880,7 +2077,8 @@ function registerIpcHandlers(mainWindow2) {
         }
       }
       if (!items.length && lastErr) throw lastErr;
-      const list = items.filter((i) => i?.links?.pkg_download_redirect && i?.filename).sort((a, b) => Number(b.major_version || 0) - Number(a.major_version || 0)).slice(0, 20).map((i) => {
+      const seenVersions = /* @__PURE__ */ new Set();
+      const list = items.filter((i) => i?.links?.pkg_download_redirect && i?.filename).sort((a, b) => Number(b.major_version || 0) - Number(a.major_version || 0)).map((i) => {
         const version = String(i.distribution_version || i.java_version || i.major_version);
         const filename = String(i.filename);
         const officialUrl = String(i.links.pkg_download_redirect);
@@ -1901,7 +2099,11 @@ function registerIpcHandlers(mainWindow2) {
             tencent: isEclipseTemurin ? tsinghuaAdoptium : officialUrl
           }
         };
-      });
+      }).filter((item) => {
+        if (seenVersions.has(item.version)) return false;
+        seenVersions.add(item.version);
+        return true;
+      }).slice(0, 20);
       log.info(`[jdk versions] vendor=${vendor.id} 成功，共 ${list.length} 个版本`);
       return list;
     } catch (e) {
@@ -1941,74 +2143,6 @@ function registerIpcHandlers(mainWindow2) {
       }
     }
     return [];
-  });
-  electron.ipcMain.handle("mysql:fetchVersions", async () => {
-    const seriesSources = [
-      {
-        series: "8.0",
-        urls: [
-          "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/",
-          "https://mirrors.aliyun.com/mysql/Downloads/MySQL-8.0/"
-        ]
-      },
-      {
-        series: "5.7",
-        urls: [
-          "https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/",
-          "https://mirrors.aliyun.com/mysql/Downloads/MySQL-5.7/"
-        ]
-      }
-    ];
-    function buildMysqlVersion(version, series, mirrorBaseUrl, date = "") {
-      const filename = `mysql-${version}-winx64.zip`;
-      return {
-        version,
-        date,
-        lts: false,
-        filename,
-        downloadUrls: {
-          official: `https://cdn.mysql.com/archives/mysql-${series}/${filename}`,
-          aliyun: `${mirrorBaseUrl}${filename}`,
-          huawei: `${mirrorBaseUrl}${filename}`,
-          tencent: `${mirrorBaseUrl}${filename}`
-        }
-      };
-    }
-    const allVersions = /* @__PURE__ */ new Map();
-    for (const source of seriesSources) {
-      for (const url of source.urls) {
-        try {
-          log.info(`[mysql versions] 尝试: ${url}`);
-          const res = await axios.get(url, { timeout: 6e3 });
-          const html = res.data;
-          const regex = new RegExp(`mysql-(${source.series.replace(".", "\\.")}\\.\\d+)-winx64\\.zip[\\s\\S]{0,160}?(\\d{4}-\\d{2}-\\d{2}|\\d{2}-[A-Za-z]{3}-\\d{4})?`, "g");
-          let m;
-          while ((m = regex.exec(html)) !== null) {
-            allVersions.set(m[1], buildMysqlVersion(m[1], source.series, url, m[2] ?? ""));
-          }
-          log.info(`[mysql versions] ${source.series} 来源 ${url} 解析到 ${allVersions.size} 个累计版本`);
-          break;
-        } catch (e) {
-          log.warn(`[mysql versions] ${source.series} 失败: ${url} — ${e.message}`);
-        }
-      }
-    }
-    const sorted = [...allVersions.values()].sort((a, b) => {
-      const pa = a.version.split(".").map(Number);
-      const pb = b.version.split(".").map(Number);
-      for (let i = 0; i < 3; i++) {
-        if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
-      }
-      return 0;
-    });
-    if (sorted.length) {
-      log.info(`[mysql versions] 成功，共 ${sorted.length} 个版本`);
-      return sorted.slice(0, 40);
-    }
-    return [
-      buildMysqlVersion("8.0.27", "8.0", "https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/"),
-      buildMysqlVersion("5.7.38", "5.7", "https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/")
-    ];
   });
   electron.ipcMain.handle("nodejs:fetchVersions", async () => {
     const urls = [
@@ -2238,6 +2372,20 @@ function createWindow() {
     electron.shell.openExternal(url);
     return { action: "deny" };
   });
+  if (is.dev) {
+    mainWindow.webContents.on("before-input-event", (event, input) => {
+      if (!input.control || input.type !== "keyDown") return;
+      const key = input.key.toLowerCase();
+      if (key === "r" && input.shift) {
+        event.preventDefault();
+        electron.app.relaunch();
+        electron.app.exit(0);
+      } else if (key === "r") {
+        event.preventDefault();
+        mainWindow.webContents.reloadIgnoringCache();
+      }
+    });
+  }
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {

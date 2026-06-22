@@ -1,6 +1,21 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { AppSettings, IpcDownloadPayload, MavenInstallPayload, MysqlInstallPayload, RedisInstallPayload } from '../shared/types'
 
+function toPlain<T>(value: T): T {
+  if (value instanceof Error) {
+    return { name: value.name, message: value.message, stack: value.stack } as T
+  }
+  if (value === null || typeof value !== 'object') return value
+  if (Array.isArray(value)) return value.map((item) => toPlain(item)) as T
+  const plain: Record<string, any> = {}
+  for (const [key, item] of Object.entries(value as Record<string, any>)) {
+    if (typeof item !== 'function' && typeof item !== 'symbol') {
+      plain[key] = toPlain(item)
+    }
+  }
+  return plain as T
+}
+
 const api = {
   tools: {
     list: () => ipcRenderer.invoke('tools:list'),
@@ -65,21 +80,27 @@ const api = {
     set: (url: string) => ipcRenderer.invoke('npmRegistry:set', url)
   },
   download: {
-    start: (payload: IpcDownloadPayload) => ipcRenderer.invoke('download:start', payload),
+    start: (payload: IpcDownloadPayload) => ipcRenderer.invoke('download:start', toPlain(payload)),
     pause: (taskId: string) => ipcRenderer.invoke('download:pause', taskId),
     findCached: (filename: string) => ipcRenderer.invoke('download:findCached', filename),
     openFile: (filePath: string) => ipcRenderer.invoke('download:openFile', filePath),
     openDirOfFile: (filePath: string) => ipcRenderer.invoke('download:openDirOfFile', filePath),
     onProgress: (cb: (task: any) => void) => {
-      ipcRenderer.on('download:progress', (_e, task) => cb(task))
+      ipcRenderer.on('download:progress', (_e, task) => {
+        void cb(toPlain(task))
+      })
       return () => ipcRenderer.removeAllListeners('download:progress')
     },
     onInstallStatus: (cb: (data: { taskId: string; msg: string }) => void) => {
-      ipcRenderer.on('install:status', (_e, data) => cb(data))
+      ipcRenderer.on('install:status', (_e, data) => {
+        void cb(toPlain(data))
+      })
       return () => ipcRenderer.removeAllListeners('install:status')
     },
     onInstallComplete: (cb: (data: any) => void) => {
-      ipcRenderer.on('install:complete', (_e, data) => cb(data))
+      ipcRenderer.on('install:complete', (_e, data) => {
+        void cb(toPlain(data))
+      })
       return () => ipcRenderer.removeAllListeners('install:complete')
     }
   },

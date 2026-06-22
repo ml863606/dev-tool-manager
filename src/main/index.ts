@@ -47,6 +47,21 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  if (is.dev) {
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      if (!input.control || input.type !== 'keyDown') return
+      const key = input.key.toLowerCase()
+      if (key === 'r' && input.shift) {
+        event.preventDefault()
+        app.relaunch()
+        app.exit(0)
+      } else if (key === 'r') {
+        event.preventDefault()
+        mainWindow.webContents.reloadIgnoringCache()
+      }
+    })
+  }
+
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {

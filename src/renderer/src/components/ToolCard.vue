@@ -95,7 +95,7 @@
       </n-tooltip>
       <n-tooltip v-else placement="top" :delay="300">
         <template #trigger>
-          <div v-if="props.tool.id === 'git'" class="local-install-stack">
+          <div v-if="canOpenCachedPackageDir" class="local-install-stack">
             <n-button size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
               本地安装
             </n-button>
@@ -118,7 +118,7 @@
       <template v-if="!isInstalled">
         <n-tooltip placement="top" :delay="300" :disabled="!downloadUrlPreview">
           <template #trigger>
-            <n-button type="primary" size="small" :loading="submitting || isDownloading" :disabled="submitting || isDownloading || showLocalInstall" @click="handleInstall">
+            <n-button type="primary" size="small" :loading="submitting || isDownloading" :disabled="submitting || isDownloading" @click="handleInstall">
               {{ submitting ? '准备中...' : isDownloading ? '处理中...' : '下载安装' }}
             </n-button>
           </template>
@@ -242,135 +242,21 @@
     </template>
   </n-modal>
 
-  <n-modal v-model:show="showMysqlWizard" preset="card" title="MySQL 本地安装" style="width: 820px" :mask-closable="false">
-    <n-steps :current="mysqlStep" size="small" style="margin-bottom: 18px">
-      <n-step title="解压位置" />
-      <n-step title="服务配置" />
-      <n-step title="预览配置" />
-      <n-step title="开始安装" />
-    </n-steps>
+  <MysqlInstallWizard
+    v-model:show="showMysqlWizard"
+    :version="selectedVersion"
+    :package-path="cachedPackage?.filePath"
+    :install-base-dir="store.settings?.installBaseDir"
+    @installed="handleLocalInstallFinished"
+  />
 
-    <div v-if="mysqlStep === 1" class="wizard-pane">
-      <div class="field-label">安装包</div>
-      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
-      <div class="field-label">默认解压位置</div>
-      <div class="dir-row">
-        <n-input v-model:value="mysqlForm.installDir" />
-        <n-button @click="selectMysqlInstallDir">选择</n-button>
-      </div>
-    </div>
-
-    <div v-else-if="mysqlStep === 2" class="wizard-pane form-grid">
-      <div>
-        <div class="field-label">服务名</div>
-        <n-input v-model:value="mysqlForm.serviceName" />
-      </div>
-      <div>
-        <div class="field-label">IP</div>
-        <n-input v-model:value="mysqlForm.host" />
-      </div>
-      <div>
-        <div class="field-label">端口</div>
-        <n-input-number v-model:value="mysqlForm.port" :min="1" :max="65535" style="width: 100%" />
-        <div class="port-status" :class="{ 'port-status--bad': portStatus && !portStatus.available }">
-          {{ portStatusLabel }}
-        </div>
-      </div>
-      <div>
-        <div class="field-label">root 密码</div>
-        <n-input v-model:value="mysqlForm.password" />
-      </div>
-    </div>
-
-    <div v-else-if="mysqlStep === 3" class="wizard-pane">
-      <div class="field-label">my.ini</div>
-      <n-input v-model:value="mysqlIniPreview" type="textarea" :autosize="{ minRows: 18, maxRows: 24 }" />
-    </div>
-
-    <div v-else class="wizard-pane">
-      <div class="ready-box">
-        <div>安装目录：{{ mysqlForm.installDir }}</div>
-        <div>服务：{{ mysqlForm.serviceName }} · {{ mysqlForm.host }}:{{ mysqlForm.port }}</div>
-        <div>确认后会解压、初始化数据目录、注册并启动 Windows 服务。</div>
-      </div>
-    </div>
-
-    <template #footer>
-      <div class="wizard-footer">
-        <n-button :disabled="mysqlInstalling" @click="closeMysqlWizard">取消</n-button>
-        <n-button v-if="mysqlStep > 1" :disabled="mysqlInstalling" @click="mysqlStep--">上一步</n-button>
-        <n-button v-if="mysqlStep < 4" type="primary" :disabled="!canAdvanceMysqlStep" @click="mysqlStep++">下一步</n-button>
-        <n-button v-else type="primary" :loading="mysqlInstalling" :disabled="!canStartMysqlInstall" @click="startMysqlLocalInstall">
-          开始安装
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
-
-  <n-modal v-model:show="showRedisWizard" preset="card" title="Redis 本地安装" style="width: 820px" :mask-closable="false">
-    <n-steps :current="redisStep" size="small" style="margin-bottom: 18px">
-      <n-step title="解压位置" />
-      <n-step title="服务配置" />
-      <n-step title="预览配置" />
-      <n-step title="开始安装" />
-    </n-steps>
-
-    <div v-if="redisStep === 1" class="wizard-pane">
-      <div class="field-label">安装包</div>
-      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
-      <div class="field-label">默认解压位置</div>
-      <div class="dir-row">
-        <n-input v-model:value="redisForm.installDir" />
-        <n-button @click="selectRedisInstallDir">选择</n-button>
-      </div>
-    </div>
-
-    <div v-else-if="redisStep === 2" class="wizard-pane form-grid">
-      <div>
-        <div class="field-label">服务名</div>
-        <n-input v-model:value="redisForm.serviceName" />
-      </div>
-      <div>
-        <div class="field-label">IP</div>
-        <n-input v-model:value="redisForm.host" />
-      </div>
-      <div>
-        <div class="field-label">端口</div>
-        <n-input-number v-model:value="redisForm.port" :min="1" :max="65535" style="width: 100%" />
-        <div class="port-status" :class="{ 'port-status--bad': portStatus && !portStatus.available }">
-          {{ portStatusLabel }}
-        </div>
-      </div>
-      <div>
-        <div class="field-label">访问密码</div>
-        <n-input v-model:value="redisForm.password" />
-      </div>
-    </div>
-
-    <div v-else-if="redisStep === 3" class="wizard-pane">
-      <div class="field-label">redis.conf</div>
-      <n-input v-model:value="redisConfigPreview" type="textarea" :autosize="{ minRows: 18, maxRows: 24 }" />
-    </div>
-
-    <div v-else class="wizard-pane">
-      <div class="ready-box">
-        <div>安装目录：{{ redisForm.installDir }}</div>
-        <div>服务：{{ redisForm.serviceName }} · {{ redisForm.host }}:{{ redisForm.port }}</div>
-        <div>确认后会解压、写入 redis.conf、注册并启动 Windows 服务。</div>
-      </div>
-    </div>
-
-    <template #footer>
-      <div class="wizard-footer">
-        <n-button :disabled="redisInstalling" @click="closeRedisWizard">取消</n-button>
-        <n-button v-if="redisStep > 1" :disabled="redisInstalling" @click="redisStep--">上一步</n-button>
-        <n-button v-if="redisStep < 4" type="primary" :disabled="!canAdvanceRedisStep" @click="redisStep++">下一步</n-button>
-        <n-button v-else type="primary" :loading="redisInstalling" :disabled="!canStartRedisInstall" @click="startRedisLocalInstall">
-          开始安装
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
+  <RedisInstallWizard
+    v-model:show="showRedisWizard"
+    :version="selectedVersion"
+    :package-path="cachedPackage?.filePath"
+    :install-base-dir="store.settings?.installBaseDir"
+    @installed="handleLocalInstallFinished"
+  />
 
   <n-modal v-model:show="showGitConfirm" preset="card" title="Git 本地重新安装" style="width: 640px" :mask-closable="!gitInstalling">
     <div class="wizard-pane">
@@ -398,9 +284,11 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, h } from 'vue'
-import { NTag, NButton, NSelect, NProgress, NTooltip, NIcon, NModal, NSteps, NStep, NInput, NInputNumber } from 'naive-ui'
+import { NTag, NButton, NSelect, NProgress, NTooltip, NIcon, NModal, NSteps, NStep, NInput } from 'naive-ui'
 import { CloudDownloadOutline } from '@vicons/ionicons5'
 import { useToolsStore } from '../stores/tools'
+import MysqlInstallWizard from './db/mysql/MysqlInstallWizard.vue'
+import RedisInstallWizard from './db/redis/RedisInstallWizard.vue'
 import type { NodeVersion } from '../../../shared/types'
 
 const props = defineProps<{ tool: any }>()
@@ -443,35 +331,12 @@ const mavenForm = ref({
 })
 const mavenSettingsPreview = ref('')
 const showMysqlWizard = ref(false)
-const mysqlStep = ref(1)
-const mysqlInstalling = ref(false)
-const mysqlForm = ref({
-  installDir: 'C:\\DevTools\\mysql',
-  serviceName: 'MySQL',
-  host: '127.0.0.1',
-  port: 3306,
-  password: '123456'
-})
-const mysqlIniPreview = ref('')
 const showRedisWizard = ref(false)
-const redisStep = ref(1)
-const redisInstalling = ref(false)
-const redisForm = ref({
-  installDir: 'C:\\DevTools\\redis',
-  serviceName: 'Redis',
-  host: '127.0.0.1',
-  port: 6379,
-  password: '123456'
-})
-const redisConfigPreview = ref('')
 const showGitConfirm = ref(false)
 const gitInstalling = ref(false)
 const gitForm = ref({
   installDir: 'C:\\DevTools\\git'
 })
-const portChecking = ref(false)
-const portStatus = ref<{ available: boolean; port: number; pid?: number; processName?: string; path?: string; state?: string } | null>(null)
-let portCheckTimer: ReturnType<typeof setTimeout> | null = null
 
 const DYNAMIC_TOOLS = ['nodejs', 'maven', 'jdk', 'python', 'mysql', 'git', 'codex', 'claude-code']
 const isDynamic = computed(() => DYNAMIC_TOOLS.includes(props.tool.id))
@@ -481,6 +346,7 @@ const selectedFilename = computed(() => {
   return built?.filename ?? props.tool.versions?.find((v: any) => v.version === selectedVersion.value)?.filename ?? ''
 })
 const showLocalInstall = computed(() => ['maven', 'mysql', 'redis', 'git'].includes(props.tool.id) && !!cachedPackage.value)
+const canOpenCachedPackageDir = computed(() => ['mysql', 'redis', 'git'].includes(props.tool.id) && !!cachedPackage.value?.filePath)
 const mavenMirrorOptions = [
   { label: '华为云 Maven', value: 'huawei', url: 'https://repo.huaweicloud.com/repository/maven/' },
   { label: '腾讯云 Maven', value: 'tencent', url: 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' },
@@ -612,41 +478,11 @@ watch(
 )
 
 watch(
-  mysqlForm,
-  () => {
-    mysqlIniPreview.value = buildMysqlIni()
-  },
-  { deep: true }
-)
-
-watch(
-  redisForm,
-  () => {
-    redisConfigPreview.value = buildRedisConfig()
-  },
-  { deep: true }
-)
-
-watch(
   mavenForm,
   () => {
     mavenSettingsPreview.value = buildMavenSettings()
   },
   { deep: true }
-)
-
-watch(
-  () => mysqlForm.value.port,
-  () => {
-    schedulePortCheck()
-  }
-)
-
-watch(
-  () => redisForm.value.port,
-  () => {
-    schedulePortCheck()
-  }
 )
 
 async function handleJdkVendorChange(vendorId: string) {
@@ -692,7 +528,7 @@ const activeTask = computed(() =>
 const isDownloading = computed(() => !!activeTask.value)
 
 function applyGithubProxyPreview(url: string) {
-  const prefix = (store.settings?.githubProxyPrefix || 'https://gh.zwy.one').trim().replace(/\/+$/, '')
+  const prefix = (store.settings?.githubProxyPrefix || 'https://cdn.akaere.online').trim().replace(/\/+$/, '')
   if (!prefix || !/^https?:\/\/github\.com\//i.test(url)) return url
   return `${prefix}/${url.replace(/^https?:\/\//i, '')}`
 }
@@ -752,8 +588,9 @@ async function handleInstall() {
       window.api.log('warn', `[ToolCard] no dynamic url resolved: tool=${props.tool.id} ver=${selectedVersion.value}`)
       return
     }
-    window.api.log('info', `[ToolCard] startDownload isDynamic=${isDynamic.value} dynamicLen=${dynamicVersions.value.length} filename=${built?.filename} urls=${JSON.stringify(built?.urls)}`)
-    const taskId = await store.startDownload(props.tool.id, selectedVersion.value, built?.urls, built?.filename)
+    const forceDownload = showLocalInstall.value
+    window.api.log('info', `[ToolCard] startDownload isDynamic=${isDynamic.value} dynamicLen=${dynamicVersions.value.length} filename=${built?.filename} force=${forceDownload} urls=${JSON.stringify(built?.urls)}`)
+    const taskId = await store.startDownload(props.tool.id, selectedVersion.value, built?.urls, built?.filename, false, undefined, forceDownload)
     window.api.log('info', `[ToolCard] startDownload OK taskId=${taskId}`)
   } catch (err: any) {
     window.api.log('error', `[ToolCard] startDownload ERROR: ${err?.message ?? err}`)
@@ -811,50 +648,8 @@ async function applyNpmRegistry(url: string) {
   }
 }
 
-function normalizeIniPath(path: string) {
-  return path.replace(/\\/g, '/')
-}
-
-function buildMysqlIni() {
-  const installDir = normalizeIniPath(mysqlForm.value.installDir)
-  return `[mysqld]
-basedir=${installDir}
-datadir=${installDir}/data
-port=${mysqlForm.value.port || 3306}
-bind-address=${mysqlForm.value.host || '127.0.0.1'}
-character-set-server=utf8mb4
-default-storage-engine=INNODB
-default-time-zone='+08:00'
-max_allowed_packet=999M
-sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
-
-[client]
-port=${mysqlForm.value.port || 3306}
-default-character-set=utf8mb4
-
-[mysql]
-default-character-set=utf8mb4
-`
-}
-
-function buildRedisConfig() {
-  const installDir = normalizeIniPath(redisForm.value.installDir)
-  const password = redisForm.value.password ? `requirepass ${redisForm.value.password}` : ''
-  return `bind ${redisForm.value.host || '127.0.0.1'}
-port ${redisForm.value.port || 6379}
-protected-mode yes
-daemonize no
-dir ${installDir}
-dbfilename dump.rdb
-appendonly yes
-appendfilename "appendonly.aof"
-logfile "${installDir}/redis.log"
-maxmemory-policy noeviction
-${password}
-`
-}
-
 function buildMavenSettings() {
+  const normalizeIniPath = (path: string) => path.replace(/\\/g, '/')
   const repositoryDir = normalizeIniPath(mavenForm.value.repositoryDir)
   const mirror = selectedMavenMirror.value
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -917,44 +712,12 @@ function openGitInstallConfirm() {
 
 function openMysqlInstallWizard() {
   if (!cachedPackage.value) return
-  mysqlStep.value = 1
-  mysqlForm.value = {
-    installDir: `C:\\DevTools\\mysql-${selectedVersion.value}`,
-    serviceName: 'MySQL',
-    host: '127.0.0.1',
-    port: 3306,
-    password: '123456'
-  }
-  mysqlIniPreview.value = buildMysqlIni()
-  portStatus.value = null
-  void checkLocalPort()
   showMysqlWizard.value = true
 }
 
 function openRedisInstallWizard() {
   if (!cachedPackage.value) return
-  redisStep.value = 1
-  redisForm.value = {
-    installDir: `C:\\DevTools\\redis-${selectedVersion.value}`,
-    serviceName: 'Redis',
-    host: '127.0.0.1',
-    port: 6379,
-    password: '123456'
-  }
-  redisConfigPreview.value = buildRedisConfig()
-  portStatus.value = null
-  void checkLocalPort()
   showRedisWizard.value = true
-}
-
-function closeMysqlWizard() {
-  if (mysqlInstalling.value) return
-  showMysqlWizard.value = false
-}
-
-function closeRedisWizard() {
-  if (redisInstalling.value) return
-  showRedisWizard.value = false
 }
 
 function closeMavenWizard() {
@@ -965,16 +728,6 @@ function closeMavenWizard() {
 function closeGitConfirm() {
   if (gitInstalling.value) return
   showGitConfirm.value = false
-}
-
-async function selectMysqlInstallDir() {
-  const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir)
-  if (selected) mysqlForm.value.installDir = selected
-}
-
-async function selectRedisInstallDir() {
-  const selected = await window.api.dialog.selectDir(redisForm.value.installDir)
-  if (selected) redisForm.value.installDir = selected
 }
 
 async function selectMavenInstallDir() {
@@ -998,63 +751,6 @@ async function openCachedPackageDir() {
   window.api.log('info', `[ToolCard] open cached package directory: ${packagePath}`)
   await window.api.download.openDirOfFile(packagePath)
 }
-
-function schedulePortCheck() {
-  if (portCheckTimer) clearTimeout(portCheckTimer)
-  portCheckTimer = setTimeout(() => {
-    void checkLocalPort()
-  }, 350)
-}
-
-function activeLocalPort() {
-  if (showRedisWizard.value) return Number(redisForm.value.port)
-  return Number(mysqlForm.value.port)
-}
-
-async function checkLocalPort() {
-  const port = activeLocalPort()
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    portStatus.value = { available: false, port, state: 'invalid' }
-    return
-  }
-  portChecking.value = true
-  try {
-    portStatus.value = await window.api.network.checkPort(port)
-  } finally {
-    portChecking.value = false
-  }
-}
-
-const portStatusLabel = computed(() => {
-  if (portChecking.value) return '正在检测端口...'
-  if (!portStatus.value) return '端口待检测'
-  if (portStatus.value.available) return `端口 ${portStatus.value.port} 可用`
-  if (portStatus.value.state === 'invalid') return '端口无效'
-  const owner = portStatus.value.processName
-    ? `${portStatus.value.processName}${portStatus.value.pid ? ` (PID ${portStatus.value.pid})` : ''}`
-    : portStatus.value.pid
-      ? `PID ${portStatus.value.pid}`
-      : '未知进程'
-  return `端口 ${portStatus.value.port} 已被占用：${owner}${portStatus.value.state ? ` · ${portStatus.value.state}` : ''}`
-})
-
-const canAdvanceMysqlStep = computed(() => {
-  if (mysqlStep.value === 1) return !!cachedPackage.value?.filePath && !!mysqlForm.value.installDir
-  if (mysqlStep.value === 2) return !!mysqlForm.value.serviceName && !!mysqlForm.value.host && !!mysqlForm.value.port && !!mysqlForm.value.password && !!portStatus.value?.available
-  if (mysqlStep.value === 3) return !!mysqlIniPreview.value.trim()
-  return true
-})
-
-const canStartMysqlInstall = computed(() => canAdvanceMysqlStep.value && !!cachedPackage.value?.filePath && !!mysqlIniPreview.value.trim())
-
-const canAdvanceRedisStep = computed(() => {
-  if (redisStep.value === 1) return !!cachedPackage.value?.filePath && !!redisForm.value.installDir
-  if (redisStep.value === 2) return !!redisForm.value.serviceName && !!redisForm.value.host && !!redisForm.value.port && !!redisForm.value.password && !!portStatus.value?.available
-  if (redisStep.value === 3) return !!redisConfigPreview.value.trim()
-  return true
-})
-
-const canStartRedisInstall = computed(() => canAdvanceRedisStep.value && !!cachedPackage.value?.filePath && !!redisConfigPreview.value.trim())
 
 const canAdvanceMavenStep = computed(() => {
   if (mavenStep.value === 1) return !!cachedPackage.value?.filePath && !!mavenForm.value.installDir
@@ -1096,52 +792,8 @@ async function startMavenLocalInstall() {
   }
 }
 
-async function startMysqlLocalInstall() {
-  if (!cachedPackage.value || mysqlInstalling.value) return
-  mysqlInstalling.value = true
-  try {
-    const taskId = await window.api.mysql.installLocal({
-      version: selectedVersion.value,
-      filePath: cachedPackage.value.filePath,
-      installDir: mysqlForm.value.installDir,
-      serviceName: mysqlForm.value.serviceName,
-      host: mysqlForm.value.host,
-      port: Number(mysqlForm.value.port || 3306),
-      password: mysqlForm.value.password,
-      myIni: mysqlIniPreview.value
-    })
-    window.api.log('info', `[ToolCard] mysql local install taskId=${taskId}`)
-    showMysqlWizard.value = false
-    await store.loadTools()
-  } catch (err: any) {
-    window.api.log('error', `[ToolCard] mysql local install ERROR: ${err?.message ?? err}`)
-  } finally {
-    mysqlInstalling.value = false
-  }
-}
-
-async function startRedisLocalInstall() {
-  if (!cachedPackage.value || redisInstalling.value) return
-  redisInstalling.value = true
-  try {
-    const taskId = await window.api.redis.installLocal({
-      version: selectedVersion.value,
-      filePath: cachedPackage.value.filePath,
-      installDir: redisForm.value.installDir,
-      serviceName: redisForm.value.serviceName,
-      host: redisForm.value.host,
-      port: Number(redisForm.value.port || 6379),
-      password: redisForm.value.password,
-      configText: redisConfigPreview.value
-    })
-    window.api.log('info', `[ToolCard] redis local install taskId=${taskId}`)
-    showRedisWizard.value = false
-    await store.loadTools()
-  } catch (err: any) {
-    window.api.log('error', `[ToolCard] redis local install ERROR: ${err?.message ?? err}`)
-  } finally {
-    redisInstalling.value = false
-  }
+async function handleLocalInstallFinished() {
+  await store.loadTools()
 }
 
 async function startGitLocalInstall() {
@@ -1422,7 +1074,6 @@ function handleOpenDir() {
   word-break: break-all;
 }
 .dir-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .ready-box {
   display: flex;
   flex-direction: column;
@@ -1434,13 +1085,5 @@ function handleOpenDir() {
   padding: 12px;
   font-size: 13px;
 }
-.port-status {
-  margin-top: 5px;
-  min-height: 18px;
-  color: #52c41a;
-  font-size: 12px;
-  line-height: 1.5;
-}
-.port-status--bad { color: #ff7875; }
 .wizard-footer { display: flex; justify-content: flex-end; gap: 8px; }
 </style>

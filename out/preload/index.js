@@ -1,5 +1,19 @@
 "use strict";
 const electron = require("electron");
+function toPlain(value) {
+  if (value instanceof Error) {
+    return { name: value.name, message: value.message, stack: value.stack };
+  }
+  if (value === null || typeof value !== "object") return value;
+  if (Array.isArray(value)) return value.map((item) => toPlain(item));
+  const plain = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item !== "function" && typeof item !== "symbol") {
+      plain[key] = toPlain(item);
+    }
+  }
+  return plain;
+}
 const api = {
   tools: {
     list: () => electron.ipcRenderer.invoke("tools:list"),
@@ -63,21 +77,27 @@ const api = {
     set: (url) => electron.ipcRenderer.invoke("npmRegistry:set", url)
   },
   download: {
-    start: (payload) => electron.ipcRenderer.invoke("download:start", payload),
+    start: (payload) => electron.ipcRenderer.invoke("download:start", toPlain(payload)),
     pause: (taskId) => electron.ipcRenderer.invoke("download:pause", taskId),
     findCached: (filename) => electron.ipcRenderer.invoke("download:findCached", filename),
     openFile: (filePath) => electron.ipcRenderer.invoke("download:openFile", filePath),
     openDirOfFile: (filePath) => electron.ipcRenderer.invoke("download:openDirOfFile", filePath),
     onProgress: (cb) => {
-      electron.ipcRenderer.on("download:progress", (_e, task) => cb(task));
+      electron.ipcRenderer.on("download:progress", (_e, task) => {
+        void cb(toPlain(task));
+      });
       return () => electron.ipcRenderer.removeAllListeners("download:progress");
     },
     onInstallStatus: (cb) => {
-      electron.ipcRenderer.on("install:status", (_e, data) => cb(data));
+      electron.ipcRenderer.on("install:status", (_e, data) => {
+        void cb(toPlain(data));
+      });
       return () => electron.ipcRenderer.removeAllListeners("install:status");
     },
     onInstallComplete: (cb) => {
-      electron.ipcRenderer.on("install:complete", (_e, data) => cb(data));
+      electron.ipcRenderer.on("install:complete", (_e, data) => {
+        void cb(toPlain(data));
+      });
       return () => electron.ipcRenderer.removeAllListeners("install:complete");
     }
   },

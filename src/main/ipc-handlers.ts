@@ -4,7 +4,7 @@ import { basename, dirname, extname, join } from 'path'
 import { randomBytes } from 'crypto'
 import { exec, spawn } from 'child_process'
 import { promisify } from 'util'
-import { existsSync, mkdirSync, statSync, writeFileSync } from 'fs'
+import { closeSync, existsSync, mkdirSync, openSync, readSync, statSync, unlinkSync, writeFileSync } from 'fs'
 import { ensureDir, move, pathExists, remove } from 'fs-extra'
 import AdmZip from 'adm-zip'
 import log from 'electron-log'
@@ -14,7 +14,10 @@ import { downloader } from './downloader'
 import { configureEnvVar, installTool, verifyInstall, findCommandPath, extractVersion } from './installer'
 import { resolveBestDownloadUrl, detectBestMirror, probeAll } from './network'
 import { loadTaskCache, loadToolsCatalog, saveTaskCache, saveToolsCatalog, upsertTask } from './task-db'
-import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, MavenInstallPayload, MysqlInstallPayload, RedisInstallPayload, ToolConfig } from '../shared/types'
+import { registerMysqlHandlers } from './db/mysql'
+import { registerRedisHandlers } from './db/redis'
+import { sendToRenderer } from './ipc-utils'
+import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, MavenInstallPayload, ToolConfig } from '../shared/types'
 const execAsync = promisify(exec)
 
 function generateId(): string {
@@ -27,6 +30,28 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
+function isValidZipFile(filePath: string): boolean {
+  let fd: number | null = null
+  try {
+    const stat = statSync(filePath)
+    if (stat.size < 22) return false
+    const tailSize = Math.min(stat.size, 65557)
+    const buffer = Buffer.alloc(tailSize)
+    fd = openSync(filePath, 'r')
+    readSync(fd, buffer, 0, tailSize, stat.size - tailSize)
+    return buffer.includes(Buffer.from([0x50, 0x4b, 0x05, 0x06]))
+  } catch {
+    return false
+  } finally {
+    if (fd !== null) closeSync(fd)
+  }
+}
+
+function isValidCachedPackage(filePath: string): boolean {
+  if (extname(filePath).toLowerCase() !== '.zip') return true
+  return isValidZipFile(filePath)
+}
+
 function runLoggedProcess(
   command: string,
   args: string[],
@@ -35,19 +60,46 @@ function runLoggedProcess(
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     onLog(`> ${command} ${args.join(' ')}`)
+    const outputTail: string[] = []
+    const pushOutput = (line: string) => {
+      outputTail.push(line)
+      if (outputTail.length > 8) outputTail.shift()
+      onLog(line)
+    }
+    const decodeChunk = (chunk: Buffer) => {
+      if (process.platform !== 'win32') return chunk.toString()
+      try {
+        return new TextDecoder('gb18030').decode(chunk)
+      } catch {
+        return chunk.toString()
+      }
+    }
     const child = spawn(command, args, { cwd, windowsHide: true, shell: false })
     child.stdout.on('data', (chunk) => {
-      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line))
+      decodeChunk(chunk).split(/\r?\n/).filter(Boolean).forEach(pushOutput)
     })
     child.stderr.on('data', (chunk) => {
-      chunk.toString().split(/\r?\n/).filter(Boolean).forEach((line) => onLog(line))
+      decodeChunk(chunk).split(/\r?\n/).filter(Boolean).forEach(pushOutput)
     })
     child.on('error', reject)
     child.on('close', (code) => {
       if (code === 0) resolve()
-      else reject(new Error(`${basename(command)} 退出码: ${code}`))
+      else {
+        const detail = outputTail.length ? `, recent output: ${outputTail.join(' | ')}` : ''
+        reject(new Error(`${basename(command)} exit code: ${code}${detail}`))
+      }
     })
   })
+}
+
+async function isWindowsElevated(): Promise<boolean> {
+  if (process.platform !== 'win32') return true
+  try {
+    await execAsync('net session', { timeout: 3000, windowsHide: true })
+    return true
+  } catch {
+    return false
+  }
 }
 
 async function checkPortUsage(port: number): Promise<{ available: boolean; port: number; pid?: number; processName?: string; path?: string; state?: string }> {
@@ -151,7 +203,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     let changed = false
 
     for (const tool of toolsCatalog) {
-      mainWindow.webContents.send('tools:detectProgress', {
+      sendToRenderer(mainWindow, 'tools:detectProgress', {
         toolId: tool.id,
         toolName: tool.name,
         status: 'checking'
@@ -173,7 +225,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
           installedAt: installed[tool.id]?.installedAt ?? new Date().toISOString()
         }
         changed = true
-        mainWindow.webContents.send('tools:detectProgress', {
+        sendToRenderer(mainWindow, 'tools:detectProgress', {
           toolId: tool.id,
           toolName: tool.name,
           status: 'found',
@@ -186,7 +238,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
           delete installed[tool.id]
           changed = true
         }
-        mainWindow.webContents.send('tools:detectProgress', {
+        sendToRenderer(mainWindow, 'tools:detectProgress', {
           toolId: tool.id,
           toolName: tool.name,
           status: 'not_found'
@@ -196,7 +248,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
     if (changed) store.set('installed', installed)
 
-    mainWindow.webContents.send('tools:detectProgress', { status: 'done' })
+    sendToRenderer(mainWindow, 'tools:detectProgress', { status: 'done' })
 
     return toolsCatalog.map((tool) => ({
       ...tool,
@@ -206,11 +258,12 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
   ipcMain.handle('settings:get', () => {
     const settings = store.get('settings') as AppSettings
-    if (settings.preferredMirror === 'auto' || !settings.githubProxyPrefix) {
+    const shouldMigrateGithubProxy = !settings.githubProxyPrefix || settings.githubProxyPrefix.replace(/\/+$/, '') === 'https://gh.zwy.one'
+    if (settings.preferredMirror === 'auto' || shouldMigrateGithubProxy) {
       const next = {
         ...settings,
         preferredMirror: settings.preferredMirror === 'auto' ? DEFAULT_SETTINGS.preferredMirror : settings.preferredMirror,
-        githubProxyPrefix: settings.githubProxyPrefix || DEFAULT_SETTINGS.githubProxyPrefix
+        githubProxyPrefix: shouldMigrateGithubProxy ? DEFAULT_SETTINGS.githubProxyPrefix : settings.githubProxyPrefix
       }
       store.set('settings', next)
       return next
@@ -345,6 +398,18 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
 
     const downloadDir = settings.downloadDir || join(settings.installBaseDir, '_downloads')
     const cachedFilePath = join(downloadDir, versionConfig.filename)
+    if (payload.forceDownload && existsSync(cachedFilePath)) {
+      log.info(`[download:start] force download, overwrite cached package: ${cachedFilePath}`)
+      unlinkSync(cachedFilePath)
+    }
+    if (
+      !versionConfig.downloadUrls[settings.preferredMirror === 'auto' ? 'huawei' : settings.preferredMirror]?.startsWith('npm:')
+      && existsSync(cachedFilePath)
+      && !isValidCachedPackage(cachedFilePath)
+    ) {
+      log.warn(`[download:start] invalid cached package removed: ${cachedFilePath}`)
+      unlinkSync(cachedFilePath)
+    }
     if (!versionConfig.downloadUrls[settings.preferredMirror === 'auto' ? 'huawei' : settings.preferredMirror]?.startsWith('npm:') && existsSync(cachedFilePath)) {
       const taskId = generateId()
       const stat = statSync(cachedFilePath)
@@ -364,9 +429,9 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         startedAt: new Date().toISOString(),
         completedAt: new Date().toISOString()
       }
-      mainWindow.webContents.send('download:progress', cachedTask)
+      sendToRenderer(mainWindow, 'download:progress', cachedTask)
       await upsertTask(cachedTask)
-      mainWindow.webContents.send('install:status', { taskId, msg: `检测到本地缓存，跳过下载: ${cachedFilePath}` })
+      sendToRenderer(mainWindow, 'install:status', { taskId, msg: `检测到本地缓存，跳过下载: ${cachedFilePath}` })
       if (payload.downloadOnly || payload.toolId === 'mysql') {
         return taskId
       }
@@ -374,7 +439,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         payload.toolId,
         cachedFilePath,
         settings.installBaseDir,
-        (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
+        (msg) => sendToRenderer(mainWindow, 'install:status', { taskId, msg }),
         toolConfig,
         payload.installDir
       )
@@ -388,7 +453,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         }
         store.set('installed', installed)
       }
-      mainWindow.webContents.send('install:complete', {
+      sendToRenderer(mainWindow, 'install:complete', {
         taskId,
         toolId: payload.toolId,
         success: result.success,
@@ -425,7 +490,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       startedAt: new Date().toISOString()
     }
 
-    mainWindow.webContents.send('download:progress', task)
+    sendToRenderer(mainWindow, 'download:progress', task)
     await upsertTask(task)
 
     if (finalUrl.startsWith('npm:')) {
@@ -433,7 +498,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         payload.toolId,
         finalUrl,
         settings.installBaseDir,
-        (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
+        (msg) => sendToRenderer(mainWindow, 'install:status', { taskId, msg }),
         toolConfig,
         payload.installDir
       )
@@ -452,9 +517,9 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
           progress: 100,
           completedAt: new Date().toISOString()
         }
-        mainWindow.webContents.send('download:progress', doneTask)
+        sendToRenderer(mainWindow, 'download:progress', doneTask)
         await upsertTask(doneTask)
-        mainWindow.webContents.send('install:complete', {
+        sendToRenderer(mainWindow, 'install:complete', {
           taskId,
           toolId: payload.toolId,
           success: true,
@@ -467,9 +532,9 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
           error: result.error ?? 'npm 安装失败',
           completedAt: new Date().toISOString()
         }
-        mainWindow.webContents.send('download:progress', failedTask)
+        sendToRenderer(mainWindow, 'download:progress', failedTask)
         await upsertTask(failedTask)
-        mainWindow.webContents.send('install:complete', {
+        sendToRenderer(mainWindow, 'install:complete', {
           taskId,
           toolId: payload.toolId,
           success: false,
@@ -483,13 +548,13 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       .download(taskId, finalUrl, downloadDir, versionConfig.filename, (patch) => {
         if (patch.status === 'completed') patch.completedAt = new Date().toISOString()
         const updatedTask = { ...task, ...patch } as DownloadTask
-        mainWindow.webContents.send('download:progress', updatedTask)
+        sendToRenderer(mainWindow, 'download:progress', updatedTask)
         void upsertTask(updatedTask)
         if (patch.filePath) task.filePath = patch.filePath
       })
       .then(async (filePath) => {
         if (payload.downloadOnly) {
-          mainWindow.webContents.send('install:complete', {
+          sendToRenderer(mainWindow, 'install:complete', {
             taskId,
             toolId: payload.toolId,
             success: true,
@@ -498,12 +563,12 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
           })
           return
         }
-        mainWindow.webContents.send('install:status', { taskId, msg: '下载完成，准备安装...' })
+        sendToRenderer(mainWindow, 'install:status', { taskId, msg: '下载完成，准备安装...' })
         const result = await installTool(
           payload.toolId,
           filePath,
           settings.installBaseDir,
-          (msg) => mainWindow.webContents.send('install:status', { taskId, msg }),
+          (msg) => sendToRenderer(mainWindow, 'install:status', { taskId, msg }),
           toolConfig,
           payload.installDir
         )
@@ -516,14 +581,14 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
             installedAt: new Date().toISOString()
           }
           store.set('installed', installed)
-          mainWindow.webContents.send('install:complete', {
+          sendToRenderer(mainWindow, 'install:complete', {
             taskId,
             toolId: payload.toolId,
             success: true,
             installPath: result.installPath
           })
         } else {
-          mainWindow.webContents.send('install:complete', {
+          sendToRenderer(mainWindow, 'install:complete', {
             taskId,
             toolId: payload.toolId,
             success: false,
@@ -555,6 +620,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     const downloadDir = settings.downloadDir || join(settings.installBaseDir, '_downloads')
     const filePath = join(downloadDir, filename)
     if (existsSync(filePath)) {
+      if (!isValidCachedPackage(filePath)) return null
       const stat = statSync(filePath)
       return { filePath, size: formatBytes(stat.size) }
     }
@@ -562,6 +628,7 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     const cache = await loadTaskCache()
     for (const [, task] of cache.downloadTasks) {
       if (task.filePath && basename(task.filePath) === filename && existsSync(task.filePath)) {
+        if (!isValidCachedPackage(task.filePath)) continue
         const stat = statSync(task.filePath)
         return { filePath: task.filePath, size: formatBytes(stat.size) }
       }
@@ -592,10 +659,10 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       startedAt: new Date().toISOString(),
       completedAt: new Date().toISOString()
     }
-    mainWindow.webContents.send('download:progress', task)
+    sendToRenderer(mainWindow, 'download:progress', task)
     await upsertTask(task)
 
-    const sendLog = (msg: string) => mainWindow.webContents.send('install:status', { taskId, msg })
+    const sendLog = (msg: string) => sendToRenderer(mainWindow, 'install:status', { taskId, msg })
     try {
       if (extname(payload.filePath).toLowerCase() !== '.zip') throw new Error('Maven 本地安装仅支持 zip 包')
 
@@ -643,251 +710,37 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
         installedAt: new Date().toISOString()
       }
       store.set('installed', installed)
-      mainWindow.webContents.send('install:complete', { taskId, toolId: 'maven', success: true, installPath: installDir })
+      sendToRenderer(mainWindow, 'install:complete', { taskId, toolId: 'maven', success: true, installPath: installDir })
       return taskId
     } catch (err: any) {
       const message = err?.message ?? String(err)
       sendLog(`Maven 安装失败: ${message}`)
-      mainWindow.webContents.send('install:complete', { taskId, toolId: 'maven', success: false, error: message })
+      sendToRenderer(mainWindow, 'install:complete', { taskId, toolId: 'maven', success: false, error: message })
       return taskId
     }
   })
 
-  ipcMain.handle('mysql:installLocal', async (_event, payload: MysqlInstallPayload) => {
-    const toolsCatalog = await getToolsCatalog()
-    const toolConfig = toolsCatalog.find((t) => t.id === 'mysql')
-    const taskId = generateId()
-    const task: DownloadTask = {
-      id: taskId,
-      toolId: 'mysql',
-      toolName: toolConfig?.name ?? 'MySQL',
-      version: payload.version,
-      status: 'completed',
-      progress: 100,
-      speed: '0 B/s',
-      totalSize: existsSync(payload.filePath) ? formatBytes(statSync(payload.filePath).size) : '未知',
-      downloadedSize: existsSync(payload.filePath) ? formatBytes(statSync(payload.filePath).size) : '未知',
-      mirrorUsed: 'huawei',
-      filePath: payload.filePath,
-      downloadUrl: payload.filePath,
-      startedAt: new Date().toISOString()
-    }
-    mainWindow.webContents.send('download:progress', task)
-    await upsertTask(task)
-
-    const sendLog = (msg: string) => mainWindow.webContents.send('install:status', { taskId, msg })
-    const done = async (patch: Partial<DownloadTask>) => {
-      const next = { ...task, ...patch, completedAt: new Date().toISOString() } as DownloadTask
-      mainWindow.webContents.send('download:progress', next)
-      await upsertTask(next)
-    }
-
-    try {
-      if (!existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`)
-      if (extname(payload.filePath).toLowerCase() !== '.zip') throw new Error('MySQL 本地安装仅支持 zip 包')
-
-      const installDir = payload.installDir
-      const dataDir = join(installDir, 'data')
-      const binDir = join(installDir, 'bin')
-      const mysqld = join(binDir, 'mysqld.exe')
-      const mysqladmin = join(binDir, 'mysqladmin.exe')
-      const myIniPath = join(installDir, 'my.ini')
-
-      sendLog(`开始 MySQL 本地安装: ${payload.version}`)
-      sendLog(`安装包: ${payload.filePath}`)
-      sendLog(`解压目录: ${installDir}`)
-
-      const portUsage = await checkPortUsage(payload.port)
-      if (!portUsage.available) {
-        const owner = portUsage.processName
-          ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ''}`
-          : portUsage.pid
-            ? `PID ${portUsage.pid}`
-            : '未知进程'
-        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`)
-      }
-      sendLog(`端口 ${payload.port} 可用`)
-
-      if (await pathExists(installDir)) {
-        await remove(installDir)
-        sendLog('已清理旧解压目录')
-      }
-      await ensureDir(dirname(installDir))
-      const zip = new AdmZip(payload.filePath)
-      zip.extractAllTo(installDir, true)
-      const entries = await import('fs').then((fs) => fs.readdirSync(installDir))
-      if (entries.length === 1) {
-        const subDir = join(installDir, entries[0])
-        if (await pathExists(join(subDir, 'bin', 'mysqld.exe'))) {
-          const tmpDir = `${installDir}_tmp`
-          await move(subDir, tmpDir)
-          await remove(installDir)
-          await move(tmpDir, installDir)
-        }
-      }
-      sendLog('解压完成')
-
-      if (!existsSync(mysqld)) throw new Error(`未找到 mysqld.exe: ${mysqld}`)
-      await ensureDir(dataDir)
-      writeFileSync(myIniPath, payload.myIni, 'utf8')
-      sendLog(`已写入配置文件: ${myIniPath}`)
-
-      await runLoggedProcess(mysqld, [`--defaults-file=${myIniPath}`, '--initialize-insecure', `--console`], installDir, sendLog)
-      sendLog('数据目录初始化完成')
-
-      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false)
-      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`)
-
-      await runLoggedProcess(mysqld, [`--install`, payload.serviceName, `--defaults-file=${myIniPath}`], installDir, sendLog)
-      sendLog(`服务注册完成: ${payload.serviceName}`)
-
-      await runLoggedProcess('net', ['start', payload.serviceName], installDir, sendLog)
-      sendLog('服务启动完成')
-
-      if (payload.password) {
-        await runLoggedProcess(mysqladmin, ['-u', 'root', '-h', payload.host, `-P${payload.port}`, 'password', payload.password], installDir, sendLog)
-        sendLog('root 密码设置完成')
-      }
-
-      const installed = store.get('installed') as Record<string, InstalledTool>
-      installed.mysql = {
-        id: 'mysql',
-        version: payload.version,
-        installPath: installDir,
-        exePath: join(binDir, 'mysql.exe'),
-        installedAt: new Date().toISOString()
-      }
-      store.set('installed', installed)
-      sendLog('MySQL 安装完成')
-      await done({ status: 'completed', progress: 100 })
-      mainWindow.webContents.send('install:complete', { taskId, toolId: 'mysql', success: true, installPath: installDir })
-      return taskId
-    } catch (err: any) {
-      const message = err?.message ?? String(err)
-      sendLog(`安装失败: ${message}`)
-      await done({ status: 'error', error: message })
-      mainWindow.webContents.send('install:complete', { taskId, toolId: 'mysql', success: false, error: message })
-      return taskId
-    }
+  registerMysqlHandlers({
+    mainWindow,
+    store,
+    getToolsCatalog,
+    generateId,
+    formatBytes,
+    checkPortUsage,
+    isWindowsElevated,
+    runLoggedProcess,
+    execAsync
   })
-
-  ipcMain.handle('redis:installLocal', async (_event, payload: RedisInstallPayload) => {
-    const toolsCatalog = await getToolsCatalog()
-    const toolConfig = toolsCatalog.find((t) => t.id === 'redis')
-    const taskId = generateId()
-    const task: DownloadTask = {
-      id: taskId,
-      toolId: 'redis',
-      toolName: toolConfig?.name ?? 'Redis',
-      version: payload.version,
-      status: 'completed',
-      progress: 100,
-      speed: '0 B/s',
-      totalSize: existsSync(payload.filePath) ? formatBytes(statSync(payload.filePath).size) : '未知',
-      downloadedSize: existsSync(payload.filePath) ? formatBytes(statSync(payload.filePath).size) : '未知',
-      mirrorUsed: 'huawei',
-      filePath: payload.filePath,
-      downloadUrl: payload.filePath,
-      startedAt: new Date().toISOString()
-    }
-    mainWindow.webContents.send('download:progress', task)
-    await upsertTask(task)
-
-    const sendLog = (msg: string) => mainWindow.webContents.send('install:status', { taskId, msg })
-    const done = async (patch: Partial<DownloadTask>) => {
-      const next = { ...task, ...patch, completedAt: new Date().toISOString() } as DownloadTask
-      mainWindow.webContents.send('download:progress', next)
-      await upsertTask(next)
-    }
-
-    try {
-      if (!existsSync(payload.filePath)) throw new Error(`安装包不存在: ${payload.filePath}`)
-      if (extname(payload.filePath).toLowerCase() !== '.zip') throw new Error('Redis 本地安装仅支持 zip 包')
-
-      const installDir = payload.installDir
-      const redisServer = join(installDir, 'redis-server.exe')
-      const redisService = join(installDir, 'RedisService.exe')
-      const redisCli = join(installDir, 'redis-cli.exe')
-      const redisConf = join(installDir, 'redis.conf')
-
-      sendLog(`开始 Redis 本地安装: ${payload.version}`)
-      sendLog(`安装包: ${payload.filePath}`)
-      sendLog(`解压目录: ${installDir}`)
-
-      const portUsage = await checkPortUsage(payload.port)
-      if (!portUsage.available) {
-        const owner = portUsage.processName
-          ? `${portUsage.processName}${portUsage.pid ? ` (PID ${portUsage.pid})` : ''}`
-          : portUsage.pid
-            ? `PID ${portUsage.pid}`
-            : '未知进程'
-        throw new Error(`端口 ${payload.port} 已被占用: ${owner}`)
-      }
-      sendLog(`端口 ${payload.port} 可用`)
-
-      if (await pathExists(installDir)) {
-        await remove(installDir)
-        sendLog('已清理旧解压目录')
-      }
-      await ensureDir(dirname(installDir))
-      const zip = new AdmZip(payload.filePath)
-      zip.extractAllTo(installDir, true)
-      const entries = await import('fs').then((fs) => fs.readdirSync(installDir))
-      if (entries.length === 1) {
-        const subDir = join(installDir, entries[0])
-        if (await pathExists(join(subDir, 'redis-server.exe')) || await pathExists(join(subDir, 'RedisService.exe'))) {
-          const tmpDir = `${installDir}_tmp`
-          await move(subDir, tmpDir)
-          await remove(installDir)
-          await move(tmpDir, installDir)
-        }
-      }
-      sendLog('解压完成')
-
-      if (!existsSync(redisServer)) throw new Error(`未找到 redis-server.exe: ${redisServer}`)
-      if (!existsSync(redisService)) throw new Error(`未找到 RedisService.exe: ${redisService}`)
-      writeFileSync(redisConf, payload.configText, 'utf8')
-      sendLog(`已写入配置文件: ${redisConf}`)
-
-      const serviceExists = await execAsync(`sc query "${payload.serviceName}"`).then(() => true).catch(() => false)
-      if (serviceExists) throw new Error(`服务名已存在: ${payload.serviceName}`)
-
-      await runLoggedProcess(redisService, [
-        'install',
-        '-c', redisConf,
-        '--dir', installDir,
-        '--port', String(payload.port),
-        '--service-name', payload.serviceName,
-        '--display-name', payload.serviceName,
-        '--description', `Redis ${payload.version}`,
-        '--start-mode', 'auto',
-        '--loglevel', 'notice'
-      ], installDir, sendLog)
-      sendLog(`服务注册完成: ${payload.serviceName}`)
-
-      await runLoggedProcess('net', ['start', payload.serviceName], installDir, sendLog)
-      sendLog('服务启动完成')
-
-      const installed = store.get('installed') as Record<string, InstalledTool>
-      installed.redis = {
-        id: 'redis',
-        version: payload.version,
-        installPath: installDir,
-        exePath: redisCli,
-        installedAt: new Date().toISOString()
-      }
-      store.set('installed', installed)
-      sendLog('Redis 安装完成')
-      await done({ status: 'completed', progress: 100 })
-      mainWindow.webContents.send('install:complete', { taskId, toolId: 'redis', success: true, installPath: installDir })
-      return taskId
-    } catch (err: any) {
-      const message = err?.message ?? String(err)
-      sendLog(`安装失败: ${message}`)
-      await done({ status: 'error', error: message })
-      mainWindow.webContents.send('install:complete', { taskId, toolId: 'redis', success: false, error: message })
-      return taskId
-    }
+  registerRedisHandlers({
+    mainWindow,
+    store,
+    getToolsCatalog,
+    generateId,
+    formatBytes,
+    checkPortUsage,
+    isWindowsElevated,
+    runLoggedProcess,
+    execAsync
   })
 
   ipcMain.handle('tool:verify', async (_event, toolId: string) => {
@@ -1093,10 +946,10 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       }
       if (!items.length && lastErr) throw lastErr
 
+      const seenVersions = new Set<string>()
       const list = items
         .filter((i) => i?.links?.pkg_download_redirect && i?.filename)
         .sort((a, b) => Number(b.major_version || 0) - Number(a.major_version || 0))
-        .slice(0, 20)
         .map((i) => {
           const version = String(i.distribution_version || i.java_version || i.major_version)
           const filename = String(i.filename)
@@ -1119,6 +972,12 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
             }
           }
         })
+        .filter((item) => {
+          if (seenVersions.has(item.version)) return false
+          seenVersions.add(item.version)
+          return true
+        })
+        .slice(0, 20)
       log.info(`[jdk versions] vendor=${vendor.id} 成功，共 ${list.length} 个版本`)
       return list
     } catch (e: any) {
@@ -1159,79 +1018,6 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
       }
     }
     return []
-  })
-
-  ipcMain.handle('mysql:fetchVersions', async () => {
-    const seriesSources = [
-      {
-        series: '8.0',
-        urls: [
-          'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/',
-          'https://mirrors.aliyun.com/mysql/Downloads/MySQL-8.0/'
-        ]
-      },
-      {
-        series: '5.7',
-        urls: [
-          'https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/',
-          'https://mirrors.aliyun.com/mysql/Downloads/MySQL-5.7/'
-        ]
-      }
-    ]
-
-    function buildMysqlVersion(version: string, series: string, mirrorBaseUrl: string, date = '') {
-      const filename = `mysql-${version}-winx64.zip`
-      return {
-        version,
-        date,
-        lts: false,
-        filename,
-        downloadUrls: {
-          official: `https://cdn.mysql.com/archives/mysql-${series}/${filename}`,
-          aliyun: `${mirrorBaseUrl}${filename}`,
-          huawei: `${mirrorBaseUrl}${filename}`,
-          tencent: `${mirrorBaseUrl}${filename}`
-        }
-      }
-    }
-
-    const allVersions = new Map<string, ReturnType<typeof buildMysqlVersion>>()
-    for (const source of seriesSources) {
-      for (const url of source.urls) {
-        try {
-          log.info(`[mysql versions] 尝试: ${url}`)
-          const res = await axios.get<string>(url, { timeout: 6000 })
-          const html = res.data
-          const regex = new RegExp(`mysql-(${source.series.replace('.', '\\.')}\\.\\d+)-winx64\\.zip[\\s\\S]{0,160}?(\\d{4}-\\d{2}-\\d{2}|\\d{2}-[A-Za-z]{3}-\\d{4})?`, 'g')
-          let m: RegExpExecArray | null
-          while ((m = regex.exec(html)) !== null) {
-            allVersions.set(m[1], buildMysqlVersion(m[1], source.series, url, m[2] ?? ''))
-          }
-          log.info(`[mysql versions] ${source.series} 来源 ${url} 解析到 ${allVersions.size} 个累计版本`)
-          break
-        } catch (e: any) {
-          log.warn(`[mysql versions] ${source.series} 失败: ${url} — ${e.message}`)
-        }
-      }
-    }
-
-    const sorted = [...allVersions.values()].sort((a, b) => {
-      const pa = a.version.split('.').map(Number)
-      const pb = b.version.split('.').map(Number)
-      for (let i = 0; i < 3; i++) {
-        if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0)
-      }
-      return 0
-    })
-    if (sorted.length) {
-      log.info(`[mysql versions] 成功，共 ${sorted.length} 个版本`)
-      return sorted.slice(0, 40)
-    }
-
-    return [
-      buildMysqlVersion('8.0.27', '8.0', 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-8.0/'),
-      buildMysqlVersion('5.7.38', '5.7', 'https://repo.huaweicloud.com/mysql/Downloads/MySQL-5.7/')
-    ]
   })
 
   ipcMain.handle('nodejs:fetchVersions', async () => {

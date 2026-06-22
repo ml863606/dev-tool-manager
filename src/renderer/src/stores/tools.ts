@@ -54,9 +54,10 @@ export const useToolsStore = defineStore('tools', () => {
     dynamicUrls?: Record<string, string>,
     dynamicFilename?: string,
     downloadOnly?: boolean,
-    installDir?: string
+    installDir?: string,
+    forceDownload?: boolean
   ) {
-    const taskId = await window.api.download.start({ toolId, version, dynamicUrls, dynamicFilename, downloadOnly, installDir } as any)
+    const taskId = await window.api.download.start({ toolId, version, dynamicUrls, dynamicFilename, downloadOnly, installDir, forceDownload } as any)
     return taskId
   }
 

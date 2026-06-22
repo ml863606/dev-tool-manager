@@ -45172,12 +45172,12 @@ const darkTheme = {
   FloatButtonGroup: floatButtonGroupDark,
   Marquee: marqueeDark
 };
-const _hoisted_1$9 = {
+const _hoisted_1$b = {
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink",
   viewBox: "0 0 512 512"
 };
-const _hoisted_2$9 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_2$b = /* @__PURE__ */ createBaseVNode(
   "path",
   {
     d: "M320 336h76c55 0 100-21.21 100-75.6s-53-73.47-96-75.6C391.11 99.74 329 48 256 48c-69 0-113.44 45.79-128 91.2c-60 5.7-112 35.88-112 98.4S70 336 136 336h56",
@@ -45191,7 +45191,7 @@ const _hoisted_2$9 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_3$9 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_3$b = /* @__PURE__ */ createBaseVNode(
   "path",
   {
     fill: "none",
@@ -45205,7 +45205,7 @@ const _hoisted_3$9 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_4$8 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_4$a = /* @__PURE__ */ createBaseVNode(
   "path",
   {
     fill: "none",
@@ -45219,19 +45219,19 @@ const _hoisted_4$8 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_5$8 = [_hoisted_2$9, _hoisted_3$9, _hoisted_4$8];
+const _hoisted_5$a = [_hoisted_2$b, _hoisted_3$b, _hoisted_4$a];
 const CloudDownloadOutline = /* @__PURE__ */ defineComponent({
   name: "CloudDownloadOutline",
   render: function render2(_ctx, _cache) {
-    return openBlock(), createElementBlock("svg", _hoisted_1$9, _hoisted_5$8);
+    return openBlock(), createElementBlock("svg", _hoisted_1$b, _hoisted_5$a);
   }
 });
-const _hoisted_1$8 = {
+const _hoisted_1$a = {
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink",
   viewBox: "0 0 512 512"
 };
-const _hoisted_2$8 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_2$a = /* @__PURE__ */ createBaseVNode(
   "rect",
   {
     x: "48",
@@ -45250,7 +45250,7 @@ const _hoisted_2$8 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_3$8 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_3$a = /* @__PURE__ */ createBaseVNode(
   "rect",
   {
     x: "288",
@@ -45269,7 +45269,7 @@ const _hoisted_3$8 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_4$7 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_4$9 = /* @__PURE__ */ createBaseVNode(
   "rect",
   {
     x: "48",
@@ -45288,7 +45288,7 @@ const _hoisted_4$7 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_5$7 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_5$9 = /* @__PURE__ */ createBaseVNode(
   "rect",
   {
     x: "288",
@@ -45307,19 +45307,19 @@ const _hoisted_5$7 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_6$5 = [_hoisted_2$8, _hoisted_3$8, _hoisted_4$7, _hoisted_5$7];
+const _hoisted_6$7 = [_hoisted_2$a, _hoisted_3$a, _hoisted_4$9, _hoisted_5$9];
 const GridOutline = /* @__PURE__ */ defineComponent({
   name: "GridOutline",
   render: function render3(_ctx, _cache) {
-    return openBlock(), createElementBlock("svg", _hoisted_1$8, _hoisted_6$5);
+    return openBlock(), createElementBlock("svg", _hoisted_1$a, _hoisted_6$7);
   }
 });
-const _hoisted_1$7 = {
+const _hoisted_1$9 = {
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink",
   viewBox: "0 0 512 512"
 };
-const _hoisted_2$7 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_2$9 = /* @__PURE__ */ createBaseVNode(
   "path",
   {
     d: "M262.29 192.31a64 64 0 1 0 57.4 57.4a64.13 64.13 0 0 0-57.4-57.4zM416.39 256a154.34 154.34 0 0 1-1.53 20.79l45.21 35.46a10.81 10.81 0 0 1 2.45 13.75l-42.77 74a10.81 10.81 0 0 1-13.14 4.59l-44.9-18.08a16.11 16.11 0 0 0-15.17 1.75A164.48 164.48 0 0 1 325 400.8a15.94 15.94 0 0 0-8.82 12.14l-6.73 47.89a11.08 11.08 0 0 1-10.68 9.17h-85.54a11.11 11.11 0 0 1-10.69-8.87l-6.72-47.82a16.07 16.07 0 0 0-9-12.22a155.3 155.3 0 0 1-21.46-12.57a16 16 0 0 0-15.11-1.71l-44.89 18.07a10.81 10.81 0 0 1-13.14-4.58l-42.77-74a10.8 10.8 0 0 1 2.45-13.75l38.21-30a16.05 16.05 0 0 0 6-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16 16 0 0 0-6.07-13.94l-38.19-30A10.81 10.81 0 0 1 49.48 186l42.77-74a10.81 10.81 0 0 1 13.14-4.59l44.9 18.08a16.11 16.11 0 0 0 15.17-1.75A164.48 164.48 0 0 1 187 111.2a15.94 15.94 0 0 0 8.82-12.14l6.73-47.89A11.08 11.08 0 0 1 213.23 42h85.54a11.11 11.11 0 0 1 10.69 8.87l6.72 47.82a16.07 16.07 0 0 0 9 12.22a155.3 155.3 0 0 1 21.46 12.57a16 16 0 0 0 15.11 1.71l44.89-18.07a10.81 10.81 0 0 1 13.14 4.58l42.77 74a10.8 10.8 0 0 1-2.45 13.75l-38.21 30a16.05 16.05 0 0 0-6.05 14.08c.33 4.14.55 8.3.55 12.47z",
@@ -45333,19 +45333,19 @@ const _hoisted_2$7 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_3$7 = [_hoisted_2$7];
+const _hoisted_3$9 = [_hoisted_2$9];
 const SettingsOutline = /* @__PURE__ */ defineComponent({
   name: "SettingsOutline",
   render: function render4(_ctx, _cache) {
-    return openBlock(), createElementBlock("svg", _hoisted_1$7, _hoisted_3$7);
+    return openBlock(), createElementBlock("svg", _hoisted_1$9, _hoisted_3$9);
   }
 });
-const _hoisted_1$6 = {
+const _hoisted_1$8 = {
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink",
   viewBox: "0 0 512 512"
 };
-const _hoisted_2$6 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_2$8 = /* @__PURE__ */ createBaseVNode(
   "rect",
   {
     x: "32",
@@ -45363,7 +45363,7 @@ const _hoisted_2$6 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_3$6 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_3$8 = /* @__PURE__ */ createBaseVNode(
   "path",
   {
     fill: "none",
@@ -45377,7 +45377,7 @@ const _hoisted_3$6 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_4$6 = /* @__PURE__ */ createBaseVNode(
+const _hoisted_4$8 = /* @__PURE__ */ createBaseVNode(
   "path",
   {
     fill: "none",
@@ -45391,11 +45391,11 @@ const _hoisted_4$6 = /* @__PURE__ */ createBaseVNode(
   -1
   /* HOISTED */
 );
-const _hoisted_5$6 = [_hoisted_2$6, _hoisted_3$6, _hoisted_4$6];
+const _hoisted_5$8 = [_hoisted_2$8, _hoisted_3$8, _hoisted_4$8];
 const TerminalOutline = /* @__PURE__ */ defineComponent({
   name: "TerminalOutline",
   render: function render5(_ctx, _cache) {
-    return openBlock(), createElementBlock("svg", _hoisted_1$6, _hoisted_5$6);
+    return openBlock(), createElementBlock("svg", _hoisted_1$8, _hoisted_5$8);
   }
 });
 const useToolsStore = /* @__PURE__ */ defineStore("tools", () => {
@@ -45435,8 +45435,8 @@ const useToolsStore = /* @__PURE__ */ defineStore("tools", () => {
   async function detectMirror() {
     bestMirror.value = await window.api.network.detect();
   }
-  async function startDownload(toolId, version2, dynamicUrls, dynamicFilename, downloadOnly, installDir) {
-    const taskId = await window.api.download.start({ toolId, version: version2, dynamicUrls, dynamicFilename, downloadOnly, installDir });
+  async function startDownload(toolId, version2, dynamicUrls, dynamicFilename, downloadOnly, installDir, forceDownload) {
+    const taskId = await window.api.download.start({ toolId, version: version2, dynamicUrls, dynamicFilename, downloadOnly, installDir, forceDownload });
     return taskId;
   }
   function updateTask(task) {
@@ -45490,12 +45490,12 @@ const useToolsStore = /* @__PURE__ */ defineStore("tools", () => {
     setupListeners
   };
 });
-const _hoisted_1$5 = { class: "app-shell" };
-const _hoisted_2$5 = { class: "sidebar" };
-const _hoisted_3$5 = { class: "nav" };
-const _hoisted_4$5 = { class: "mirror-status" };
-const _hoisted_5$5 = { class: "main-content" };
-const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+const _hoisted_1$7 = { class: "app-shell" };
+const _hoisted_2$7 = { class: "sidebar" };
+const _hoisted_3$7 = { class: "nav" };
+const _hoisted_4$7 = { class: "mirror-status" };
+const _hoisted_5$7 = { class: "main-content" };
+const _sfc_main$7 = /* @__PURE__ */ defineComponent({
   __name: "App",
   setup(__props) {
     const themeOverrides = {
@@ -45541,13 +45541,13 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
           createVNode(unref(NMessageProvider), null, {
             default: withCtx(() => [
               _cache[5] || (_cache[5] = createBaseVNode("div", { class: "titlebar-drag" }, null, -1)),
-              createBaseVNode("div", _hoisted_1$5, [
-                createBaseVNode("aside", _hoisted_2$5, [
+              createBaseVNode("div", _hoisted_1$7, [
+                createBaseVNode("aside", _hoisted_2$7, [
                   _cache[4] || (_cache[4] = createBaseVNode("div", { class: "logo" }, [
                     createBaseVNode("span", { class: "logo-icon" }, "⚙"),
                     createBaseVNode("span", { class: "logo-text" }, "DevTools")
                   ], -1)),
-                  createBaseVNode("nav", _hoisted_3$5, [
+                  createBaseVNode("nav", _hoisted_3$7, [
                     createVNode(_component_router_link, {
                       to: "/",
                       class: "nav-item",
@@ -45610,14 +45610,14 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
                       _: 1
                     })
                   ]),
-                  createBaseVNode("div", _hoisted_4$5, [
+                  createBaseVNode("div", _hoisted_4$7, [
                     createBaseVNode("div", {
                       class: normalizeClass(["mirror-dot", mirrorClass.value])
                     }, null, 2),
                     createBaseVNode("span", null, toDisplayString(mirrorLabel.value), 1)
                   ])
                 ]),
-                createBaseVNode("main", _hoisted_5$5, [
+                createBaseVNode("main", _hoisted_5$7, [
                   createVNode(_component_router_view)
                 ])
               ])
@@ -45640,6 +45640,761 @@ const __vite_glob_0_6 = "data:image/svg+xml,%3csvg%20fill='%23412991'%20role='im
 const __vite_glob_0_7 = "data:image/svg+xml,%3csvg%20fill='%233776AB'%20role='img'%20viewBox='0%200%2024%2024'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3ePython%3c/title%3e%3cpath%20d='M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02%201.27.05zm-6.3%201.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09%203.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14%201.04.05%201.23-.06%201.23-.16%201.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01%202.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47%2014.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z'/%3e%3c/svg%3e";
 const __vite_glob_0_8 = "data:image/svg+xml,%3csvg%20fill='%23FF4438'%20role='img'%20viewBox='0%200%2024%2024'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eRedis%3c/title%3e%3cpath%20d='M22.71%2013.145c-1.66%202.092-3.452%204.483-7.038%204.483-3.203%200-4.397-2.825-4.48-5.12.701%201.484%202.073%202.685%204.214%202.63%204.117-.133%206.94-3.852%206.94-7.239%200-4.05-3.022-6.972-8.268-6.972-3.752%200-8.4%201.428-11.455%203.685C2.59%206.937%203.885%209.958%204.35%209.626c2.648-1.904%204.748-3.13%206.784-3.744C8.12%209.244.886%2017.05%200%2018.425c.1%201.261%201.66%204.648%202.424%204.648.232%200%20.431-.133.664-.365a100.49%20100.49%200%200%200%205.54-6.765c.222%203.104%201.748%206.898%206.014%206.898%203.819%200%207.604-2.756%209.33-8.965.2-.764-.73-1.361-1.261-.73zm-4.349-5.013c0%201.959-1.926%202.922-3.685%202.922-.941%200-1.664-.247-2.235-.568%201.051-1.592%202.092-3.225%203.21-4.973%201.972.334%202.71%201.43%202.71%202.619z'/%3e%3c/svg%3e";
 const __vite_glob_0_9 = "data:image/svg+xml,%3csvg%20fill='%23007ACC'%20role='img'%20viewBox='0%200%2024%2024'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eVisual%20Studio%20Code%3c/title%3e%3cpath%20d='M23.15%202.587L18.21.21a1.494%201.494%200%200%200-1.705.29l-9.46%208.63-4.12-3.128a.999.999%200%200%200-1.276.057L.327%207.261A1%201%200%200%200%20.326%208.74L3.899%2012%20.326%2015.26a1%201%200%200%200%20.001%201.479L1.65%2017.94a.999.999%200%200%200%201.276.057l4.12-3.128%209.46%208.63a1.492%201.492%200%200%200%201.704.29l4.942-2.377A1.5%201.5%200%200%200%2024%2020.06V3.939a1.5%201.5%200%200%200-.85-1.352zm-5.146%2014.861L10.826%2012l7.178-5.448v10.896z'/%3e%3c/svg%3e";
+const _hoisted_1$6 = {
+  key: 0,
+  class: "wizard-pane"
+};
+const _hoisted_2$6 = { class: "readonly-path" };
+const _hoisted_3$6 = { class: "dir-row" };
+const _hoisted_4$6 = {
+  key: 1,
+  class: "wizard-pane form-grid"
+};
+const _hoisted_5$6 = {
+  key: 2,
+  class: "wizard-pane"
+};
+const _hoisted_6$6 = {
+  key: 3,
+  class: "wizard-pane"
+};
+const _hoisted_7$6 = { class: "ready-box" };
+const _hoisted_8$6 = { class: "summary-row summary-row--plain" };
+const _hoisted_9$6 = { class: "summary-value summary-path" };
+const _hoisted_10$6 = { class: "summary-row" };
+const _hoisted_11$6 = { class: "summary-value summary-path" };
+const _hoisted_12$5 = { class: "summary-grid" };
+const _hoisted_13$5 = { class: "wizard-footer" };
+const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+  __name: "MysqlInstallWizard",
+  props: {
+    show: { type: Boolean },
+    version: {},
+    packagePath: {},
+    installBaseDir: {}
+  },
+  emits: ["update:show", "installed"],
+  setup(__props, { emit: __emit }) {
+    const props = __props;
+    const emit2 = __emit;
+    const step = /* @__PURE__ */ ref(1);
+    const installing = /* @__PURE__ */ ref(false);
+    const form = /* @__PURE__ */ ref({
+      installDir: "C:\\DevTools\\mysql",
+      serviceName: "MySQL",
+      host: "127.0.0.1",
+      port: 3306,
+      password: "123456"
+    });
+    const myIniPreview = /* @__PURE__ */ ref("");
+    const portChecking = /* @__PURE__ */ ref(false);
+    const portStatus = /* @__PURE__ */ ref(null);
+    let portCheckTimer = null;
+    const visible = computed({
+      get: () => props.show,
+      set: (value) => emit2("update:show", value)
+    });
+    watch(
+      () => props.show,
+      (show) => {
+        if (!show) return;
+        openWizard();
+      }
+    );
+    watch(
+      form,
+      () => {
+        myIniPreview.value = buildMysqlIni();
+      },
+      { deep: true }
+    );
+    watch(
+      () => form.value.port,
+      () => {
+        schedulePortCheck();
+      }
+    );
+    function installBaseDir() {
+      return (props.installBaseDir || "C:\\DevTools").replace(/\\+$/, "");
+    }
+    function normalizeIniPath(path) {
+      return path.replace(/\\/g, "/");
+    }
+    function buildMysqlIni() {
+      const installDir = normalizeIniPath(form.value.installDir);
+      return `[mysqld]
+basedir=${installDir}
+datadir=${installDir}/data
+port=${form.value.port || 3306}
+bind-address=${form.value.host || "127.0.0.1"}
+character-set-server=utf8mb4
+default-storage-engine=INNODB
+default-time-zone='+08:00'
+max_allowed_packet=999M
+sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+
+[client]
+port=${form.value.port || 3306}
+default-character-set=utf8mb4
+
+[mysql]
+default-character-set=utf8mb4
+`;
+    }
+    function openWizard() {
+      step.value = 1;
+      form.value = {
+        installDir: `${installBaseDir()}\\mysql-${props.version}`,
+        serviceName: "MySQL",
+        host: "127.0.0.1",
+        port: 3306,
+        password: "123456"
+      };
+      myIniPreview.value = buildMysqlIni();
+      portStatus.value = null;
+      void checkLocalPort();
+    }
+    function close() {
+      if (installing.value) return;
+      visible.value = false;
+    }
+    async function selectInstallDir() {
+      const selected = await window.api.dialog.selectDir(form.value.installDir);
+      if (selected) form.value.installDir = selected;
+    }
+    async function openPackageDir() {
+      if (!props.packagePath) return;
+      await window.api.download.openDirOfFile(props.packagePath);
+    }
+    function schedulePortCheck() {
+      if (portCheckTimer) clearTimeout(portCheckTimer);
+      portCheckTimer = setTimeout(() => {
+        void checkLocalPort();
+      }, 350);
+    }
+    async function checkLocalPort() {
+      const port = Number(form.value.port);
+      if (!Number.isInteger(port) || port < 1 || port > 65535) {
+        portStatus.value = { available: false, port, state: "invalid" };
+        return;
+      }
+      portChecking.value = true;
+      try {
+        portStatus.value = await window.api.network.checkPort(port);
+      } finally {
+        portChecking.value = false;
+      }
+    }
+    const portStatusLabel = computed(() => {
+      if (portChecking.value) return "正在检测端口...";
+      if (!portStatus.value) return "端口待检测";
+      if (portStatus.value.available) return `端口 ${portStatus.value.port} 可用`;
+      if (portStatus.value.state === "invalid") return "端口无效";
+      const owner = portStatus.value.processName ? `${portStatus.value.processName}${portStatus.value.pid ? ` (PID ${portStatus.value.pid})` : ""}` : portStatus.value.pid ? `PID ${portStatus.value.pid}` : "未知进程";
+      return `端口 ${portStatus.value.port} 已被占用：${owner}${portStatus.value.state ? ` · ${portStatus.value.state}` : ""}`;
+    });
+    const canAdvance = computed(() => {
+      if (step.value === 1) return !!props.packagePath && !!form.value.installDir;
+      if (step.value === 2) return !!form.value.serviceName && !!form.value.host && !!form.value.port && !!form.value.password && !!portStatus.value?.available;
+      if (step.value === 3) return !!myIniPreview.value.trim();
+      return true;
+    });
+    const canStartInstall = computed(() => canAdvance.value && !!props.packagePath && !!myIniPreview.value.trim());
+    async function startInstall() {
+      if (!props.packagePath || installing.value) return;
+      installing.value = true;
+      try {
+        const taskId = await window.api.mysql.installLocal({
+          version: props.version,
+          filePath: props.packagePath,
+          installDir: form.value.installDir,
+          serviceName: form.value.serviceName,
+          host: form.value.host,
+          port: Number(form.value.port || 3306),
+          password: form.value.password,
+          myIni: myIniPreview.value
+        });
+        window.api.log("info", `[MysqlInstallWizard] local install taskId=${taskId}`);
+        visible.value = false;
+        emit2("installed");
+      } catch (err) {
+        window.api.log("error", `[MysqlInstallWizard] local install ERROR: ${err?.message ?? err}`);
+      } finally {
+        installing.value = false;
+      }
+    }
+    return (_ctx, _cache) => {
+      return openBlock(), createBlock(unref(NModal), {
+        show: visible.value,
+        "onUpdate:show": _cache[8] || (_cache[8] = ($event) => visible.value = $event),
+        preset: "card",
+        title: "MySQL 本地安装",
+        style: { "width": "820px" },
+        "mask-closable": false
+      }, {
+        footer: withCtx(() => [
+          createBaseVNode("div", _hoisted_13$5, [
+            createVNode(unref(Button), {
+              disabled: installing.value,
+              onClick: close
+            }, {
+              default: withCtx(() => [..._cache[26] || (_cache[26] = [
+                createTextVNode("取消", -1)
+              ])]),
+              _: 1
+            }, 8, ["disabled"]),
+            step.value > 1 ? (openBlock(), createBlock(unref(Button), {
+              key: 0,
+              disabled: installing.value,
+              onClick: _cache[6] || (_cache[6] = ($event) => step.value--)
+            }, {
+              default: withCtx(() => [..._cache[27] || (_cache[27] = [
+                createTextVNode("上一步", -1)
+              ])]),
+              _: 1
+            }, 8, ["disabled"])) : createCommentVNode("", true),
+            step.value < 4 ? (openBlock(), createBlock(unref(Button), {
+              key: 1,
+              type: "primary",
+              disabled: !canAdvance.value,
+              onClick: _cache[7] || (_cache[7] = ($event) => step.value++)
+            }, {
+              default: withCtx(() => [..._cache[28] || (_cache[28] = [
+                createTextVNode("下一步", -1)
+              ])]),
+              _: 1
+            }, 8, ["disabled"])) : (openBlock(), createBlock(unref(Button), {
+              key: 2,
+              type: "primary",
+              loading: installing.value,
+              disabled: !canStartInstall.value,
+              onClick: startInstall
+            }, {
+              default: withCtx(() => [..._cache[29] || (_cache[29] = [
+                createTextVNode(" 开始安装 ", -1)
+              ])]),
+              _: 1
+            }, 8, ["loading", "disabled"]))
+          ])
+        ]),
+        default: withCtx(() => [
+          createVNode(unref(NSteps), {
+            current: step.value,
+            size: "small",
+            style: { "margin-bottom": "18px" }
+          }, {
+            default: withCtx(() => [
+              createVNode(unref(NStep), { title: "解压位置" }),
+              createVNode(unref(NStep), { title: "服务配置" }),
+              createVNode(unref(NStep), { title: "预览配置" }),
+              createVNode(unref(NStep), { title: "开始安装" })
+            ]),
+            _: 1
+          }, 8, ["current"]),
+          step.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_1$6, [
+            _cache[10] || (_cache[10] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+            createBaseVNode("div", _hoisted_2$6, toDisplayString(__props.packagePath), 1),
+            _cache[11] || (_cache[11] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
+            createBaseVNode("div", _hoisted_3$6, [
+              createVNode(unref(NInput), {
+                value: form.value.installDir,
+                "onUpdate:value": _cache[0] || (_cache[0] = ($event) => form.value.installDir = $event)
+              }, null, 8, ["value"]),
+              createVNode(unref(Button), { onClick: selectInstallDir }, {
+                default: withCtx(() => [..._cache[9] || (_cache[9] = [
+                  createTextVNode("选择", -1)
+                ])]),
+                _: 1
+              })
+            ])
+          ])) : step.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_4$6, [
+            createBaseVNode("div", null, [
+              _cache[12] || (_cache[12] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
+              createVNode(unref(NInput), {
+                value: form.value.serviceName,
+                "onUpdate:value": _cache[1] || (_cache[1] = ($event) => form.value.serviceName = $event)
+              }, null, 8, ["value"])
+            ]),
+            createBaseVNode("div", null, [
+              _cache[13] || (_cache[13] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
+              createVNode(unref(NInput), {
+                value: form.value.host,
+                "onUpdate:value": _cache[2] || (_cache[2] = ($event) => form.value.host = $event)
+              }, null, 8, ["value"])
+            ]),
+            createBaseVNode("div", null, [
+              _cache[14] || (_cache[14] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
+              createVNode(unref(NInputNumber), {
+                value: form.value.port,
+                "onUpdate:value": _cache[3] || (_cache[3] = ($event) => form.value.port = $event),
+                min: 1,
+                max: 65535,
+                style: { "width": "100%" }
+              }, null, 8, ["value"]),
+              createBaseVNode("div", {
+                class: normalizeClass(["port-status", { "port-status--bad": portStatus.value && !portStatus.value.available }])
+              }, toDisplayString(portStatusLabel.value), 3)
+            ]),
+            createBaseVNode("div", null, [
+              _cache[15] || (_cache[15] = createBaseVNode("div", { class: "field-label" }, "root 密码", -1)),
+              createVNode(unref(NInput), {
+                value: form.value.password,
+                "onUpdate:value": _cache[4] || (_cache[4] = ($event) => form.value.password = $event)
+              }, null, 8, ["value"])
+            ])
+          ])) : step.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_5$6, [
+            _cache[16] || (_cache[16] = createBaseVNode("div", { class: "field-label" }, "my.ini", -1)),
+            createVNode(unref(NInput), {
+              value: myIniPreview.value,
+              "onUpdate:value": _cache[5] || (_cache[5] = ($event) => myIniPreview.value = $event),
+              type: "textarea",
+              autosize: { minRows: 18, maxRows: 24 }
+            }, null, 8, ["value"])
+          ])) : (openBlock(), createElementBlock("div", _hoisted_6$6, [
+            createBaseVNode("div", _hoisted_7$6, [
+              createBaseVNode("div", _hoisted_8$6, [
+                _cache[18] || (_cache[18] = createBaseVNode("span", { class: "summary-label" }, "本地安装包", -1)),
+                createBaseVNode("span", _hoisted_9$6, toDisplayString(__props.packagePath), 1),
+                createVNode(unref(Button), {
+                  size: "tiny",
+                  tertiary: "",
+                  onClick: openPackageDir
+                }, {
+                  default: withCtx(() => [..._cache[17] || (_cache[17] = [
+                    createTextVNode("打开目录", -1)
+                  ])]),
+                  _: 1
+                })
+              ]),
+              createBaseVNode("div", _hoisted_10$6, [
+                _cache[19] || (_cache[19] = createBaseVNode("span", { class: "summary-label" }, "安装位置", -1)),
+                createBaseVNode("span", _hoisted_11$6, toDisplayString(form.value.installDir), 1)
+              ]),
+              createBaseVNode("div", _hoisted_12$5, [
+                createBaseVNode("div", null, [
+                  _cache[20] || (_cache[20] = createBaseVNode("span", null, "服务名", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.serviceName), 1)
+                ]),
+                createBaseVNode("div", null, [
+                  _cache[21] || (_cache[21] = createBaseVNode("span", null, "IP", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.host), 1)
+                ]),
+                createBaseVNode("div", null, [
+                  _cache[22] || (_cache[22] = createBaseVNode("span", null, "端口", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.port), 1)
+                ]),
+                _cache[24] || (_cache[24] = createBaseVNode("div", null, [
+                  createBaseVNode("span", null, "用户名"),
+                  createBaseVNode("strong", null, "root")
+                ], -1)),
+                createBaseVNode("div", null, [
+                  _cache[23] || (_cache[23] = createBaseVNode("span", null, "密码", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.password || "空"), 1)
+                ])
+              ]),
+              _cache[25] || (_cache[25] = createBaseVNode("div", null, "确认后会解压、初始化数据目录、注册并启动 Windows 服务。", -1))
+            ])
+          ]))
+        ]),
+        _: 1
+      }, 8, ["show"]);
+    };
+  }
+});
+const _export_sfc = (sfc, props) => {
+  const target = sfc.__vccOpts || sfc;
+  for (const [key, val] of props) {
+    target[key] = val;
+  }
+  return target;
+};
+const MysqlInstallWizard = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-8d91d7ab"]]);
+const _hoisted_1$5 = {
+  key: 0,
+  class: "wizard-pane"
+};
+const _hoisted_2$5 = { class: "readonly-path" };
+const _hoisted_3$5 = { class: "dir-row" };
+const _hoisted_4$5 = {
+  key: 1,
+  class: "wizard-pane form-grid"
+};
+const _hoisted_5$5 = {
+  key: 2,
+  class: "wizard-pane"
+};
+const _hoisted_6$5 = {
+  key: 3,
+  class: "wizard-pane"
+};
+const _hoisted_7$5 = { class: "ready-box" };
+const _hoisted_8$5 = { class: "summary-row" };
+const _hoisted_9$5 = { class: "summary-value summary-path" };
+const _hoisted_10$5 = { class: "summary-row summary-row--plain" };
+const _hoisted_11$5 = { class: "summary-value summary-path" };
+const _hoisted_12$4 = { class: "summary-grid" };
+const _hoisted_13$4 = {
+  key: 0,
+  class: "install-message"
+};
+const _hoisted_14$4 = {
+  key: 1,
+  class: "install-message install-message--error"
+};
+const _hoisted_15$4 = { class: "wizard-footer" };
+const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+  __name: "RedisInstallWizard",
+  props: {
+    show: { type: Boolean },
+    version: {},
+    packagePath: {},
+    installBaseDir: {}
+  },
+  emits: ["update:show", "installed"],
+  setup(__props, { emit: __emit }) {
+    const props = __props;
+    const emit2 = __emit;
+    const step = /* @__PURE__ */ ref(1);
+    const installing = /* @__PURE__ */ ref(false);
+    const form = /* @__PURE__ */ ref({
+      installDir: "C:\\DevTools\\redis",
+      serviceName: "Redis",
+      host: "127.0.0.1",
+      port: 6379,
+      password: "123456"
+    });
+    const configPreview = /* @__PURE__ */ ref("");
+    const installMessage = /* @__PURE__ */ ref("");
+    const installError = /* @__PURE__ */ ref("");
+    const portChecking = /* @__PURE__ */ ref(false);
+    const portStatus = /* @__PURE__ */ ref(null);
+    let portCheckTimer = null;
+    const visible = computed({
+      get: () => props.show,
+      set: (value) => emit2("update:show", value)
+    });
+    watch(
+      () => props.show,
+      (show) => {
+        if (!show) return;
+        openWizard();
+      }
+    );
+    watch(
+      form,
+      () => {
+        configPreview.value = buildRedisConfig();
+      },
+      { deep: true }
+    );
+    watch(
+      () => form.value.port,
+      () => {
+        schedulePortCheck();
+      }
+    );
+    function installBaseDir() {
+      return (props.installBaseDir || "C:\\DevTools").replace(/\\+$/, "");
+    }
+    function normalizeIniPath(path) {
+      return path.replace(/\\/g, "/");
+    }
+    function buildRedisConfig() {
+      const installDir = normalizeIniPath(form.value.installDir);
+      const password = form.value.password ? `requirepass ${form.value.password}` : "";
+      return `bind ${form.value.host || "127.0.0.1"}
+port ${form.value.port || 6379}
+protected-mode yes
+daemonize no
+dir ${installDir}
+dbfilename dump.rdb
+appendonly yes
+appendfilename "appendonly.aof"
+logfile "${installDir}/redis.log"
+maxmemory-policy noeviction
+${password}
+`;
+    }
+    function openWizard() {
+      step.value = 1;
+      installMessage.value = "";
+      installError.value = "";
+      form.value = {
+        installDir: `${installBaseDir()}\\redis-${props.version}`,
+        serviceName: "Redis",
+        host: "127.0.0.1",
+        port: 6379,
+        password: "123456"
+      };
+      configPreview.value = buildRedisConfig();
+      portStatus.value = null;
+      void checkLocalPort();
+    }
+    function close() {
+      if (installing.value) return;
+      visible.value = false;
+    }
+    async function selectInstallDir() {
+      const selected = await window.api.dialog.selectDir(form.value.installDir);
+      if (selected) form.value.installDir = selected;
+    }
+    async function openPackageDir() {
+      if (!props.packagePath) return;
+      await window.api.download.openDirOfFile(props.packagePath);
+    }
+    function schedulePortCheck() {
+      if (portCheckTimer) clearTimeout(portCheckTimer);
+      portCheckTimer = setTimeout(() => {
+        void checkLocalPort();
+      }, 350);
+    }
+    async function checkLocalPort() {
+      const port = Number(form.value.port);
+      if (!Number.isInteger(port) || port < 1 || port > 65535) {
+        portStatus.value = { available: false, port, state: "invalid" };
+        return;
+      }
+      portChecking.value = true;
+      try {
+        portStatus.value = await window.api.network.checkPort(port);
+      } finally {
+        portChecking.value = false;
+      }
+    }
+    const portStatusLabel = computed(() => {
+      if (portChecking.value) return "正在检测端口...";
+      if (!portStatus.value) return "端口待检测";
+      if (portStatus.value.available) return `端口 ${portStatus.value.port} 可用`;
+      if (portStatus.value.state === "invalid") return "端口无效";
+      const owner = portStatus.value.processName ? `${portStatus.value.processName}${portStatus.value.pid ? ` (PID ${portStatus.value.pid})` : ""}` : portStatus.value.pid ? `PID ${portStatus.value.pid}` : "未知进程";
+      return `端口 ${portStatus.value.port} 已被占用：${owner}${portStatus.value.state ? ` · ${portStatus.value.state}` : ""}`;
+    });
+    const canAdvance = computed(() => {
+      if (step.value === 1) return !!props.packagePath && !!form.value.installDir;
+      if (step.value === 2) return !!form.value.serviceName && !!form.value.host && !!form.value.port && !!form.value.password && !!portStatus.value?.available;
+      if (step.value === 3) return !!configPreview.value.trim();
+      return true;
+    });
+    const canStartInstall = computed(() => canAdvance.value && !!props.packagePath && !!configPreview.value.trim());
+    async function startInstall() {
+      window.api.log("info", `[RedisInstallWizard] start clicked package=${props.packagePath ?? ""} installDir=${form.value.installDir}`);
+      if (installing.value) return;
+      if (!props.packagePath) {
+        installError.value = "未找到本地安装包，请先下载 Redis 安装包。";
+        return;
+      }
+      if (!configPreview.value.trim()) {
+        installError.value = "redis.conf 配置为空，请返回上一步检查配置。";
+        return;
+      }
+      installing.value = true;
+      installError.value = "";
+      installMessage.value = "正在提交 Redis 本地安装，请稍候...";
+      try {
+        const taskId = await window.api.redis.installLocal({
+          version: props.version,
+          filePath: props.packagePath,
+          installDir: form.value.installDir,
+          serviceName: form.value.serviceName,
+          host: form.value.host,
+          port: Number(form.value.port || 6379),
+          password: form.value.password,
+          configText: configPreview.value
+        });
+        window.api.log("info", `[RedisInstallWizard] local install taskId=${taskId}`);
+        installMessage.value = `安装任务已完成：${taskId}`;
+        visible.value = false;
+        emit2("installed");
+      } catch (err) {
+        const message = err?.message ?? String(err);
+        installError.value = `安装失败：${message}`;
+        installMessage.value = "";
+        window.api.log("error", `[RedisInstallWizard] local install ERROR: ${message}`);
+      } finally {
+        installing.value = false;
+      }
+    }
+    return (_ctx, _cache) => {
+      return openBlock(), createBlock(unref(NModal), {
+        show: visible.value,
+        "onUpdate:show": _cache[8] || (_cache[8] = ($event) => visible.value = $event),
+        preset: "card",
+        title: "Redis 本地安装",
+        style: { "width": "820px" },
+        "mask-closable": false
+      }, {
+        footer: withCtx(() => [
+          createBaseVNode("div", _hoisted_15$4, [
+            createVNode(unref(Button), {
+              disabled: installing.value,
+              onClick: close
+            }, {
+              default: withCtx(() => [..._cache[26] || (_cache[26] = [
+                createTextVNode("取消", -1)
+              ])]),
+              _: 1
+            }, 8, ["disabled"]),
+            step.value > 1 ? (openBlock(), createBlock(unref(Button), {
+              key: 0,
+              disabled: installing.value,
+              onClick: _cache[6] || (_cache[6] = ($event) => step.value--)
+            }, {
+              default: withCtx(() => [..._cache[27] || (_cache[27] = [
+                createTextVNode("上一步", -1)
+              ])]),
+              _: 1
+            }, 8, ["disabled"])) : createCommentVNode("", true),
+            step.value < 4 ? (openBlock(), createBlock(unref(Button), {
+              key: 1,
+              type: "primary",
+              disabled: !canAdvance.value,
+              onClick: _cache[7] || (_cache[7] = ($event) => step.value++)
+            }, {
+              default: withCtx(() => [..._cache[28] || (_cache[28] = [
+                createTextVNode("下一步", -1)
+              ])]),
+              _: 1
+            }, 8, ["disabled"])) : (openBlock(), createBlock(unref(Button), {
+              key: 2,
+              type: "primary",
+              loading: installing.value,
+              disabled: !canStartInstall.value,
+              onClick: startInstall
+            }, {
+              default: withCtx(() => [..._cache[29] || (_cache[29] = [
+                createTextVNode(" 开始安装 ", -1)
+              ])]),
+              _: 1
+            }, 8, ["loading", "disabled"]))
+          ])
+        ]),
+        default: withCtx(() => [
+          createVNode(unref(NSteps), {
+            current: step.value,
+            size: "small",
+            style: { "margin-bottom": "18px" }
+          }, {
+            default: withCtx(() => [
+              createVNode(unref(NStep), { title: "解压位置" }),
+              createVNode(unref(NStep), { title: "服务配置" }),
+              createVNode(unref(NStep), { title: "预览配置" }),
+              createVNode(unref(NStep), { title: "开始安装" })
+            ]),
+            _: 1
+          }, 8, ["current"]),
+          step.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_1$5, [
+            _cache[10] || (_cache[10] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+            createBaseVNode("div", _hoisted_2$5, toDisplayString(__props.packagePath), 1),
+            _cache[11] || (_cache[11] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
+            createBaseVNode("div", _hoisted_3$5, [
+              createVNode(unref(NInput), {
+                value: form.value.installDir,
+                "onUpdate:value": _cache[0] || (_cache[0] = ($event) => form.value.installDir = $event)
+              }, null, 8, ["value"]),
+              createVNode(unref(Button), { onClick: selectInstallDir }, {
+                default: withCtx(() => [..._cache[9] || (_cache[9] = [
+                  createTextVNode("选择", -1)
+                ])]),
+                _: 1
+              })
+            ])
+          ])) : step.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_4$5, [
+            createBaseVNode("div", null, [
+              _cache[12] || (_cache[12] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
+              createVNode(unref(NInput), {
+                value: form.value.serviceName,
+                "onUpdate:value": _cache[1] || (_cache[1] = ($event) => form.value.serviceName = $event)
+              }, null, 8, ["value"])
+            ]),
+            createBaseVNode("div", null, [
+              _cache[13] || (_cache[13] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
+              createVNode(unref(NInput), {
+                value: form.value.host,
+                "onUpdate:value": _cache[2] || (_cache[2] = ($event) => form.value.host = $event)
+              }, null, 8, ["value"])
+            ]),
+            createBaseVNode("div", null, [
+              _cache[14] || (_cache[14] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
+              createVNode(unref(NInputNumber), {
+                value: form.value.port,
+                "onUpdate:value": _cache[3] || (_cache[3] = ($event) => form.value.port = $event),
+                min: 1,
+                max: 65535,
+                style: { "width": "100%" }
+              }, null, 8, ["value"]),
+              createBaseVNode("div", {
+                class: normalizeClass(["port-status", { "port-status--bad": portStatus.value && !portStatus.value.available }])
+              }, toDisplayString(portStatusLabel.value), 3)
+            ]),
+            createBaseVNode("div", null, [
+              _cache[15] || (_cache[15] = createBaseVNode("div", { class: "field-label" }, "访问密码", -1)),
+              createVNode(unref(NInput), {
+                value: form.value.password,
+                "onUpdate:value": _cache[4] || (_cache[4] = ($event) => form.value.password = $event)
+              }, null, 8, ["value"])
+            ])
+          ])) : step.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_5$5, [
+            _cache[16] || (_cache[16] = createBaseVNode("div", { class: "field-label" }, "redis.conf", -1)),
+            createVNode(unref(NInput), {
+              value: configPreview.value,
+              "onUpdate:value": _cache[5] || (_cache[5] = ($event) => configPreview.value = $event),
+              type: "textarea",
+              autosize: { minRows: 18, maxRows: 24 }
+            }, null, 8, ["value"])
+          ])) : (openBlock(), createElementBlock("div", _hoisted_6$5, [
+            createBaseVNode("div", _hoisted_7$5, [
+              createBaseVNode("div", _hoisted_8$5, [
+                _cache[18] || (_cache[18] = createBaseVNode("span", { class: "summary-label" }, "本地安装包", -1)),
+                createBaseVNode("span", _hoisted_9$5, toDisplayString(__props.packagePath), 1),
+                createVNode(unref(Button), {
+                  size: "tiny",
+                  tertiary: "",
+                  onClick: openPackageDir
+                }, {
+                  default: withCtx(() => [..._cache[17] || (_cache[17] = [
+                    createTextVNode("打开目录", -1)
+                  ])]),
+                  _: 1
+                })
+              ]),
+              createBaseVNode("div", _hoisted_10$5, [
+                _cache[19] || (_cache[19] = createBaseVNode("span", { class: "summary-label" }, "安装位置", -1)),
+                createBaseVNode("span", _hoisted_11$5, toDisplayString(form.value.installDir), 1)
+              ]),
+              createBaseVNode("div", _hoisted_12$4, [
+                createBaseVNode("div", null, [
+                  _cache[20] || (_cache[20] = createBaseVNode("span", null, "服务名", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.serviceName), 1)
+                ]),
+                createBaseVNode("div", null, [
+                  _cache[21] || (_cache[21] = createBaseVNode("span", null, "IP", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.host), 1)
+                ]),
+                createBaseVNode("div", null, [
+                  _cache[22] || (_cache[22] = createBaseVNode("span", null, "端口", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.port), 1)
+                ]),
+                _cache[24] || (_cache[24] = createBaseVNode("div", null, [
+                  createBaseVNode("span", null, "用户名"),
+                  createBaseVNode("strong", null, "default")
+                ], -1)),
+                createBaseVNode("div", null, [
+                  _cache[23] || (_cache[23] = createBaseVNode("span", null, "密码", -1)),
+                  createBaseVNode("strong", null, toDisplayString(form.value.password || "空"), 1)
+                ])
+              ]),
+              _cache[25] || (_cache[25] = createBaseVNode("div", null, "确认后会解压、写入 redis.conf、注册并启动 Windows 服务。", -1))
+            ]),
+            installMessage.value ? (openBlock(), createElementBlock("div", _hoisted_13$4, toDisplayString(installMessage.value), 1)) : createCommentVNode("", true),
+            installError.value ? (openBlock(), createElementBlock("div", _hoisted_14$4, toDisplayString(installError.value), 1)) : createCommentVNode("", true)
+          ]))
+        ]),
+        _: 1
+      }, 8, ["show"]);
+    };
+  }
+});
+const RedisInstallWizard = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["__scopeId", "data-v-c83cd1bb"]]);
 const _hoisted_1$4 = { class: "card-header" };
 const _hoisted_2$4 = { class: "tool-icon" };
 const _hoisted_3$4 = ["src", "alt"];
@@ -45715,50 +46470,10 @@ const _hoisted_37 = {
 };
 const _hoisted_38 = { class: "ready-box" };
 const _hoisted_39 = { class: "wizard-footer" };
-const _hoisted_40 = {
-  key: 0,
-  class: "wizard-pane"
-};
+const _hoisted_40 = { class: "wizard-pane" };
 const _hoisted_41 = { class: "readonly-path" };
 const _hoisted_42 = { class: "dir-row" };
-const _hoisted_43 = {
-  key: 1,
-  class: "wizard-pane form-grid"
-};
-const _hoisted_44 = {
-  key: 2,
-  class: "wizard-pane"
-};
-const _hoisted_45 = {
-  key: 3,
-  class: "wizard-pane"
-};
-const _hoisted_46 = { class: "ready-box" };
-const _hoisted_47 = { class: "wizard-footer" };
-const _hoisted_48 = {
-  key: 0,
-  class: "wizard-pane"
-};
-const _hoisted_49 = { class: "readonly-path" };
-const _hoisted_50 = { class: "dir-row" };
-const _hoisted_51 = {
-  key: 1,
-  class: "wizard-pane form-grid"
-};
-const _hoisted_52 = {
-  key: 2,
-  class: "wizard-pane"
-};
-const _hoisted_53 = {
-  key: 3,
-  class: "wizard-pane"
-};
-const _hoisted_54 = { class: "ready-box" };
-const _hoisted_55 = { class: "wizard-footer" };
-const _hoisted_56 = { class: "wizard-pane" };
-const _hoisted_57 = { class: "readonly-path" };
-const _hoisted_58 = { class: "dir-row" };
-const _hoisted_59 = { class: "modal-actions" };
+const _hoisted_43 = { class: "modal-actions" };
 const _sfc_main$4 = /* @__PURE__ */ defineComponent({
   __name: "ToolCard",
   props: {
@@ -45796,35 +46511,12 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     });
     const mavenSettingsPreview = /* @__PURE__ */ ref("");
     const showMysqlWizard = /* @__PURE__ */ ref(false);
-    const mysqlStep = /* @__PURE__ */ ref(1);
-    const mysqlInstalling = /* @__PURE__ */ ref(false);
-    const mysqlForm = /* @__PURE__ */ ref({
-      installDir: "C:\\DevTools\\mysql",
-      serviceName: "MySQL",
-      host: "127.0.0.1",
-      port: 3306,
-      password: "123456"
-    });
-    const mysqlIniPreview = /* @__PURE__ */ ref("");
     const showRedisWizard = /* @__PURE__ */ ref(false);
-    const redisStep = /* @__PURE__ */ ref(1);
-    const redisInstalling = /* @__PURE__ */ ref(false);
-    const redisForm = /* @__PURE__ */ ref({
-      installDir: "C:\\DevTools\\redis",
-      serviceName: "Redis",
-      host: "127.0.0.1",
-      port: 6379,
-      password: "123456"
-    });
-    const redisConfigPreview = /* @__PURE__ */ ref("");
     const showGitConfirm = /* @__PURE__ */ ref(false);
     const gitInstalling = /* @__PURE__ */ ref(false);
     const gitForm = /* @__PURE__ */ ref({
       installDir: "C:\\DevTools\\git"
     });
-    const portChecking = /* @__PURE__ */ ref(false);
-    const portStatus = /* @__PURE__ */ ref(null);
-    let portCheckTimer = null;
     const DYNAMIC_TOOLS = ["nodejs", "maven", "jdk", "python", "mysql", "git", "codex", "claude-code"];
     const isDynamic = computed(() => DYNAMIC_TOOLS.includes(props.tool.id));
     const hasSpecialActions = computed(() => props.tool.id === "nodejs");
@@ -45833,6 +46525,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       return built?.filename ?? props.tool.versions?.find((v) => v.version === selectedVersion.value)?.filename ?? "";
     });
     const showLocalInstall = computed(() => ["maven", "mysql", "redis", "git"].includes(props.tool.id) && !!cachedPackage.value);
+    const canOpenCachedPackageDir = computed(() => ["mysql", "redis", "git"].includes(props.tool.id) && !!cachedPackage.value?.filePath);
     const mavenMirrorOptions = [
       { label: "华为云 Maven", value: "huawei", url: "https://repo.huaweicloud.com/repository/maven/" },
       { label: "腾讯云 Maven", value: "tencent", url: "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" },
@@ -45950,37 +46643,11 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       }
     );
     watch(
-      mysqlForm,
-      () => {
-        mysqlIniPreview.value = buildMysqlIni();
-      },
-      { deep: true }
-    );
-    watch(
-      redisForm,
-      () => {
-        redisConfigPreview.value = buildRedisConfig();
-      },
-      { deep: true }
-    );
-    watch(
       mavenForm,
       () => {
         mavenSettingsPreview.value = buildMavenSettings();
       },
       { deep: true }
-    );
-    watch(
-      () => mysqlForm.value.port,
-      () => {
-        schedulePortCheck();
-      }
-    );
-    watch(
-      () => redisForm.value.port,
-      () => {
-        schedulePortCheck();
-      }
     );
     async function handleJdkVendorChange(vendorId) {
       if (props.tool.id !== "jdk") return;
@@ -46019,7 +46686,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     );
     const isDownloading = computed(() => !!activeTask.value);
     function applyGithubProxyPreview(url) {
-      const prefix2 = (store.settings?.githubProxyPrefix || "https://gh.zwy.one").trim().replace(/\/+$/, "");
+      const prefix2 = (store.settings?.githubProxyPrefix || "https://cdn.akaere.online").trim().replace(/\/+$/, "");
       if (!prefix2 || !/^https?:\/\/github\.com\//i.test(url)) return url;
       return `${prefix2}/${url.replace(/^https?:\/\//i, "")}`;
     }
@@ -46069,8 +46736,9 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
           window.api.log("warn", `[ToolCard] no dynamic url resolved: tool=${props.tool.id} ver=${selectedVersion.value}`);
           return;
         }
-        window.api.log("info", `[ToolCard] startDownload isDynamic=${isDynamic.value} dynamicLen=${dynamicVersions.value.length} filename=${built?.filename} urls=${JSON.stringify(built?.urls)}`);
-        const taskId = await store.startDownload(props.tool.id, selectedVersion.value, built?.urls, built?.filename);
+        const forceDownload = showLocalInstall.value;
+        window.api.log("info", `[ToolCard] startDownload isDynamic=${isDynamic.value} dynamicLen=${dynamicVersions.value.length} filename=${built?.filename} force=${forceDownload} urls=${JSON.stringify(built?.urls)}`);
+        const taskId = await store.startDownload(props.tool.id, selectedVersion.value, built?.urls, built?.filename, false, void 0, forceDownload);
         window.api.log("info", `[ToolCard] startDownload OK taskId=${taskId}`);
       } catch (err) {
         window.api.log("error", `[ToolCard] startDownload ERROR: ${err?.message ?? err}`);
@@ -46121,47 +46789,8 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         settingNpmRegistry.value = false;
       }
     }
-    function normalizeIniPath(path) {
-      return path.replace(/\\/g, "/");
-    }
-    function buildMysqlIni() {
-      const installDir = normalizeIniPath(mysqlForm.value.installDir);
-      return `[mysqld]
-basedir=${installDir}
-datadir=${installDir}/data
-port=${mysqlForm.value.port || 3306}
-bind-address=${mysqlForm.value.host || "127.0.0.1"}
-character-set-server=utf8mb4
-default-storage-engine=INNODB
-default-time-zone='+08:00'
-max_allowed_packet=999M
-sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
-
-[client]
-port=${mysqlForm.value.port || 3306}
-default-character-set=utf8mb4
-
-[mysql]
-default-character-set=utf8mb4
-`;
-    }
-    function buildRedisConfig() {
-      const installDir = normalizeIniPath(redisForm.value.installDir);
-      const password = redisForm.value.password ? `requirepass ${redisForm.value.password}` : "";
-      return `bind ${redisForm.value.host || "127.0.0.1"}
-port ${redisForm.value.port || 6379}
-protected-mode yes
-daemonize no
-dir ${installDir}
-dbfilename dump.rdb
-appendonly yes
-appendfilename "appendonly.aof"
-logfile "${installDir}/redis.log"
-maxmemory-policy noeviction
-${password}
-`;
-    }
     function buildMavenSettings() {
+      const normalizeIniPath = (path) => path.replace(/\\/g, "/");
       const repositoryDir = normalizeIniPath(mavenForm.value.repositoryDir);
       const mirror = selectedMavenMirror.value;
       return `<?xml version="1.0" encoding="UTF-8"?>
@@ -46219,41 +46848,11 @@ ${password}
     }
     function openMysqlInstallWizard() {
       if (!cachedPackage.value) return;
-      mysqlStep.value = 1;
-      mysqlForm.value = {
-        installDir: `C:\\DevTools\\mysql-${selectedVersion.value}`,
-        serviceName: "MySQL",
-        host: "127.0.0.1",
-        port: 3306,
-        password: "123456"
-      };
-      mysqlIniPreview.value = buildMysqlIni();
-      portStatus.value = null;
-      void checkLocalPort();
       showMysqlWizard.value = true;
     }
     function openRedisInstallWizard() {
       if (!cachedPackage.value) return;
-      redisStep.value = 1;
-      redisForm.value = {
-        installDir: `C:\\DevTools\\redis-${selectedVersion.value}`,
-        serviceName: "Redis",
-        host: "127.0.0.1",
-        port: 6379,
-        password: "123456"
-      };
-      redisConfigPreview.value = buildRedisConfig();
-      portStatus.value = null;
-      void checkLocalPort();
       showRedisWizard.value = true;
-    }
-    function closeMysqlWizard() {
-      if (mysqlInstalling.value) return;
-      showMysqlWizard.value = false;
-    }
-    function closeRedisWizard() {
-      if (redisInstalling.value) return;
-      showRedisWizard.value = false;
     }
     function closeMavenWizard() {
       if (mavenInstalling.value) return;
@@ -46262,14 +46861,6 @@ ${password}
     function closeGitConfirm() {
       if (gitInstalling.value) return;
       showGitConfirm.value = false;
-    }
-    async function selectMysqlInstallDir() {
-      const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir);
-      if (selected) mysqlForm.value.installDir = selected;
-    }
-    async function selectRedisInstallDir() {
-      const selected = await window.api.dialog.selectDir(redisForm.value.installDir);
-      if (selected) redisForm.value.installDir = selected;
     }
     async function selectMavenInstallDir() {
       const selected = await window.api.dialog.selectDir(mavenForm.value.installDir);
@@ -46289,51 +46880,6 @@ ${password}
       window.api.log("info", `[ToolCard] open cached package directory: ${packagePath}`);
       await window.api.download.openDirOfFile(packagePath);
     }
-    function schedulePortCheck() {
-      if (portCheckTimer) clearTimeout(portCheckTimer);
-      portCheckTimer = setTimeout(() => {
-        void checkLocalPort();
-      }, 350);
-    }
-    function activeLocalPort() {
-      if (showRedisWizard.value) return Number(redisForm.value.port);
-      return Number(mysqlForm.value.port);
-    }
-    async function checkLocalPort() {
-      const port = activeLocalPort();
-      if (!Number.isInteger(port) || port < 1 || port > 65535) {
-        portStatus.value = { available: false, port, state: "invalid" };
-        return;
-      }
-      portChecking.value = true;
-      try {
-        portStatus.value = await window.api.network.checkPort(port);
-      } finally {
-        portChecking.value = false;
-      }
-    }
-    const portStatusLabel = computed(() => {
-      if (portChecking.value) return "正在检测端口...";
-      if (!portStatus.value) return "端口待检测";
-      if (portStatus.value.available) return `端口 ${portStatus.value.port} 可用`;
-      if (portStatus.value.state === "invalid") return "端口无效";
-      const owner = portStatus.value.processName ? `${portStatus.value.processName}${portStatus.value.pid ? ` (PID ${portStatus.value.pid})` : ""}` : portStatus.value.pid ? `PID ${portStatus.value.pid}` : "未知进程";
-      return `端口 ${portStatus.value.port} 已被占用：${owner}${portStatus.value.state ? ` · ${portStatus.value.state}` : ""}`;
-    });
-    const canAdvanceMysqlStep = computed(() => {
-      if (mysqlStep.value === 1) return !!cachedPackage.value?.filePath && !!mysqlForm.value.installDir;
-      if (mysqlStep.value === 2) return !!mysqlForm.value.serviceName && !!mysqlForm.value.host && !!mysqlForm.value.port && !!mysqlForm.value.password && !!portStatus.value?.available;
-      if (mysqlStep.value === 3) return !!mysqlIniPreview.value.trim();
-      return true;
-    });
-    const canStartMysqlInstall = computed(() => canAdvanceMysqlStep.value && !!cachedPackage.value?.filePath && !!mysqlIniPreview.value.trim());
-    const canAdvanceRedisStep = computed(() => {
-      if (redisStep.value === 1) return !!cachedPackage.value?.filePath && !!redisForm.value.installDir;
-      if (redisStep.value === 2) return !!redisForm.value.serviceName && !!redisForm.value.host && !!redisForm.value.port && !!redisForm.value.password && !!portStatus.value?.available;
-      if (redisStep.value === 3) return !!redisConfigPreview.value.trim();
-      return true;
-    });
-    const canStartRedisInstall = computed(() => canAdvanceRedisStep.value && !!cachedPackage.value?.filePath && !!redisConfigPreview.value.trim());
     const canAdvanceMavenStep = computed(() => {
       if (mavenStep.value === 1) return !!cachedPackage.value?.filePath && !!mavenForm.value.installDir;
       if (mavenStep.value === 2) return !!mavenForm.value.repositoryDir && !!selectedMavenMirror.value?.url;
@@ -46367,51 +46913,8 @@ ${password}
         mavenInstalling.value = false;
       }
     }
-    async function startMysqlLocalInstall() {
-      if (!cachedPackage.value || mysqlInstalling.value) return;
-      mysqlInstalling.value = true;
-      try {
-        const taskId = await window.api.mysql.installLocal({
-          version: selectedVersion.value,
-          filePath: cachedPackage.value.filePath,
-          installDir: mysqlForm.value.installDir,
-          serviceName: mysqlForm.value.serviceName,
-          host: mysqlForm.value.host,
-          port: Number(mysqlForm.value.port || 3306),
-          password: mysqlForm.value.password,
-          myIni: mysqlIniPreview.value
-        });
-        window.api.log("info", `[ToolCard] mysql local install taskId=${taskId}`);
-        showMysqlWizard.value = false;
-        await store.loadTools();
-      } catch (err) {
-        window.api.log("error", `[ToolCard] mysql local install ERROR: ${err?.message ?? err}`);
-      } finally {
-        mysqlInstalling.value = false;
-      }
-    }
-    async function startRedisLocalInstall() {
-      if (!cachedPackage.value || redisInstalling.value) return;
-      redisInstalling.value = true;
-      try {
-        const taskId = await window.api.redis.installLocal({
-          version: selectedVersion.value,
-          filePath: cachedPackage.value.filePath,
-          installDir: redisForm.value.installDir,
-          serviceName: redisForm.value.serviceName,
-          host: redisForm.value.host,
-          port: Number(redisForm.value.port || 6379),
-          password: redisForm.value.password,
-          configText: redisConfigPreview.value
-        });
-        window.api.log("info", `[ToolCard] redis local install taskId=${taskId}`);
-        showRedisWizard.value = false;
-        await store.loadTools();
-      } catch (err) {
-        window.api.log("error", `[ToolCard] redis local install ERROR: ${err?.message ?? err}`);
-      } finally {
-        redisInstalling.value = false;
-      }
+    async function handleLocalInstallFinished() {
+      await store.loadTools();
     }
     async function startGitLocalInstall() {
       if (!cachedPackage.value || gitInstalling.value || !gitForm.value.installDir) return;
@@ -46483,7 +46986,7 @@ ${password}
                 type: "success",
                 size: "small"
               }, {
-                default: withCtx(() => [..._cache[30] || (_cache[30] = [
+                default: withCtx(() => [..._cache[14] || (_cache[14] = [
                   createTextVNode("已安装", -1)
                 ])]),
                 _: 1
@@ -46492,7 +46995,7 @@ ${password}
                 type: "default",
                 size: "small"
               }, {
-                default: withCtx(() => [..._cache[31] || (_cache[31] = [
+                default: withCtx(() => [..._cache[15] || (_cache[15] = [
                   createTextVNode("未安装", -1)
                 ])]),
                 _: 1
@@ -46511,13 +47014,13 @@ ${password}
                   class: normalizeClass(["install-path", { "install-path--clickable": canOpenPath.value }]),
                   onClick: handleOpenDir
                 }, [
-                  _cache[32] || (_cache[32] = createBaseVNode("span", { class: "install-path-icon" }, "📁", -1)),
+                  _cache[16] || (_cache[16] = createBaseVNode("span", { class: "install-path-icon" }, "📁", -1)),
                   createBaseVNode("span", _hoisted_11$4, toDisplayString(pathLabel.value), 1)
                 ], 2)
               ]),
               default: withCtx(() => [
                 __props.tool.installed.installPath === "system" ? (openBlock(), createElementBlock("div", _hoisted_12$3, [
-                  _cache[33] || (_cache[33] = createBaseVNode("div", { class: "path-tooltip-title" }, "系统 PATH 检测结果", -1)),
+                  _cache[17] || (_cache[17] = createBaseVNode("div", { class: "path-tooltip-title" }, "系统 PATH 检测结果", -1)),
                   systemPaths.value.length ? (openBlock(), createElementBlock("div", _hoisted_13$3, [
                     (openBlock(true), createElementBlock(Fragment, null, renderList(systemPaths.value, (p2) => {
                       return openBlock(), createElementBlock("div", {
@@ -46529,8 +47032,8 @@ ${password}
                 ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                   canOpenPath.value ? (openBlock(), createElementBlock("span", _hoisted_15$3, [
                     createTextVNode(toDisplayString(__props.tool.installed.installPath), 1),
-                    _cache[34] || (_cache[34] = createBaseVNode("br", null, null, -1)),
-                    _cache[35] || (_cache[35] = createBaseVNode("span", { style: { "color": "#888", "font-size": "11px" } }, "点击在资源管理器中打开", -1))
+                    _cache[18] || (_cache[18] = createBaseVNode("br", null, null, -1)),
+                    _cache[19] || (_cache[19] = createBaseVNode("span", { style: { "color": "#888", "font-size": "11px" } }, "点击在资源管理器中打开", -1))
                   ])) : (openBlock(), createElementBlock("span", _hoisted_16$3, toDisplayString(pathTooltip.value), 1))
                 ], 64))
               ]),
@@ -46545,7 +47048,7 @@ ${password}
               disabled: npmRegistryLoading.value,
               onClick: openNpmRegistryModal
             }, {
-              default: withCtx(() => [..._cache[36] || (_cache[36] = [
+              default: withCtx(() => [..._cache[20] || (_cache[20] = [
                 createTextVNode(" 设置 npm 源 ", -1)
               ])]),
               _: 1
@@ -46605,7 +47108,7 @@ ${password}
               delay: 300
             }, {
               trigger: withCtx(() => [
-                props.tool.id === "git" ? (openBlock(), createElementBlock("div", _hoisted_20$2, [
+                canOpenCachedPackageDir.value ? (openBlock(), createElementBlock("div", _hoisted_20$2, [
                   createVNode(unref(Button), {
                     size: "small",
                     type: "primary",
@@ -46613,7 +47116,7 @@ ${password}
                     disabled: isDownloading.value,
                     onClick: openLocalInstallWizard
                   }, {
-                    default: withCtx(() => [..._cache[37] || (_cache[37] = [
+                    default: withCtx(() => [..._cache[21] || (_cache[21] = [
                       createTextVNode(" 本地安装 ", -1)
                     ])]),
                     _: 1
@@ -46623,7 +47126,7 @@ ${password}
                     type: "button",
                     title: cachedPackage.value?.filePath,
                     onClick: withModifiers(openCachedPackageDir, ["stop"])
-                  }, [..._cache[38] || (_cache[38] = [
+                  }, [..._cache[22] || (_cache[22] = [
                     createBaseVNode("span", { class: "cached-package-link__icon" }, "📦", -1),
                     createBaseVNode("span", null, "打开下载目录", -1)
                   ])], 8, _hoisted_21$1)
@@ -46635,7 +47138,7 @@ ${password}
                   disabled: isDownloading.value,
                   onClick: openLocalInstallWizard
                 }, {
-                  default: withCtx(() => [..._cache[39] || (_cache[39] = [
+                  default: withCtx(() => [..._cache[23] || (_cache[23] = [
                     createTextVNode(" 本地安装 ", -1)
                   ])]),
                   _: 1
@@ -46657,7 +47160,7 @@ ${password}
                   type: "primary",
                   size: "small",
                   loading: submitting.value || isDownloading.value,
-                  disabled: submitting.value || isDownloading.value || showLocalInstall.value,
+                  disabled: submitting.value || isDownloading.value,
                   onClick: handleInstall
                 }, {
                   default: withCtx(() => [
@@ -46719,7 +47222,7 @@ ${password}
         }, {
           default: withCtx(() => [
             createBaseVNode("div", _hoisted_27, [
-              _cache[40] || (_cache[40] = createBaseVNode("div", { class: "npm-registry-head" }, [
+              _cache[24] || (_cache[24] = createBaseVNode("div", { class: "npm-registry-head" }, [
                 createBaseVNode("span", null, "源名称"),
                 createBaseVNode("span", null, "URL"),
                 createBaseVNode("span", null, "可用性"),
@@ -46770,7 +47273,7 @@ ${password}
                 disabled: mavenInstalling.value,
                 onClick: closeMavenWizard
               }, {
-                default: withCtx(() => [..._cache[49] || (_cache[49] = [
+                default: withCtx(() => [..._cache[33] || (_cache[33] = [
                   createTextVNode("取消", -1)
                 ])]),
                 _: 1
@@ -46780,7 +47283,7 @@ ${password}
                 disabled: mavenInstalling.value,
                 onClick: _cache[7] || (_cache[7] = ($event) => mavenStep.value--)
               }, {
-                default: withCtx(() => [..._cache[50] || (_cache[50] = [
+                default: withCtx(() => [..._cache[34] || (_cache[34] = [
                   createTextVNode("上一步", -1)
                 ])]),
                 _: 1
@@ -46791,7 +47294,7 @@ ${password}
                 disabled: !canAdvanceMavenStep.value,
                 onClick: _cache[8] || (_cache[8] = ($event) => mavenStep.value++)
               }, {
-                default: withCtx(() => [..._cache[51] || (_cache[51] = [
+                default: withCtx(() => [..._cache[35] || (_cache[35] = [
                   createTextVNode("下一步", -1)
                 ])]),
                 _: 1
@@ -46802,7 +47305,7 @@ ${password}
                 disabled: !canStartMavenInstall.value,
                 onClick: startMavenLocalInstall
               }, {
-                default: withCtx(() => [..._cache[52] || (_cache[52] = [
+                default: withCtx(() => [..._cache[36] || (_cache[36] = [
                   createTextVNode(" 开始安装 ", -1)
                 ])]),
                 _: 1
@@ -46824,9 +47327,9 @@ ${password}
               _: 1
             }, 8, ["current"]),
             mavenStep.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_30, [
-              _cache[42] || (_cache[42] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+              _cache[26] || (_cache[26] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
               createBaseVNode("div", _hoisted_31, toDisplayString(cachedPackage.value?.filePath), 1),
-              _cache[43] || (_cache[43] = createBaseVNode("div", { class: "field-label" }, "安装目录", -1)),
+              _cache[27] || (_cache[27] = createBaseVNode("div", { class: "field-label" }, "安装目录", -1)),
               createBaseVNode("div", _hoisted_32, [
                 createVNode(unref(NInput), {
                   value: mavenForm.value.installDir,
@@ -46836,14 +47339,14 @@ ${password}
                   disabled: mavenInstalling.value,
                   onClick: selectMavenInstallDir
                 }, {
-                  default: withCtx(() => [..._cache[41] || (_cache[41] = [
+                  default: withCtx(() => [..._cache[25] || (_cache[25] = [
                     createTextVNode("选择", -1)
                   ])]),
                   _: 1
                 }, 8, ["disabled"])
               ])
             ])) : mavenStep.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_33, [
-              _cache[45] || (_cache[45] = createBaseVNode("div", { class: "field-label" }, "远程仓库镜像", -1)),
+              _cache[29] || (_cache[29] = createBaseVNode("div", { class: "field-label" }, "远程仓库镜像", -1)),
               createVNode(unref(NSelect), {
                 value: mavenForm.value.mirrorId,
                 "onUpdate:value": _cache[4] || (_cache[4] = ($event) => mavenForm.value.mirrorId = $event),
@@ -46853,7 +47356,7 @@ ${password}
                 createBaseVNode("div", null, "镜像名称：" + toDisplayString(selectedMavenMirror.value.label), 1),
                 createBaseVNode("div", null, "镜像地址：" + toDisplayString(selectedMavenMirror.value.url), 1)
               ]),
-              _cache[46] || (_cache[46] = createBaseVNode("div", { class: "field-label" }, "依赖存放位置（localRepository）", -1)),
+              _cache[30] || (_cache[30] = createBaseVNode("div", { class: "field-label" }, "依赖存放位置（localRepository）", -1)),
               createBaseVNode("div", _hoisted_35, [
                 createVNode(unref(NInput), {
                   value: mavenForm.value.repositoryDir,
@@ -46863,14 +47366,14 @@ ${password}
                   disabled: mavenInstalling.value,
                   onClick: selectMavenRepositoryDir
                 }, {
-                  default: withCtx(() => [..._cache[44] || (_cache[44] = [
+                  default: withCtx(() => [..._cache[28] || (_cache[28] = [
                     createTextVNode("选择", -1)
                   ])]),
                   _: 1
                 }, 8, ["disabled"])
               ])
             ])) : mavenStep.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_36, [
-              _cache[47] || (_cache[47] = createBaseVNode("div", { class: "field-label" }, "conf/settings.xml", -1)),
+              _cache[31] || (_cache[31] = createBaseVNode("div", { class: "field-label" }, "conf/settings.xml", -1)),
               createVNode(unref(NInput), {
                 value: mavenSettingsPreview.value,
                 "onUpdate:value": _cache[6] || (_cache[6] = ($event) => mavenSettingsPreview.value = $event),
@@ -46882,299 +47385,43 @@ ${password}
                 createBaseVNode("div", null, "安装目录：" + toDisplayString(mavenForm.value.installDir), 1),
                 createBaseVNode("div", null, "依赖仓库：" + toDisplayString(mavenForm.value.repositoryDir), 1),
                 createBaseVNode("div", null, "远程镜像：" + toDisplayString(selectedMavenMirror.value.label) + " · " + toDisplayString(selectedMavenMirror.value.url), 1),
-                _cache[48] || (_cache[48] = createBaseVNode("div", null, "确认后会解压 Maven、写入 settings.xml，并配置 MAVEN_HOME 与 PATH。", -1))
+                _cache[32] || (_cache[32] = createBaseVNode("div", null, "确认后会解压 Maven、写入 settings.xml，并配置 MAVEN_HOME 与 PATH。", -1))
               ])
             ]))
           ]),
           _: 1
         }, 8, ["show", "mask-closable"]),
-        createVNode(unref(NModal), {
+        createVNode(MysqlInstallWizard, {
           show: showMysqlWizard.value,
-          "onUpdate:show": _cache[18] || (_cache[18] = ($event) => showMysqlWizard.value = $event),
-          preset: "card",
-          title: "MySQL 本地安装",
-          style: { "width": "820px" },
-          "mask-closable": false
-        }, {
-          footer: withCtx(() => [
-            createBaseVNode("div", _hoisted_47, [
-              createVNode(unref(Button), {
-                disabled: mysqlInstalling.value,
-                onClick: closeMysqlWizard
-              }, {
-                default: withCtx(() => [..._cache[62] || (_cache[62] = [
-                  createTextVNode("取消", -1)
-                ])]),
-                _: 1
-              }, 8, ["disabled"]),
-              mysqlStep.value > 1 ? (openBlock(), createBlock(unref(Button), {
-                key: 0,
-                disabled: mysqlInstalling.value,
-                onClick: _cache[16] || (_cache[16] = ($event) => mysqlStep.value--)
-              }, {
-                default: withCtx(() => [..._cache[63] || (_cache[63] = [
-                  createTextVNode("上一步", -1)
-                ])]),
-                _: 1
-              }, 8, ["disabled"])) : createCommentVNode("", true),
-              mysqlStep.value < 4 ? (openBlock(), createBlock(unref(Button), {
-                key: 1,
-                type: "primary",
-                disabled: !canAdvanceMysqlStep.value,
-                onClick: _cache[17] || (_cache[17] = ($event) => mysqlStep.value++)
-              }, {
-                default: withCtx(() => [..._cache[64] || (_cache[64] = [
-                  createTextVNode("下一步", -1)
-                ])]),
-                _: 1
-              }, 8, ["disabled"])) : (openBlock(), createBlock(unref(Button), {
-                key: 2,
-                type: "primary",
-                loading: mysqlInstalling.value,
-                disabled: !canStartMysqlInstall.value,
-                onClick: startMysqlLocalInstall
-              }, {
-                default: withCtx(() => [..._cache[65] || (_cache[65] = [
-                  createTextVNode(" 开始安装 ", -1)
-                ])]),
-                _: 1
-              }, 8, ["loading", "disabled"]))
-            ])
-          ]),
-          default: withCtx(() => [
-            createVNode(unref(NSteps), {
-              current: mysqlStep.value,
-              size: "small",
-              style: { "margin-bottom": "18px" }
-            }, {
-              default: withCtx(() => [
-                createVNode(unref(NStep), { title: "解压位置" }),
-                createVNode(unref(NStep), { title: "服务配置" }),
-                createVNode(unref(NStep), { title: "预览配置" }),
-                createVNode(unref(NStep), { title: "开始安装" })
-              ]),
-              _: 1
-            }, 8, ["current"]),
-            mysqlStep.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_40, [
-              _cache[54] || (_cache[54] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
-              createBaseVNode("div", _hoisted_41, toDisplayString(cachedPackage.value?.filePath), 1),
-              _cache[55] || (_cache[55] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
-              createBaseVNode("div", _hoisted_42, [
-                createVNode(unref(NInput), {
-                  value: mysqlForm.value.installDir,
-                  "onUpdate:value": _cache[10] || (_cache[10] = ($event) => mysqlForm.value.installDir = $event)
-                }, null, 8, ["value"]),
-                createVNode(unref(Button), { onClick: selectMysqlInstallDir }, {
-                  default: withCtx(() => [..._cache[53] || (_cache[53] = [
-                    createTextVNode("选择", -1)
-                  ])]),
-                  _: 1
-                })
-              ])
-            ])) : mysqlStep.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_43, [
-              createBaseVNode("div", null, [
-                _cache[56] || (_cache[56] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
-                createVNode(unref(NInput), {
-                  value: mysqlForm.value.serviceName,
-                  "onUpdate:value": _cache[11] || (_cache[11] = ($event) => mysqlForm.value.serviceName = $event)
-                }, null, 8, ["value"])
-              ]),
-              createBaseVNode("div", null, [
-                _cache[57] || (_cache[57] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
-                createVNode(unref(NInput), {
-                  value: mysqlForm.value.host,
-                  "onUpdate:value": _cache[12] || (_cache[12] = ($event) => mysqlForm.value.host = $event)
-                }, null, 8, ["value"])
-              ]),
-              createBaseVNode("div", null, [
-                _cache[58] || (_cache[58] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
-                createVNode(unref(NInputNumber), {
-                  value: mysqlForm.value.port,
-                  "onUpdate:value": _cache[13] || (_cache[13] = ($event) => mysqlForm.value.port = $event),
-                  min: 1,
-                  max: 65535,
-                  style: { "width": "100%" }
-                }, null, 8, ["value"]),
-                createBaseVNode("div", {
-                  class: normalizeClass(["port-status", { "port-status--bad": portStatus.value && !portStatus.value.available }])
-                }, toDisplayString(portStatusLabel.value), 3)
-              ]),
-              createBaseVNode("div", null, [
-                _cache[59] || (_cache[59] = createBaseVNode("div", { class: "field-label" }, "root 密码", -1)),
-                createVNode(unref(NInput), {
-                  value: mysqlForm.value.password,
-                  "onUpdate:value": _cache[14] || (_cache[14] = ($event) => mysqlForm.value.password = $event)
-                }, null, 8, ["value"])
-              ])
-            ])) : mysqlStep.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_44, [
-              _cache[60] || (_cache[60] = createBaseVNode("div", { class: "field-label" }, "my.ini", -1)),
-              createVNode(unref(NInput), {
-                value: mysqlIniPreview.value,
-                "onUpdate:value": _cache[15] || (_cache[15] = ($event) => mysqlIniPreview.value = $event),
-                type: "textarea",
-                autosize: { minRows: 18, maxRows: 24 }
-              }, null, 8, ["value"])
-            ])) : (openBlock(), createElementBlock("div", _hoisted_45, [
-              createBaseVNode("div", _hoisted_46, [
-                createBaseVNode("div", null, "安装目录：" + toDisplayString(mysqlForm.value.installDir), 1),
-                createBaseVNode("div", null, "服务：" + toDisplayString(mysqlForm.value.serviceName) + " · " + toDisplayString(mysqlForm.value.host) + ":" + toDisplayString(mysqlForm.value.port), 1),
-                _cache[61] || (_cache[61] = createBaseVNode("div", null, "确认后会解压、初始化数据目录、注册并启动 Windows 服务。", -1))
-              ])
-            ]))
-          ]),
-          _: 1
-        }, 8, ["show"]),
-        createVNode(unref(NModal), {
+          "onUpdate:show": _cache[10] || (_cache[10] = ($event) => showMysqlWizard.value = $event),
+          version: selectedVersion.value,
+          "package-path": cachedPackage.value?.filePath,
+          "install-base-dir": unref(store).settings?.installBaseDir,
+          onInstalled: handleLocalInstallFinished
+        }, null, 8, ["show", "version", "package-path", "install-base-dir"]),
+        createVNode(RedisInstallWizard, {
           show: showRedisWizard.value,
-          "onUpdate:show": _cache[27] || (_cache[27] = ($event) => showRedisWizard.value = $event),
-          preset: "card",
-          title: "Redis 本地安装",
-          style: { "width": "820px" },
-          "mask-closable": false
-        }, {
-          footer: withCtx(() => [
-            createBaseVNode("div", _hoisted_55, [
-              createVNode(unref(Button), {
-                disabled: redisInstalling.value,
-                onClick: closeRedisWizard
-              }, {
-                default: withCtx(() => [..._cache[75] || (_cache[75] = [
-                  createTextVNode("取消", -1)
-                ])]),
-                _: 1
-              }, 8, ["disabled"]),
-              redisStep.value > 1 ? (openBlock(), createBlock(unref(Button), {
-                key: 0,
-                disabled: redisInstalling.value,
-                onClick: _cache[25] || (_cache[25] = ($event) => redisStep.value--)
-              }, {
-                default: withCtx(() => [..._cache[76] || (_cache[76] = [
-                  createTextVNode("上一步", -1)
-                ])]),
-                _: 1
-              }, 8, ["disabled"])) : createCommentVNode("", true),
-              redisStep.value < 4 ? (openBlock(), createBlock(unref(Button), {
-                key: 1,
-                type: "primary",
-                disabled: !canAdvanceRedisStep.value,
-                onClick: _cache[26] || (_cache[26] = ($event) => redisStep.value++)
-              }, {
-                default: withCtx(() => [..._cache[77] || (_cache[77] = [
-                  createTextVNode("下一步", -1)
-                ])]),
-                _: 1
-              }, 8, ["disabled"])) : (openBlock(), createBlock(unref(Button), {
-                key: 2,
-                type: "primary",
-                loading: redisInstalling.value,
-                disabled: !canStartRedisInstall.value,
-                onClick: startRedisLocalInstall
-              }, {
-                default: withCtx(() => [..._cache[78] || (_cache[78] = [
-                  createTextVNode(" 开始安装 ", -1)
-                ])]),
-                _: 1
-              }, 8, ["loading", "disabled"]))
-            ])
-          ]),
-          default: withCtx(() => [
-            createVNode(unref(NSteps), {
-              current: redisStep.value,
-              size: "small",
-              style: { "margin-bottom": "18px" }
-            }, {
-              default: withCtx(() => [
-                createVNode(unref(NStep), { title: "解压位置" }),
-                createVNode(unref(NStep), { title: "服务配置" }),
-                createVNode(unref(NStep), { title: "预览配置" }),
-                createVNode(unref(NStep), { title: "开始安装" })
-              ]),
-              _: 1
-            }, 8, ["current"]),
-            redisStep.value === 1 ? (openBlock(), createElementBlock("div", _hoisted_48, [
-              _cache[67] || (_cache[67] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
-              createBaseVNode("div", _hoisted_49, toDisplayString(cachedPackage.value?.filePath), 1),
-              _cache[68] || (_cache[68] = createBaseVNode("div", { class: "field-label" }, "默认解压位置", -1)),
-              createBaseVNode("div", _hoisted_50, [
-                createVNode(unref(NInput), {
-                  value: redisForm.value.installDir,
-                  "onUpdate:value": _cache[19] || (_cache[19] = ($event) => redisForm.value.installDir = $event)
-                }, null, 8, ["value"]),
-                createVNode(unref(Button), { onClick: selectRedisInstallDir }, {
-                  default: withCtx(() => [..._cache[66] || (_cache[66] = [
-                    createTextVNode("选择", -1)
-                  ])]),
-                  _: 1
-                })
-              ])
-            ])) : redisStep.value === 2 ? (openBlock(), createElementBlock("div", _hoisted_51, [
-              createBaseVNode("div", null, [
-                _cache[69] || (_cache[69] = createBaseVNode("div", { class: "field-label" }, "服务名", -1)),
-                createVNode(unref(NInput), {
-                  value: redisForm.value.serviceName,
-                  "onUpdate:value": _cache[20] || (_cache[20] = ($event) => redisForm.value.serviceName = $event)
-                }, null, 8, ["value"])
-              ]),
-              createBaseVNode("div", null, [
-                _cache[70] || (_cache[70] = createBaseVNode("div", { class: "field-label" }, "IP", -1)),
-                createVNode(unref(NInput), {
-                  value: redisForm.value.host,
-                  "onUpdate:value": _cache[21] || (_cache[21] = ($event) => redisForm.value.host = $event)
-                }, null, 8, ["value"])
-              ]),
-              createBaseVNode("div", null, [
-                _cache[71] || (_cache[71] = createBaseVNode("div", { class: "field-label" }, "端口", -1)),
-                createVNode(unref(NInputNumber), {
-                  value: redisForm.value.port,
-                  "onUpdate:value": _cache[22] || (_cache[22] = ($event) => redisForm.value.port = $event),
-                  min: 1,
-                  max: 65535,
-                  style: { "width": "100%" }
-                }, null, 8, ["value"]),
-                createBaseVNode("div", {
-                  class: normalizeClass(["port-status", { "port-status--bad": portStatus.value && !portStatus.value.available }])
-                }, toDisplayString(portStatusLabel.value), 3)
-              ]),
-              createBaseVNode("div", null, [
-                _cache[72] || (_cache[72] = createBaseVNode("div", { class: "field-label" }, "访问密码", -1)),
-                createVNode(unref(NInput), {
-                  value: redisForm.value.password,
-                  "onUpdate:value": _cache[23] || (_cache[23] = ($event) => redisForm.value.password = $event)
-                }, null, 8, ["value"])
-              ])
-            ])) : redisStep.value === 3 ? (openBlock(), createElementBlock("div", _hoisted_52, [
-              _cache[73] || (_cache[73] = createBaseVNode("div", { class: "field-label" }, "redis.conf", -1)),
-              createVNode(unref(NInput), {
-                value: redisConfigPreview.value,
-                "onUpdate:value": _cache[24] || (_cache[24] = ($event) => redisConfigPreview.value = $event),
-                type: "textarea",
-                autosize: { minRows: 18, maxRows: 24 }
-              }, null, 8, ["value"])
-            ])) : (openBlock(), createElementBlock("div", _hoisted_53, [
-              createBaseVNode("div", _hoisted_54, [
-                createBaseVNode("div", null, "安装目录：" + toDisplayString(redisForm.value.installDir), 1),
-                createBaseVNode("div", null, "服务：" + toDisplayString(redisForm.value.serviceName) + " · " + toDisplayString(redisForm.value.host) + ":" + toDisplayString(redisForm.value.port), 1),
-                _cache[74] || (_cache[74] = createBaseVNode("div", null, "确认后会解压、写入 redis.conf、注册并启动 Windows 服务。", -1))
-              ])
-            ]))
-          ]),
-          _: 1
-        }, 8, ["show"]),
+          "onUpdate:show": _cache[11] || (_cache[11] = ($event) => showRedisWizard.value = $event),
+          version: selectedVersion.value,
+          "package-path": cachedPackage.value?.filePath,
+          "install-base-dir": unref(store).settings?.installBaseDir,
+          onInstalled: handleLocalInstallFinished
+        }, null, 8, ["show", "version", "package-path", "install-base-dir"]),
         createVNode(unref(NModal), {
           show: showGitConfirm.value,
-          "onUpdate:show": _cache[29] || (_cache[29] = ($event) => showGitConfirm.value = $event),
+          "onUpdate:show": _cache[13] || (_cache[13] = ($event) => showGitConfirm.value = $event),
           preset: "card",
           title: "Git 本地重新安装",
           style: { "width": "640px" },
           "mask-closable": !gitInstalling.value
         }, {
           footer: withCtx(() => [
-            createBaseVNode("div", _hoisted_59, [
+            createBaseVNode("div", _hoisted_43, [
               createVNode(unref(Button), {
                 disabled: gitInstalling.value,
                 onClick: closeGitConfirm
               }, {
-                default: withCtx(() => [..._cache[83] || (_cache[83] = [
+                default: withCtx(() => [..._cache[41] || (_cache[41] = [
                   createTextVNode("取消", -1)
                 ])]),
                 _: 1
@@ -47185,7 +47432,7 @@ ${password}
                 disabled: !cachedPackage.value?.filePath || !gitForm.value.installDir,
                 onClick: startGitLocalInstall
               }, {
-                default: withCtx(() => [..._cache[84] || (_cache[84] = [
+                default: withCtx(() => [..._cache[42] || (_cache[42] = [
                   createTextVNode(" 开始重新安装 ", -1)
                 ])]),
                 _: 1
@@ -47193,26 +47440,26 @@ ${password}
             ])
           ]),
           default: withCtx(() => [
-            createBaseVNode("div", _hoisted_56, [
-              _cache[80] || (_cache[80] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
-              createBaseVNode("div", _hoisted_57, toDisplayString(cachedPackage.value?.filePath), 1),
-              _cache[81] || (_cache[81] = createBaseVNode("div", { class: "field-label" }, "安装目录", -1)),
-              createBaseVNode("div", _hoisted_58, [
+            createBaseVNode("div", _hoisted_40, [
+              _cache[38] || (_cache[38] = createBaseVNode("div", { class: "field-label" }, "安装包", -1)),
+              createBaseVNode("div", _hoisted_41, toDisplayString(cachedPackage.value?.filePath), 1),
+              _cache[39] || (_cache[39] = createBaseVNode("div", { class: "field-label" }, "安装目录", -1)),
+              createBaseVNode("div", _hoisted_42, [
                 createVNode(unref(NInput), {
                   value: gitForm.value.installDir,
-                  "onUpdate:value": _cache[28] || (_cache[28] = ($event) => gitForm.value.installDir = $event)
+                  "onUpdate:value": _cache[12] || (_cache[12] = ($event) => gitForm.value.installDir = $event)
                 }, null, 8, ["value"]),
                 createVNode(unref(Button), {
                   disabled: gitInstalling.value,
                   onClick: selectGitInstallDir
                 }, {
-                  default: withCtx(() => [..._cache[79] || (_cache[79] = [
+                  default: withCtx(() => [..._cache[37] || (_cache[37] = [
                     createTextVNode("选择", -1)
                   ])]),
                   _: 1
                 }, 8, ["disabled"])
               ]),
-              _cache[82] || (_cache[82] = createBaseVNode("div", { class: "field-hint" }, " 将使用已下载的 Git 安装包重新执行静默安装。安装过程中不会弹出 Git 官方安装向导，请在下方任务日志查看进度。 ", -1))
+              _cache[40] || (_cache[40] = createBaseVNode("div", { class: "field-hint" }, " 将使用已下载的 Git 安装包重新执行静默安装。安装过程中不会弹出 Git 官方安装向导，请在下方任务日志查看进度。 ", -1))
             ])
           ]),
           _: 1
@@ -47221,14 +47468,7 @@ ${password}
     };
   }
 });
-const _export_sfc = (sfc, props) => {
-  const target = sfc.__vccOpts || sfc;
-  for (const [key, val] of props) {
-    target[key] = val;
-  }
-  return target;
-};
-const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-ed091310"]]);
+const ToolCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["__scopeId", "data-v-a65c3c34"]]);
 const _hoisted_1$3 = { class: "dashboard" };
 const _hoisted_2$3 = { class: "page-header" };
 const _hoisted_3$3 = { class: "header-actions" };
@@ -47432,7 +47672,7 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const Dashboard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-cfbc6b0a"]]);
+const Dashboard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-0a84dfb0"]]);
 const MIRROR_LABELS = {
   official: "官方源",
   aliyun: "阿里云镜像",
@@ -47670,7 +47910,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const Downloads = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-dc20afae"]]);
+const Downloads = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-bd20e2b1"]]);
 const _hoisted_1$1 = { class: "ports" };
 const _hoisted_2$1 = { class: "page-header" };
 const _hoisted_3$1 = { class: "header-actions" };
@@ -47841,7 +48081,7 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const Ports = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-895cf534"]]);
+const Ports = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-cc324909"]]);
 const _hoisted_1 = { class: "settings" };
 const _hoisted_2 = {
   key: 0,
@@ -47892,7 +48132,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const selectingDownloadDir = /* @__PURE__ */ ref(false);
     const form = /* @__PURE__ */ ref(null);
     const githubProxyExample = computed(() => {
-      const prefix2 = (form.value?.githubProxyPrefix || "https://gh.zwy.one").trim().replace(/\/+$/, "");
+      const prefix2 = (form.value?.githubProxyPrefix || "https://cdn.akaere.online").trim().replace(/\/+$/, "");
       return `${prefix2}/github.com/redis-windows/redis-windows/releases/download/8.8.0/Redis-8.8.0-Windows-x64-msys2-with-Service.zip`;
     });
     const mirrorOptions = [
@@ -47961,7 +48201,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!form.value) return;
       saving.value = true;
       try {
-        form.value.githubProxyPrefix = (form.value.githubProxyPrefix || "https://gh.zwy.one").trim().replace(/\/+$/, "");
+        form.value.githubProxyPrefix = (form.value.githubProxyPrefix || "https://cdn.akaere.online").trim().replace(/\/+$/, "");
         await store.saveSettings(form.value);
         message.success("设置已保存");
       } catch (err) {
@@ -48049,7 +48289,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               createVNode(unref(NInput), {
                 value: form.value.githubProxyPrefix,
                 "onUpdate:value": _cache[3] || (_cache[3] = ($event) => form.value.githubProxyPrefix = $event),
-                placeholder: "https://gh.zwy.one",
+                placeholder: "https://cdn.akaere.online",
                 clearable: ""
               }, null, 8, ["value"]),
               createBaseVNode("div", _hoisted_12, "GitHub 下载地址会自动拼接为：" + toDisplayString(githubProxyExample.value), 1)
@@ -48148,7 +48388,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const Settings = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-6064b1f3"]]);
+const Settings = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-59f276b0"]]);
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -48158,7 +48398,7 @@ const router = createRouter({
     { path: "/settings", component: Settings }
   ]
 });
-const app = createApp(_sfc_main$5);
+const app = createApp(_sfc_main$7);
 app.use(createPinia());
 app.use(router);
 app.mount("#app");
