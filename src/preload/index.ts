@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppSettings, IpcDownloadPayload, MysqlInstallPayload, RedisInstallPayload } from '../shared/types'
+import type { AppSettings, IpcDownloadPayload, MavenInstallPayload, MysqlInstallPayload, RedisInstallPayload } from '../shared/types'
 
 const api = {
   tools: {
@@ -40,7 +40,8 @@ const api = {
     fetchVersions: () => ipcRenderer.invoke('nodejs:fetchVersions')
   },
   maven: {
-    fetchVersions: () => ipcRenderer.invoke('maven:fetchVersions')
+    fetchVersions: () => ipcRenderer.invoke('maven:fetchVersions'),
+    installLocal: (payload: MavenInstallPayload) => ipcRenderer.invoke('maven:installLocal', payload)
   },
   mysql: {
     fetchVersions: () => ipcRenderer.invoke('mysql:fetchVersions'),
@@ -68,6 +69,7 @@ const api = {
     pause: (taskId: string) => ipcRenderer.invoke('download:pause', taskId),
     findCached: (filename: string) => ipcRenderer.invoke('download:findCached', filename),
     openFile: (filePath: string) => ipcRenderer.invoke('download:openFile', filePath),
+    openDirOfFile: (filePath: string) => ipcRenderer.invoke('download:openDirOfFile', filePath),
     onProgress: (cb: (task: any) => void) => {
       ipcRenderer.on('download:progress', (_e, task) => cb(task))
       return () => ipcRenderer.removeAllListeners('download:progress')

@@ -389,12 +389,12 @@ async function extractZip(zipPath, destDir) {
   const zip = new AdmZip(zipPath);
   zip.extractAllTo(destDir, true);
 }
-async function installTool(toolId, filePath, installBaseDir, onStatus, toolConfig) {
+async function installTool(toolId, filePath, installBaseDir, onStatus, toolConfig, installDir) {
   const config = toolConfig ?? TOOLS_CONFIG.find((t) => t.id === toolId);
   if (!config) {
     return { success: false, installPath: "", error: `找不到工具配置: ${toolId}` };
   }
-  const installPath = path.join(installBaseDir, toolId);
+  const installPath = installDir || path.join(installBaseDir, toolId);
   await fsExtra.ensureDir(installPath);
   try {
     if (filePath.startsWith("npm:")) {
@@ -1227,8 +1227,19 @@ function registerIpcHandlers(mainWindow2) {
         cachedFilePath,
         settings.installBaseDir,
         (msg) => mainWindow2.webContents.send("install:status", { taskId: taskId2, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       );
+      if (result.success) {
+        const installed = store.get("installed");
+        installed[payload.toolId] = {
+          id: payload.toolId,
+          version: versionConfig.version,
+          installPath: result.installPath,
+          installedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        store.set("installed", installed);
+      }
       mainWindow2.webContents.send("install:complete", {
         taskId: taskId2,
         toolId: payload.toolId,
@@ -1270,7 +1281,8 @@ function registerIpcHandlers(mainWindow2) {
         finalUrl,
         settings.installBaseDir,
         (msg) => mainWindow2.webContents.send("install:status", { taskId, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       );
       if (result.success) {
         const installed = store.get("installed");
@@ -1281,9 +1293,35 @@ function registerIpcHandlers(mainWindow2) {
           installedAt: (/* @__PURE__ */ new Date()).toISOString()
         };
         store.set("installed", installed);
-        const doneTask = { ...task, status: "completed", progress: 100 };
+        const doneTask = {
+          ...task,
+          status: "completed",
+          progress: 100,
+          completedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
         mainWindow2.webContents.send("download:progress", doneTask);
         await upsertTask(doneTask);
+        mainWindow2.webContents.send("install:complete", {
+          taskId,
+          toolId: payload.toolId,
+          success: true,
+          installPath: result.installPath
+        });
+      } else {
+        const failedTask = {
+          ...task,
+          status: "error",
+          error: result.error ?? "npm 安装失败",
+          completedAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        mainWindow2.webContents.send("download:progress", failedTask);
+        await upsertTask(failedTask);
+        mainWindow2.webContents.send("install:complete", {
+          taskId,
+          toolId: payload.toolId,
+          success: false,
+          error: result.error
+        });
       }
       return taskId;
     }
@@ -1310,7 +1348,8 @@ function registerIpcHandlers(mainWindow2) {
         filePath,
         settings.installBaseDir,
         (msg) => mainWindow2.webContents.send("install:status", { taskId, msg }),
-        toolConfig
+        toolConfig,
+        payload.installDir
       );
       if (result.success) {
         const installed = store.get("installed");
@@ -1346,6 +1385,9 @@ function registerIpcHandlers(mainWindow2) {
   electron.ipcMain.handle("download:openFile", (_event, filePath) => {
     electron.shell.showItemInFolder(filePath);
   });
+  electron.ipcMain.handle("download:openDirOfFile", (_event, filePath) => {
+    return electron.shell.openPath(path.dirname(filePath));
+  });
   electron.ipcMain.handle("download:findCached", async (_event, filename) => {
     const settings = store.get("settings");
     const downloadDir = settings.downloadDir || path.join(settings.installBaseDir, "_downloads");
@@ -1362,6 +1404,81 @@ function registerIpcHandlers(mainWindow2) {
       }
     }
     return null;
+  });
+  electron.ipcMain.handle("maven:installLocal", async (_event, payload) => {
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "maven");
+    if (!toolConfig) throw new Error("Maven 配置不存在");
+    const taskId = generateId();
+    const stat = fs.statSync(payload.filePath);
+    const task = {
+      id: taskId,
+      toolId: "maven",
+      toolName: toolConfig.name,
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: formatBytes(stat.size),
+      downloadedSize: formatBytes(stat.size),
+      mirrorUsed: payload.mirrorId,
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      completedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    mainWindow2.webContents.send("download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => mainWindow2.webContents.send("install:status", { taskId, msg });
+    try {
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Maven 本地安装仅支持 zip 包");
+      const installDir = payload.installDir;
+      sendLog(`开始 Maven 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      sendLog(`依赖仓库目录: ${payload.repositoryDir}`);
+      sendLog(`镜像仓库: ${payload.mirrorName} (${payload.mirrorUrl})`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧安装目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (fs.statSync(subDir).isDirectory()) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+          sendLog("已整理 Maven 顶层目录");
+        }
+      }
+      const settingsPath = path.join(installDir, "conf", "settings.xml");
+      await fsExtra.ensureDir(path.dirname(settingsPath));
+      await fsExtra.ensureDir(payload.repositoryDir);
+      fs.writeFileSync(settingsPath, payload.settingsXml, "utf-8");
+      sendLog(`已写入 Maven 配置: ${settingsPath}`);
+      await configureEnvVar("maven", installDir, toolConfig.pathAppend);
+      sendLog("环境变量配置完成");
+      const installed = store.get("installed");
+      installed.maven = {
+        id: "maven",
+        version: payload.version,
+        installPath: installDir,
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store.set("installed", installed);
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "maven", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`Maven 安装失败: ${message}`);
+      mainWindow2.webContents.send("install:complete", { taskId, toolId: "maven", success: false, error: message });
+      return taskId;
+    }
   });
   electron.ipcMain.handle("mysql:installLocal", async (_event, payload) => {
     const toolsCatalog = await getToolsCatalog();
@@ -1706,7 +1823,7 @@ function registerIpcHandlers(mainWindow2) {
   }
   electron.ipcMain.handle("jdk:fetchVendors", async () => jdkVendors.map((v) => ({ id: v.id, name: v.name })));
   electron.ipcMain.handle("jdk:fetchVersions", async (_event, vendorId) => {
-    const vendor = jdkVendors.find((v) => v.id === (vendorId || "eclipse")) ?? jdkVendors[1];
+    const vendor = jdkVendors.find((v) => v.id === (vendorId || "bellsoft")) ?? jdkVendors[2];
     try {
       let items = [];
       const baseParams = {

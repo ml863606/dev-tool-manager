@@ -80,6 +80,7 @@ export interface IpcDownloadPayload {
   dynamicUrls?: Record<MirrorRegion | 'official', string>
   dynamicFilename?: string
   downloadOnly?: boolean
+  installDir?: string
 }
 
 export interface IpcInstallPayload {
@@ -98,6 +99,17 @@ export interface MysqlInstallPayload {
   port: number
   password: string
   myIni: string
+}
+
+export interface MavenInstallPayload {
+  version: string
+  filePath: string
+  installDir: string
+  repositoryDir: string
+  mirrorId: 'huawei' | 'tencent' | 'aliyun'
+  mirrorName: string
+  mirrorUrl: string
+  settingsXml: string
 }
 
 export interface RedisInstallPayload {

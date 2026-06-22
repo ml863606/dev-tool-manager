@@ -95,7 +95,21 @@
       </n-tooltip>
       <n-tooltip v-else placement="top" :delay="300">
         <template #trigger>
-          <n-button size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
+          <div v-if="props.tool.id === 'git'" class="local-install-stack">
+            <n-button size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
+              本地安装
+            </n-button>
+            <button
+              class="cached-package-link"
+              type="button"
+              :title="cachedPackage?.filePath"
+              @click.stop="openCachedPackageDir"
+            >
+              <span class="cached-package-link__icon">📦</span>
+              <span>打开下载目录</span>
+            </button>
+          </div>
+          <n-button v-else size="small" type="primary" ghost :disabled="isDownloading" @click="openLocalInstallWizard">
             本地安装
           </n-button>
         </template>
@@ -168,6 +182,64 @@
         </n-button>
       </div>
     </div>
+  </n-modal>
+
+  <n-modal v-model:show="showMavenWizard" preset="card" title="Maven 本地安装" style="width: 860px" :mask-closable="!mavenInstalling">
+    <n-steps :current="mavenStep" size="small" style="margin-bottom: 18px">
+      <n-step title="安装位置" />
+      <n-step title="仓库配置" />
+      <n-step title="预览配置" />
+      <n-step title="开始安装" />
+    </n-steps>
+
+    <div v-if="mavenStep === 1" class="wizard-pane">
+      <div class="field-label">安装包</div>
+      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
+      <div class="field-label">安装目录</div>
+      <div class="dir-row">
+        <n-input v-model:value="mavenForm.installDir" />
+        <n-button :disabled="mavenInstalling" @click="selectMavenInstallDir">选择</n-button>
+      </div>
+    </div>
+
+    <div v-else-if="mavenStep === 2" class="wizard-pane">
+      <div class="field-label">远程仓库镜像</div>
+      <n-select v-model:value="mavenForm.mirrorId" :options="mavenMirrorOptions" />
+      <div class="config-visible-box">
+        <div>镜像名称：{{ selectedMavenMirror.label }}</div>
+        <div>镜像地址：{{ selectedMavenMirror.url }}</div>
+      </div>
+      <div class="field-label">依赖存放位置（localRepository）</div>
+      <div class="dir-row">
+        <n-input v-model:value="mavenForm.repositoryDir" />
+        <n-button :disabled="mavenInstalling" @click="selectMavenRepositoryDir">选择</n-button>
+      </div>
+    </div>
+
+    <div v-else-if="mavenStep === 3" class="wizard-pane">
+      <div class="field-label">conf/settings.xml</div>
+      <n-input v-model:value="mavenSettingsPreview" type="textarea" :autosize="{ minRows: 18, maxRows: 24 }" />
+    </div>
+
+    <div v-else class="wizard-pane">
+      <div class="ready-box">
+        <div>安装目录：{{ mavenForm.installDir }}</div>
+        <div>依赖仓库：{{ mavenForm.repositoryDir }}</div>
+        <div>远程镜像：{{ selectedMavenMirror.label }} · {{ selectedMavenMirror.url }}</div>
+        <div>确认后会解压 Maven、写入 settings.xml，并配置 MAVEN_HOME 与 PATH。</div>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="wizard-footer">
+        <n-button :disabled="mavenInstalling" @click="closeMavenWizard">取消</n-button>
+        <n-button v-if="mavenStep > 1" :disabled="mavenInstalling" @click="mavenStep--">上一步</n-button>
+        <n-button v-if="mavenStep < 4" type="primary" :disabled="!canAdvanceMavenStep" @click="mavenStep++">下一步</n-button>
+        <n-button v-else type="primary" :loading="mavenInstalling" :disabled="!canStartMavenInstall" @click="startMavenLocalInstall">
+          开始安装
+        </n-button>
+      </div>
+    </template>
   </n-modal>
 
   <n-modal v-model:show="showMysqlWizard" preset="card" title="MySQL 本地安装" style="width: 820px" :mask-closable="false">
@@ -299,6 +371,29 @@
       </div>
     </template>
   </n-modal>
+
+  <n-modal v-model:show="showGitConfirm" preset="card" title="Git 本地重新安装" style="width: 640px" :mask-closable="!gitInstalling">
+    <div class="wizard-pane">
+      <div class="field-label">安装包</div>
+      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
+      <div class="field-label">安装目录</div>
+      <div class="dir-row">
+        <n-input v-model:value="gitForm.installDir" />
+        <n-button :disabled="gitInstalling" @click="selectGitInstallDir">选择</n-button>
+      </div>
+      <div class="field-hint">
+        将使用已下载的 Git 安装包重新执行静默安装。安装过程中不会弹出 Git 官方安装向导，请在下方任务日志查看进度。
+      </div>
+    </div>
+    <template #footer>
+      <div class="modal-actions">
+        <n-button :disabled="gitInstalling" @click="closeGitConfirm">取消</n-button>
+        <n-button type="primary" :loading="gitInstalling" :disabled="!cachedPackage?.filePath || !gitForm.installDir" @click="startGitLocalInstall">
+          开始重新安装
+        </n-button>
+      </div>
+    </template>
+  </n-modal>
 </template>
 
 <script setup lang="ts">
@@ -324,7 +419,7 @@ const dynamicVersions = ref<Array<{
   downloadUrls?: Record<string, string>
 }>>([])
 const dynamicVersionsLoading = ref(false)
-const selectedJdkVendor = ref('eclipse')
+const selectedJdkVendor = ref('bellsoft')
 const jdkVendorOptions = ref<Array<{ label: string; value: string }>>([
   { label: 'Eclipse Temurin', value: 'eclipse' },
   { label: 'OpenJDK', value: 'openjdk' },
@@ -338,6 +433,15 @@ const settingNpmRegistry = ref(false)
 const pendingRegistryUrl = ref('')
 const npmRegistries = ref<Array<{ name: string; url: string; ok: boolean; latency: number | null; current: boolean }>>([])
 const cachedPackage = ref<{ filePath: string; size: string } | null>(null)
+const showMavenWizard = ref(false)
+const mavenStep = ref(1)
+const mavenInstalling = ref(false)
+const mavenForm = ref({
+  installDir: 'C:\\DevTools\\maven',
+  repositoryDir: 'C:\\DevTools\\maven-repository',
+  mirrorId: 'huawei'
+})
+const mavenSettingsPreview = ref('')
 const showMysqlWizard = ref(false)
 const mysqlStep = ref(1)
 const mysqlInstalling = ref(false)
@@ -360,6 +464,11 @@ const redisForm = ref({
   password: '123456'
 })
 const redisConfigPreview = ref('')
+const showGitConfirm = ref(false)
+const gitInstalling = ref(false)
+const gitForm = ref({
+  installDir: 'C:\\DevTools\\git'
+})
 const portChecking = ref(false)
 const portStatus = ref<{ available: boolean; port: number; pid?: number; processName?: string; path?: string; state?: string } | null>(null)
 let portCheckTimer: ReturnType<typeof setTimeout> | null = null
@@ -371,7 +480,13 @@ const selectedFilename = computed(() => {
   const built = isDynamic.value ? buildDynamicUrls(selectedVersion.value) : undefined
   return built?.filename ?? props.tool.versions?.find((v: any) => v.version === selectedVersion.value)?.filename ?? ''
 })
-const showLocalInstall = computed(() => ['mysql', 'redis'].includes(props.tool.id) && !!cachedPackage.value)
+const showLocalInstall = computed(() => ['maven', 'mysql', 'redis', 'git'].includes(props.tool.id) && !!cachedPackage.value)
+const mavenMirrorOptions = [
+  { label: '华为云 Maven', value: 'huawei', url: 'https://repo.huaweicloud.com/repository/maven/' },
+  { label: '腾讯云 Maven', value: 'tencent', url: 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' },
+  { label: '阿里云 Maven', value: 'aliyun', url: 'https://maven.aliyun.com/repository/public' }
+]
+const selectedMavenMirror = computed(() => mavenMirrorOptions.find((item) => item.value === mavenForm.value.mirrorId) ?? mavenMirrorOptions[0])
 
 const versionOptions = computed(() => {
   if (isDynamic.value && dynamicVersions.value.length) {
@@ -508,6 +623,14 @@ watch(
   redisForm,
   () => {
     redisConfigPreview.value = buildRedisConfig()
+  },
+  { deep: true }
+)
+
+watch(
+  mavenForm,
+  () => {
+    mavenSettingsPreview.value = buildMavenSettings()
   },
   { deep: true }
 )
@@ -731,8 +854,29 @@ ${password}
 `
 }
 
+function buildMavenSettings() {
+  const repositoryDir = normalizeIniPath(mavenForm.value.repositoryDir)
+  const mirror = selectedMavenMirror.value
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+  <localRepository>${repositoryDir}</localRepository>
+
+  <mirrors>
+    <mirror>
+      <id>${mirror.value}</id>
+      <name>${mirror.label}</name>
+      <url>${mirror.url}</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+</settings>
+`
+}
+
 async function refreshCachedPackage() {
-  if (!['mysql', 'redis'].includes(props.tool.id)) return
+  if (!['maven', 'mysql', 'redis', 'git'].includes(props.tool.id)) return
   const filename = selectedFilename.value
   if (!filename) {
     cachedPackage.value = null
@@ -742,8 +886,33 @@ async function refreshCachedPackage() {
 }
 
 function openLocalInstallWizard() {
-  if (props.tool.id === 'mysql') openMysqlInstallWizard()
+  if (props.tool.id === 'maven') openMavenInstallWizard()
+  else if (props.tool.id === 'mysql') openMysqlInstallWizard()
   else if (props.tool.id === 'redis') openRedisInstallWizard()
+  else if (props.tool.id === 'git') {
+    openGitInstallConfirm()
+  }
+}
+
+function openMavenInstallWizard() {
+  if (!cachedPackage.value) return
+  const baseDir = (store.settings?.installBaseDir || 'C:\\DevTools').replace(/\\+$/, '')
+  mavenStep.value = 1
+  mavenForm.value = {
+    installDir: `${baseDir}\\maven-${selectedVersion.value}`,
+    repositoryDir: `${baseDir}\\maven-repository`,
+    mirrorId: 'huawei'
+  }
+  mavenSettingsPreview.value = buildMavenSettings()
+  showMavenWizard.value = true
+}
+
+function openGitInstallConfirm() {
+  if (!cachedPackage.value) return
+  gitForm.value = {
+    installDir: `${(store.settings?.installBaseDir || 'C:\\DevTools').replace(/\\+$/, '')}\\git`
+  }
+  showGitConfirm.value = true
 }
 
 function openMysqlInstallWizard() {
@@ -788,6 +957,16 @@ function closeRedisWizard() {
   showRedisWizard.value = false
 }
 
+function closeMavenWizard() {
+  if (mavenInstalling.value) return
+  showMavenWizard.value = false
+}
+
+function closeGitConfirm() {
+  if (gitInstalling.value) return
+  showGitConfirm.value = false
+}
+
 async function selectMysqlInstallDir() {
   const selected = await window.api.dialog.selectDir(mysqlForm.value.installDir)
   if (selected) mysqlForm.value.installDir = selected
@@ -796,6 +975,28 @@ async function selectMysqlInstallDir() {
 async function selectRedisInstallDir() {
   const selected = await window.api.dialog.selectDir(redisForm.value.installDir)
   if (selected) redisForm.value.installDir = selected
+}
+
+async function selectMavenInstallDir() {
+  const selected = await window.api.dialog.selectDir(mavenForm.value.installDir)
+  if (selected) mavenForm.value.installDir = selected
+}
+
+async function selectMavenRepositoryDir() {
+  const selected = await window.api.dialog.selectDir(mavenForm.value.repositoryDir)
+  if (selected) mavenForm.value.repositoryDir = selected
+}
+
+async function selectGitInstallDir() {
+  const selected = await window.api.dialog.selectDir(gitForm.value.installDir)
+  if (selected) gitForm.value.installDir = selected
+}
+
+async function openCachedPackageDir() {
+  const packagePath = cachedPackage.value?.filePath
+  if (!packagePath) return
+  window.api.log('info', `[ToolCard] open cached package directory: ${packagePath}`)
+  await window.api.download.openDirOfFile(packagePath)
 }
 
 function schedulePortCheck() {
@@ -855,6 +1056,46 @@ const canAdvanceRedisStep = computed(() => {
 
 const canStartRedisInstall = computed(() => canAdvanceRedisStep.value && !!cachedPackage.value?.filePath && !!redisConfigPreview.value.trim())
 
+const canAdvanceMavenStep = computed(() => {
+  if (mavenStep.value === 1) return !!cachedPackage.value?.filePath && !!mavenForm.value.installDir
+  if (mavenStep.value === 2) return !!mavenForm.value.repositoryDir && !!selectedMavenMirror.value?.url
+  if (mavenStep.value === 3) return !!mavenSettingsPreview.value.trim()
+  return true
+})
+
+const canStartMavenInstall = computed(() =>
+  canAdvanceMavenStep.value
+  && !!cachedPackage.value?.filePath
+  && !!mavenForm.value.installDir
+  && !!mavenForm.value.repositoryDir
+  && !!mavenSettingsPreview.value.trim()
+)
+
+async function startMavenLocalInstall() {
+  if (!cachedPackage.value || mavenInstalling.value) return
+  mavenInstalling.value = true
+  try {
+    const mirror = selectedMavenMirror.value
+    const taskId = await window.api.maven.installLocal({
+      version: selectedVersion.value,
+      filePath: cachedPackage.value.filePath,
+      installDir: mavenForm.value.installDir,
+      repositoryDir: mavenForm.value.repositoryDir,
+      mirrorId: mirror.value as 'huawei' | 'tencent' | 'aliyun',
+      mirrorName: mirror.label,
+      mirrorUrl: mirror.url,
+      settingsXml: mavenSettingsPreview.value
+    })
+    window.api.log('info', `[ToolCard] maven local install taskId=${taskId}`)
+    showMavenWizard.value = false
+    await store.loadTools()
+  } catch (err: any) {
+    window.api.log('error', `[ToolCard] maven local install ERROR: ${err?.message ?? err}`)
+  } finally {
+    mavenInstalling.value = false
+  }
+}
+
 async function startMysqlLocalInstall() {
   if (!cachedPackage.value || mysqlInstalling.value) return
   mysqlInstalling.value = true
@@ -900,6 +1141,24 @@ async function startRedisLocalInstall() {
     window.api.log('error', `[ToolCard] redis local install ERROR: ${err?.message ?? err}`)
   } finally {
     redisInstalling.value = false
+  }
+}
+
+async function startGitLocalInstall() {
+  if (!cachedPackage.value || gitInstalling.value || !gitForm.value.installDir) return
+  gitInstalling.value = true
+  try {
+    const built =
+      isDynamic.value && dynamicVersions.value.length
+        ? buildDynamicUrls(selectedVersion.value)
+        : undefined
+    const taskId = await store.startDownload(props.tool.id, selectedVersion.value, built?.urls, built?.filename, false, gitForm.value.installDir)
+    window.api.log('info', `[ToolCard] git local reinstall taskId=${taskId} file=${cachedPackage.value.filePath} installDir=${gitForm.value.installDir}`)
+    showGitConfirm.value = false
+  } catch (err: any) {
+    window.api.log('error', `[ToolCard] git local reinstall ERROR: ${err?.message ?? err}`)
+  } finally {
+    gitInstalling.value = false
   }
 }
 
@@ -1077,6 +1336,43 @@ function handleOpenDir() {
   word-break: break-all;
   max-width: 360px;
   display: block;
+}
+
+.local-install-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.cached-package-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 24px;
+  border: 1px solid #353557;
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: linear-gradient(180deg, rgba(42, 42, 64, 0.92), rgba(22, 22, 35, 0.92));
+  color: #c8c5ff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.cached-package-link:hover {
+  border-color: #6f63d8;
+  background: linear-gradient(180deg, rgba(59, 55, 95, 0.98), rgba(31, 29, 52, 0.98));
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cached-package-link__icon {
+  font-size: 12px;
+  line-height: 1;
 }
 
 .mirror-badge {
