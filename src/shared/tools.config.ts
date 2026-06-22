@@ -217,6 +217,28 @@ export const TOOLS_CONFIG: ToolConfig[] = [
     installArgs: ['/VERYSILENT', '/NORESTART', '/NOCANCEL', '/SP-', '/CLOSEAPPLICATIONS', '/RESTARTAPPLICATIONS', '/COMPONENTS=icons,ext\\reg\\shellhere,assoc,assoc_sh']
   },
   {
+    id: 'jetbrains-toolbox',
+    name: 'JetBrains Toolbox',
+    description: 'JetBrains IDE 与工具统一管理器',
+    category: 'other',
+    icon: 'jetbrains-toolbox',
+    homepage: 'https://www.jetbrains.com/toolbox-app/',
+    verifyCommand: 'jetbrains-toolbox --version',
+    versions: [
+      {
+        version: '3.5.0.84344',
+        filename: 'jetbrains-toolbox-3.5.0.84344.exe',
+        downloadUrls: {
+          official: 'https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe',
+          aliyun: 'https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe',
+          huawei: 'https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe',
+          tencent: 'https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe'
+        }
+      }
+    ],
+    installArgs: ['/S']
+  },
+  {
     id: 'vscode',
     name: 'VS Code',
     description: 'Visual Studio Code 代码编辑器',

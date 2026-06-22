@@ -29,10 +29,10 @@ const crypto = require("crypto");
 const child_process = require("child_process");
 const util = require("util");
 const fs = require("fs");
-const fsExtra = require("fs-extra");
-const AdmZip = require("adm-zip");
 const Store = require("electron-store");
+const fsExtra = require("fs-extra");
 const events = require("events");
+const AdmZip = require("adm-zip");
 const sqlite3 = require("sqlite3");
 const is = {
   dev: !electron.app.isPackaged
@@ -257,6 +257,28 @@ const TOOLS_CONFIG = [
       }
     ],
     installArgs: ["/VERYSILENT", "/NORESTART", "/NOCANCEL", "/SP-", "/CLOSEAPPLICATIONS", "/RESTARTAPPLICATIONS", "/COMPONENTS=icons,ext\\reg\\shellhere,assoc,assoc_sh"]
+  },
+  {
+    id: "jetbrains-toolbox",
+    name: "JetBrains Toolbox",
+    description: "JetBrains IDE 与工具统一管理器",
+    category: "other",
+    icon: "jetbrains-toolbox",
+    homepage: "https://www.jetbrains.com/toolbox-app/",
+    verifyCommand: "jetbrains-toolbox --version",
+    versions: [
+      {
+        version: "3.5.0.84344",
+        filename: "jetbrains-toolbox-3.5.0.84344.exe",
+        downloadUrls: {
+          official: "https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe",
+          aliyun: "https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe",
+          huawei: "https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe",
+          tencent: "https://download-cdn.jetbrains.com/toolbox/jetbrains-toolbox-3.5.0.84344.exe"
+        }
+      }
+    ],
+    installArgs: ["/S"]
   },
   {
     id: "vscode",
@@ -1245,6 +1267,330 @@ function registerRedisHandlers(options) {
     }
   });
 }
+const jdkVendors = [
+  { id: "openjdk", name: "OpenJDK", distribution: "openjdk" },
+  { id: "eclipse", name: "Eclipse Temurin", distribution: "temurin" },
+  { id: "bellsoft", name: "BellSoft Liberica", distribution: "liberica" },
+  { id: "jetbrains", name: "JetBrains Runtime", distribution: "jetbrains" }
+];
+async function sleep(ms) {
+  await new Promise((r) => setTimeout(r, ms));
+}
+async function fetchFoojayPackages(params, retries = 3) {
+  let lastErr;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await axios.get("https://api.foojay.io/disco/v3.0/packages", {
+        timeout: 12e3,
+        params
+      });
+      return res.data?.result ?? [];
+    } catch (e) {
+      lastErr = e;
+      const status = e?.response?.status;
+      const retryable = e?.code === "ECONNABORTED" || status === 429 || status === 502 || status === 503 || status === 504;
+      if (!retryable || i === retries - 1) break;
+      await sleep(600 * (i + 1));
+    }
+  }
+  throw lastErr;
+}
+function registerJdkHandlers() {
+  electron.ipcMain.handle("jdk:fetchVendors", async () => jdkVendors.map((v) => ({ id: v.id, name: v.name })));
+  electron.ipcMain.handle("jdk:fetchVersions", async (_event, vendorId) => {
+    const vendor = jdkVendors.find((v) => v.id === (vendorId || "bellsoft")) ?? jdkVendors[2];
+    try {
+      let items = [];
+      const baseParams = {
+        distribution: vendor.distribution,
+        operating_system: "windows",
+        archive_type: "zip",
+        package_type: "jdk",
+        latest: "available",
+        release_status: "ga",
+        term_of_support: "lts"
+      };
+      const archCandidates = vendor.id === "bellsoft" ? ["amd64", "x64"] : ["x64", "amd64"];
+      let lastErr;
+      for (const arch of archCandidates) {
+        try {
+          items = await fetchFoojayPackages({ ...baseParams, architecture: arch }, 3);
+          if (items.length) break;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      if (!items.length && vendor.id === "eclipse") {
+        try {
+          const releasesRes = await axios.get("https://api.adoptium.net/v3/info/available_releases", { timeout: 1e4 });
+          const ltsVersions = [...releasesRes.data.available_lts_releases].reverse();
+          const fallbackResults = [];
+          for (const major of ltsVersions) {
+            try {
+              const r = await axios.get(`https://api.adoptium.net/v3/assets/latest/${major}/hotspot`, {
+                params: { architecture: "x64", image_type: "jdk", os: "windows", vendor: "eclipse" },
+                timeout: 1e4
+              });
+              const first = r.data?.[0];
+              if (!first) continue;
+              fallbackResults.push({
+                version: `${first.version.major}.${first.version.minor}.${first.version.security}`,
+                lts: true,
+                major,
+                filename: first.binary.package.name,
+                downloadUrls: {
+                  official: first.binary.package.link,
+                  aliyun: first.binary.package.link,
+                  huawei: first.binary.package.link,
+                  tencent: first.binary.package.link
+                }
+              });
+            } catch {
+            }
+          }
+          if (fallbackResults.length) {
+            log.info(`[jdk versions] vendor=${vendor.id} foojay失败，adoptium回退成功 ${fallbackResults.length} 个版本`);
+            return fallbackResults;
+          }
+        } catch {
+        }
+      }
+      if (!items.length && lastErr) throw lastErr;
+      const seenVersions = /* @__PURE__ */ new Set();
+      const list = items.filter((i) => i?.links?.pkg_download_redirect && i?.filename).sort((a, b) => Number(b.major_version || 0) - Number(a.major_version || 0)).map((i) => {
+        const version = String(i.distribution_version || i.java_version || i.major_version);
+        const filename = String(i.filename);
+        const officialUrl = String(i.links.pkg_download_redirect);
+        const major = Number(i.major_version || 0);
+        const tsinghuaAdoptium = `https://mirrors.tuna.tsinghua.edu.cn/Adoptium/${major}/jdk/x64/windows/${filename}`;
+        const ustcAdoptium = `https://mirrors.ustc.edu.cn/adoptium/${major}/jdk/x64/windows/${filename}`;
+        const isEclipseTemurin = vendor.id === "eclipse";
+        return {
+          version,
+          lts: i.term_of_support === "lts",
+          major,
+          filename,
+          downloadUrls: {
+            official: officialUrl,
+            aliyun: isEclipseTemurin ? tsinghuaAdoptium : officialUrl,
+            huawei: isEclipseTemurin ? ustcAdoptium : officialUrl,
+            tencent: isEclipseTemurin ? tsinghuaAdoptium : officialUrl
+          }
+        };
+      }).filter((item) => item.lts === true).filter((item) => {
+        if (seenVersions.has(item.version)) return false;
+        seenVersions.add(item.version);
+        return true;
+      }).slice(0, 20);
+      log.info(`[jdk versions] vendor=${vendor.id} 成功，共 ${list.length} 个版本`);
+      return list;
+    } catch (e) {
+      log.warn(`[jdk versions] vendor=${vendor.id} 获取失败: ${e.message}`);
+      return [];
+    }
+  });
+}
+function registerMavenHandlers(options) {
+  const { mainWindow: mainWindow2, store: store2, getToolsCatalog, generateId: generateId2, formatBytes: formatBytes2 } = options;
+  electron.ipcMain.handle("maven:installLocal", async (_event, payload) => {
+    const toolsCatalog = await getToolsCatalog();
+    const toolConfig = toolsCatalog.find((t) => t.id === "maven");
+    if (!toolConfig) throw new Error("Maven 配置不存在");
+    const taskId = generateId2();
+    const stat = fs.statSync(payload.filePath);
+    const task = {
+      id: taskId,
+      toolId: "maven",
+      toolName: toolConfig.name,
+      version: payload.version,
+      status: "completed",
+      progress: 100,
+      speed: "0 B/s",
+      totalSize: formatBytes2(stat.size),
+      downloadedSize: formatBytes2(stat.size),
+      mirrorUsed: payload.mirrorId,
+      filePath: payload.filePath,
+      downloadUrl: payload.filePath,
+      startedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      completedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    sendToRenderer(mainWindow2, "download:progress", task);
+    await upsertTask(task);
+    const sendLog = (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg });
+    try {
+      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Maven 本地安装仅支持 zip 包");
+      const installDir = payload.installDir;
+      sendLog(`开始 Maven 本地安装: ${payload.version}`);
+      sendLog(`安装包: ${payload.filePath}`);
+      sendLog(`解压目录: ${installDir}`);
+      sendLog(`依赖仓库目录: ${payload.repositoryDir}`);
+      sendLog(`镜像仓库: ${payload.mirrorName} (${payload.mirrorUrl})`);
+      if (await fsExtra.pathExists(installDir)) {
+        await fsExtra.remove(installDir);
+        sendLog("已清理旧安装目录");
+      }
+      await fsExtra.ensureDir(path.dirname(installDir));
+      const zip = new AdmZip(payload.filePath);
+      zip.extractAllTo(installDir, true);
+      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
+      if (entries.length === 1) {
+        const subDir = path.join(installDir, entries[0]);
+        if (fs.statSync(subDir).isDirectory()) {
+          const tmpDir = `${installDir}_tmp`;
+          await fsExtra.move(subDir, tmpDir);
+          await fsExtra.remove(installDir);
+          await fsExtra.move(tmpDir, installDir);
+          sendLog("已整理 Maven 顶层目录");
+        }
+      }
+      const settingsPath = path.join(installDir, "conf", "settings.xml");
+      await fsExtra.ensureDir(path.dirname(settingsPath));
+      await fsExtra.ensureDir(payload.repositoryDir);
+      fs.writeFileSync(settingsPath, payload.settingsXml, "utf-8");
+      sendLog(`已写入 Maven 配置: ${settingsPath}`);
+      await configureEnvVar("maven", installDir, toolConfig.pathAppend);
+      sendLog("环境变量配置完成");
+      const installed = store2.get("installed");
+      installed.maven = {
+        id: "maven",
+        version: payload.version,
+        installPath: installDir,
+        installedAt: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      store2.set("installed", installed);
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "maven", success: true, installPath: installDir });
+      return taskId;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      sendLog(`Maven 安装失败: ${message}`);
+      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "maven", success: false, error: message });
+      return taskId;
+    }
+  });
+  electron.ipcMain.handle("maven:fetchVersions", async () => {
+    const metadataUrls = [
+      "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/maven-metadata.xml",
+      "https://maven.aliyun.com/repository/public/org/apache/maven/apache-maven/maven-metadata.xml",
+      "https://repo.huaweicloud.com/repository/maven/org/apache/maven/apache-maven/maven-metadata.xml"
+    ];
+    for (const url of metadataUrls) {
+      try {
+        log.info(`[maven versions] 尝试: ${url}`);
+        const res = await axios.get(url, { timeout: 6e3 });
+        const xml = res.data;
+        const versions = [];
+        const regex = /<version>(3\.\d+\.\d+)<\/version>/g;
+        let m;
+        while ((m = regex.exec(xml)) !== null) {
+          versions.push(m[1]);
+        }
+        const unique = [...new Set(versions)].sort((a, b) => {
+          const pa = a.split(".").map(Number);
+          const pb = b.split(".").map(Number);
+          for (let i = 0; i < 3; i++) {
+            if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
+          }
+          return 0;
+        }).slice(0, 20);
+        log.info(`[maven versions] 成功，${unique.length} 个版本，来源: ${url}`);
+        return unique.map((v) => ({ version: v }));
+      } catch (e) {
+        log.warn(`[maven versions] 失败: ${url} — ${e.message}`);
+      }
+    }
+    return [];
+  });
+}
+function registerPythonHandlers() {
+  electron.ipcMain.handle("python:fetchVersions", async () => {
+    const mirrorUrls = [
+      "https://mirrors.tuna.tsinghua.edu.cn/python/",
+      "https://repo.huaweicloud.com/python/",
+      "https://www.python.org/ftp/python/"
+    ];
+    const MONTH = {
+      Jan: "01",
+      Feb: "02",
+      Mar: "03",
+      Apr: "04",
+      May: "05",
+      Jun: "06",
+      Jul: "07",
+      Aug: "08",
+      Sep: "09",
+      Oct: "10",
+      Nov: "11",
+      Dec: "12"
+    };
+    function normalizeDate(raw) {
+      const m = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+      if (m) return `${m[3]}-${MONTH[m[2]] ?? "01"}-${m[1]}`;
+      return raw;
+    }
+    const mirrors = {
+      official: "https://www.python.org/ftp/python",
+      aliyun: "https://mirrors.tuna.tsinghua.edu.cn/python",
+      huawei: "https://repo.huaweicloud.com/python",
+      tencent: "https://mirrors.tuna.tsinghua.edu.cn/python"
+    };
+    for (const url of mirrorUrls) {
+      try {
+        log.info(`[python versions] 尝试: ${url}`);
+        const res = await axios.get(url, { timeout: 6e3 });
+        const html = res.data;
+        const lineRe = /href="(3\.\d+\.\d+)\/[^"]*"[^\n]*?(\d{2}-[A-Za-z]{3}-\d{4}|\d{4}-\d{2}-\d{2})/g;
+        const versionDateMap = {};
+        let lm;
+        while ((lm = lineRe.exec(html)) !== null) {
+          const ver = lm[1].replace(/\s/g, "");
+          if (!versionDateMap[ver]) versionDateMap[ver] = normalizeDate(lm[2]);
+        }
+        if (Object.keys(versionDateMap).length === 0) {
+          const simpleRe = /href="(3\.\d+\.\d+)\//g;
+          while ((lm = simpleRe.exec(html)) !== null) {
+            const ver = lm[1].replace(/\s/g, "");
+            if (!versionDateMap[ver]) versionDateMap[ver] = "";
+          }
+        }
+        const sorted = Object.keys(versionDateMap).sort((a, b) => {
+          const pa = a.split(".").map(Number);
+          const pb = b.split(".").map(Number);
+          for (let i = 0; i < 3; i++) {
+            if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
+          }
+          return 0;
+        }).slice(0, 20);
+        const verified = [];
+        for (const v of sorted) {
+          const filename = `python-${v}-amd64.exe`;
+          const officialUrl = `${mirrors.official}/${v}/${filename}`;
+          try {
+            await axios.head(officialUrl, { timeout: 4e3, validateStatus: (s) => s < 400 });
+            verified.push({
+              version: v,
+              date: versionDateMap[v] ?? "",
+              lts: false,
+              filename,
+              downloadUrls: {
+                official: officialUrl,
+                aliyun: `${mirrors.aliyun}/${v}/${filename}`,
+                huawei: `${mirrors.huawei}/${v}/${filename}`,
+                tencent: `${mirrors.tencent}/${v}/${filename}`
+              }
+            });
+          } catch {
+          }
+          if (verified.length >= 15) break;
+        }
+        log.info(`[python versions] 成功，目录 ${sorted.length} 个，已校验可下载 ${verified.length} 个，来源: ${url}`);
+        return verified;
+      } catch (e) {
+        log.warn(`[python versions] 失败: ${url} — ${e.message}`);
+      }
+    }
+    return [];
+  });
+}
 const execAsync = util.promisify(child_process.exec);
 function generateId() {
   return crypto.randomBytes(4).toString("hex");
@@ -1791,81 +2137,15 @@ function registerIpcHandlers(mainWindow2) {
     }
     return null;
   });
-  electron.ipcMain.handle("maven:installLocal", async (_event, payload) => {
-    const toolsCatalog = await getToolsCatalog();
-    const toolConfig = toolsCatalog.find((t) => t.id === "maven");
-    if (!toolConfig) throw new Error("Maven 配置不存在");
-    const taskId = generateId();
-    const stat = fs.statSync(payload.filePath);
-    const task = {
-      id: taskId,
-      toolId: "maven",
-      toolName: toolConfig.name,
-      version: payload.version,
-      status: "completed",
-      progress: 100,
-      speed: "0 B/s",
-      totalSize: formatBytes(stat.size),
-      downloadedSize: formatBytes(stat.size),
-      mirrorUsed: payload.mirrorId,
-      filePath: payload.filePath,
-      downloadUrl: payload.filePath,
-      startedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      completedAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    sendToRenderer(mainWindow2, "download:progress", task);
-    await upsertTask(task);
-    const sendLog = (msg) => sendToRenderer(mainWindow2, "install:status", { taskId, msg });
-    try {
-      if (path.extname(payload.filePath).toLowerCase() !== ".zip") throw new Error("Maven 本地安装仅支持 zip 包");
-      const installDir = payload.installDir;
-      sendLog(`开始 Maven 本地安装: ${payload.version}`);
-      sendLog(`安装包: ${payload.filePath}`);
-      sendLog(`解压目录: ${installDir}`);
-      sendLog(`依赖仓库目录: ${payload.repositoryDir}`);
-      sendLog(`镜像仓库: ${payload.mirrorName} (${payload.mirrorUrl})`);
-      if (await fsExtra.pathExists(installDir)) {
-        await fsExtra.remove(installDir);
-        sendLog("已清理旧安装目录");
-      }
-      await fsExtra.ensureDir(path.dirname(installDir));
-      const zip = new AdmZip(payload.filePath);
-      zip.extractAllTo(installDir, true);
-      const entries = await import("fs").then((fs2) => fs2.readdirSync(installDir));
-      if (entries.length === 1) {
-        const subDir = path.join(installDir, entries[0]);
-        if (fs.statSync(subDir).isDirectory()) {
-          const tmpDir = `${installDir}_tmp`;
-          await fsExtra.move(subDir, tmpDir);
-          await fsExtra.remove(installDir);
-          await fsExtra.move(tmpDir, installDir);
-          sendLog("已整理 Maven 顶层目录");
-        }
-      }
-      const settingsPath = path.join(installDir, "conf", "settings.xml");
-      await fsExtra.ensureDir(path.dirname(settingsPath));
-      await fsExtra.ensureDir(payload.repositoryDir);
-      fs.writeFileSync(settingsPath, payload.settingsXml, "utf-8");
-      sendLog(`已写入 Maven 配置: ${settingsPath}`);
-      await configureEnvVar("maven", installDir, toolConfig.pathAppend);
-      sendLog("环境变量配置完成");
-      const installed = store.get("installed");
-      installed.maven = {
-        id: "maven",
-        version: payload.version,
-        installPath: installDir,
-        installedAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      store.set("installed", installed);
-      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "maven", success: true, installPath: installDir });
-      return taskId;
-    } catch (err) {
-      const message = err?.message ?? String(err);
-      sendLog(`Maven 安装失败: ${message}`);
-      sendToRenderer(mainWindow2, "install:complete", { taskId, toolId: "maven", success: false, error: message });
-      return taskId;
-    }
+  registerMavenHandlers({
+    mainWindow: mainWindow2,
+    store,
+    getToolsCatalog,
+    generateId,
+    formatBytes
   });
+  registerPythonHandlers();
+  registerJdkHandlers();
   registerMysqlHandlers({
     mainWindow: mainWindow2,
     store,
@@ -1901,248 +2181,6 @@ function registerIpcHandlers(mainWindow2) {
     delete installed[toolId];
     store.set("installed", installed);
     return true;
-  });
-  electron.ipcMain.handle("python:fetchVersions", async () => {
-    const mirrorUrls = [
-      "https://mirrors.tuna.tsinghua.edu.cn/python/",
-      "https://repo.huaweicloud.com/python/",
-      "https://www.python.org/ftp/python/"
-    ];
-    const MONTH = {
-      Jan: "01",
-      Feb: "02",
-      Mar: "03",
-      Apr: "04",
-      May: "05",
-      Jun: "06",
-      Jul: "07",
-      Aug: "08",
-      Sep: "09",
-      Oct: "10",
-      Nov: "11",
-      Dec: "12"
-    };
-    function normalizeDate(raw) {
-      const m = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
-      if (m) return `${m[3]}-${MONTH[m[2]] ?? "01"}-${m[1]}`;
-      return raw;
-    }
-    const mirrors = {
-      official: "https://www.python.org/ftp/python",
-      aliyun: "https://mirrors.tuna.tsinghua.edu.cn/python",
-      huawei: "https://repo.huaweicloud.com/python",
-      tencent: "https://mirrors.tuna.tsinghua.edu.cn/python"
-    };
-    for (const url of mirrorUrls) {
-      try {
-        log.info(`[python versions] 尝试: ${url}`);
-        const res = await axios.get(url, { timeout: 6e3 });
-        const html = res.data;
-        const lineRe = /href="(3\.\d+\.\d+)\/[^"]*"[^\n]*?(\d{2}-[A-Za-z]{3}-\d{4}|\d{4}-\d{2}-\d{2})/g;
-        const versionDateMap = {};
-        let lm;
-        while ((lm = lineRe.exec(html)) !== null) {
-          const ver = lm[1].replace(/\s/g, "");
-          if (!versionDateMap[ver]) versionDateMap[ver] = normalizeDate(lm[2]);
-        }
-        if (Object.keys(versionDateMap).length === 0) {
-          const simpleRe = /href="(3\.\d+\.\d+)\//g;
-          while ((lm = simpleRe.exec(html)) !== null) {
-            const ver = lm[1].replace(/\s/g, "");
-            if (!versionDateMap[ver]) versionDateMap[ver] = "";
-          }
-        }
-        const sorted = Object.keys(versionDateMap).sort((a, b) => {
-          const pa = a.split(".").map(Number);
-          const pb = b.split(".").map(Number);
-          for (let i = 0; i < 3; i++) {
-            if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
-          }
-          return 0;
-        }).slice(0, 20);
-        const verified = [];
-        for (const v of sorted) {
-          const filename = `python-${v}-amd64.exe`;
-          const officialUrl = `${mirrors.official}/${v}/${filename}`;
-          try {
-            await axios.head(officialUrl, { timeout: 4e3, validateStatus: (s) => s < 400 });
-            verified.push({
-              version: v,
-              date: versionDateMap[v] ?? "",
-              lts: false,
-              filename,
-              downloadUrls: {
-                official: officialUrl,
-                aliyun: `${mirrors.aliyun}/${v}/${filename}`,
-                huawei: `${mirrors.huawei}/${v}/${filename}`,
-                tencent: `${mirrors.tencent}/${v}/${filename}`
-              }
-            });
-          } catch {
-          }
-          if (verified.length >= 15) break;
-        }
-        log.info(`[python versions] 成功，目录 ${sorted.length} 个，已校验可下载 ${verified.length} 个，来源: ${url}`);
-        return verified;
-      } catch (e) {
-        log.warn(`[python versions] 失败: ${url} — ${e.message}`);
-      }
-    }
-    return [];
-  });
-  const jdkVendors = [
-    { id: "openjdk", name: "OpenJDK", distribution: "openjdk" },
-    { id: "eclipse", name: "Eclipse Temurin", distribution: "temurin" },
-    { id: "bellsoft", name: "BellSoft Liberica", distribution: "liberica" },
-    { id: "jetbrains", name: "JetBrains Runtime", distribution: "jetbrains" }
-  ];
-  async function sleep(ms) {
-    await new Promise((r) => setTimeout(r, ms));
-  }
-  async function fetchFoojayPackages(params, retries = 3) {
-    let lastErr;
-    for (let i = 0; i < retries; i++) {
-      try {
-        const res = await axios.get("https://api.foojay.io/disco/v3.0/packages", {
-          timeout: 12e3,
-          params
-        });
-        return res.data?.result ?? [];
-      } catch (e) {
-        lastErr = e;
-        const status = e?.response?.status;
-        const retryable = e?.code === "ECONNABORTED" || status === 429 || status === 502 || status === 503 || status === 504;
-        if (!retryable || i === retries - 1) break;
-        await sleep(600 * (i + 1));
-      }
-    }
-    throw lastErr;
-  }
-  electron.ipcMain.handle("jdk:fetchVendors", async () => jdkVendors.map((v) => ({ id: v.id, name: v.name })));
-  electron.ipcMain.handle("jdk:fetchVersions", async (_event, vendorId) => {
-    const vendor = jdkVendors.find((v) => v.id === (vendorId || "bellsoft")) ?? jdkVendors[2];
-    try {
-      let items = [];
-      const baseParams = {
-        distribution: vendor.distribution,
-        operating_system: "windows",
-        archive_type: "zip",
-        package_type: "jdk",
-        latest: "available",
-        release_status: "ga"
-      };
-      const archCandidates = vendor.id === "bellsoft" ? ["amd64", "x64"] : ["x64", "amd64"];
-      let lastErr;
-      for (const arch of archCandidates) {
-        try {
-          items = await fetchFoojayPackages({ ...baseParams, architecture: arch }, 3);
-          if (items.length) break;
-        } catch (e) {
-          lastErr = e;
-        }
-      }
-      if (!items.length && vendor.id === "eclipse") {
-        try {
-          const releasesRes = await axios.get("https://api.adoptium.net/v3/info/available_releases", { timeout: 1e4 });
-          const ltsVersions = [...releasesRes.data.available_lts_releases].reverse();
-          const fallbackResults = [];
-          for (const major of ltsVersions) {
-            try {
-              const r = await axios.get(`https://api.adoptium.net/v3/assets/latest/${major}/hotspot`, {
-                params: { architecture: "x64", image_type: "jdk", os: "windows", vendor: "eclipse" },
-                timeout: 1e4
-              });
-              const first = r.data?.[0];
-              if (!first) continue;
-              fallbackResults.push({
-                version: `${first.version.major}.${first.version.minor}.${first.version.security}`,
-                lts: true,
-                major,
-                filename: first.binary.package.name,
-                downloadUrls: {
-                  official: first.binary.package.link,
-                  aliyun: first.binary.package.link,
-                  huawei: first.binary.package.link,
-                  tencent: first.binary.package.link
-                }
-              });
-            } catch {
-            }
-          }
-          if (fallbackResults.length) {
-            log.info(`[jdk versions] vendor=${vendor.id} foojay失败，adoptium回退成功 ${fallbackResults.length} 个版本`);
-            return fallbackResults;
-          }
-        } catch {
-        }
-      }
-      if (!items.length && lastErr) throw lastErr;
-      const seenVersions = /* @__PURE__ */ new Set();
-      const list = items.filter((i) => i?.links?.pkg_download_redirect && i?.filename).sort((a, b) => Number(b.major_version || 0) - Number(a.major_version || 0)).map((i) => {
-        const version = String(i.distribution_version || i.java_version || i.major_version);
-        const filename = String(i.filename);
-        const officialUrl = String(i.links.pkg_download_redirect);
-        const major = Number(i.major_version || 0);
-        const tsinghuaAdoptium = `https://mirrors.tuna.tsinghua.edu.cn/Adoptium/${major}/jdk/x64/windows/${filename}`;
-        const ustcAdoptium = `https://mirrors.ustc.edu.cn/adoptium/${major}/jdk/x64/windows/${filename}`;
-        const isEclipseTemurin = vendor.id === "eclipse";
-        return {
-          version,
-          lts: i.term_of_support === "lts",
-          major,
-          filename,
-          downloadUrls: {
-            official: officialUrl,
-            // For Temurin, provide domestic mirrors first; final selection still goes through reachability probe.
-            aliyun: isEclipseTemurin ? tsinghuaAdoptium : officialUrl,
-            huawei: isEclipseTemurin ? ustcAdoptium : officialUrl,
-            tencent: isEclipseTemurin ? tsinghuaAdoptium : officialUrl
-          }
-        };
-      }).filter((item) => {
-        if (seenVersions.has(item.version)) return false;
-        seenVersions.add(item.version);
-        return true;
-      }).slice(0, 20);
-      log.info(`[jdk versions] vendor=${vendor.id} 成功，共 ${list.length} 个版本`);
-      return list;
-    } catch (e) {
-      log.warn(`[jdk versions] vendor=${vendor.id} 获取失败: ${e.message}`);
-      return [];
-    }
-  });
-  electron.ipcMain.handle("maven:fetchVersions", async () => {
-    const metadataUrls = [
-      "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/maven-metadata.xml",
-      "https://maven.aliyun.com/repository/public/org/apache/maven/apache-maven/maven-metadata.xml",
-      "https://repo.huaweicloud.com/repository/maven/org/apache/maven/apache-maven/maven-metadata.xml"
-    ];
-    for (const url of metadataUrls) {
-      try {
-        log.info(`[maven versions] 尝试: ${url}`);
-        const res = await axios.get(url, { timeout: 6e3 });
-        const xml = res.data;
-        const versions = [];
-        const regex = /<version>(3\.\d+\.\d+)<\/version>/g;
-        let m;
-        while ((m = regex.exec(xml)) !== null) {
-          versions.push(m[1]);
-        }
-        const unique = [...new Set(versions)].sort((a, b) => {
-          const pa = a.split(".").map(Number);
-          const pb = b.split(".").map(Number);
-          for (let i = 0; i < 3; i++) {
-            if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0);
-          }
-          return 0;
-        }).slice(0, 20);
-        log.info(`[maven versions] 成功，${unique.length} 个版本，来源: ${url}`);
-        return unique.map((v) => ({ version: v }));
-      } catch (e) {
-        log.warn(`[maven versions] 失败: ${url} — ${e.message}`);
-      }
-    }
-    return [];
   });
   electron.ipcMain.handle("nodejs:fetchVersions", async () => {
     const urls = [

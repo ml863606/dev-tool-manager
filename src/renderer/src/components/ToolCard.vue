@@ -184,63 +184,13 @@
     </div>
   </n-modal>
 
-  <n-modal v-model:show="showMavenWizard" preset="card" title="Maven 本地安装" style="width: 860px" :mask-closable="!mavenInstalling">
-    <n-steps :current="mavenStep" size="small" style="margin-bottom: 18px">
-      <n-step title="安装位置" />
-      <n-step title="仓库配置" />
-      <n-step title="预览配置" />
-      <n-step title="开始安装" />
-    </n-steps>
-
-    <div v-if="mavenStep === 1" class="wizard-pane">
-      <div class="field-label">安装包</div>
-      <div class="readonly-path">{{ cachedPackage?.filePath }}</div>
-      <div class="field-label">安装目录</div>
-      <div class="dir-row">
-        <n-input v-model:value="mavenForm.installDir" />
-        <n-button :disabled="mavenInstalling" @click="selectMavenInstallDir">选择</n-button>
-      </div>
-    </div>
-
-    <div v-else-if="mavenStep === 2" class="wizard-pane">
-      <div class="field-label">远程仓库镜像</div>
-      <n-select v-model:value="mavenForm.mirrorId" :options="mavenMirrorOptions" />
-      <div class="config-visible-box">
-        <div>镜像名称：{{ selectedMavenMirror.label }}</div>
-        <div>镜像地址：{{ selectedMavenMirror.url }}</div>
-      </div>
-      <div class="field-label">依赖存放位置（localRepository）</div>
-      <div class="dir-row">
-        <n-input v-model:value="mavenForm.repositoryDir" />
-        <n-button :disabled="mavenInstalling" @click="selectMavenRepositoryDir">选择</n-button>
-      </div>
-    </div>
-
-    <div v-else-if="mavenStep === 3" class="wizard-pane">
-      <div class="field-label">conf/settings.xml</div>
-      <n-input v-model:value="mavenSettingsPreview" type="textarea" :autosize="{ minRows: 18, maxRows: 24 }" />
-    </div>
-
-    <div v-else class="wizard-pane">
-      <div class="ready-box">
-        <div>安装目录：{{ mavenForm.installDir }}</div>
-        <div>依赖仓库：{{ mavenForm.repositoryDir }}</div>
-        <div>远程镜像：{{ selectedMavenMirror.label }} · {{ selectedMavenMirror.url }}</div>
-        <div>确认后会解压 Maven、写入 settings.xml，并配置 MAVEN_HOME 与 PATH。</div>
-      </div>
-    </div>
-
-    <template #footer>
-      <div class="wizard-footer">
-        <n-button :disabled="mavenInstalling" @click="closeMavenWizard">取消</n-button>
-        <n-button v-if="mavenStep > 1" :disabled="mavenInstalling" @click="mavenStep--">上一步</n-button>
-        <n-button v-if="mavenStep < 4" type="primary" :disabled="!canAdvanceMavenStep" @click="mavenStep++">下一步</n-button>
-        <n-button v-else type="primary" :loading="mavenInstalling" :disabled="!canStartMavenInstall" @click="startMavenLocalInstall">
-          开始安装
-        </n-button>
-      </div>
-    </template>
-  </n-modal>
+  <MavenInstallWizard
+    v-model:show="showMavenWizard"
+    :version="selectedVersion"
+    :package-path="cachedPackage?.filePath"
+    :install-base-dir="store.settings?.installBaseDir"
+    @installed="handleLocalInstallFinished"
+  />
 
   <MysqlInstallWizard
     v-model:show="showMysqlWizard"
@@ -284,9 +234,10 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, h } from 'vue'
-import { NTag, NButton, NSelect, NProgress, NTooltip, NIcon, NModal, NSteps, NStep, NInput } from 'naive-ui'
+import { NTag, NButton, NSelect, NProgress, NTooltip, NIcon, NModal, NInput } from 'naive-ui'
 import { CloudDownloadOutline } from '@vicons/ionicons5'
 import { useToolsStore } from '../stores/tools'
+import MavenInstallWizard from './backend/maven/MavenInstallWizard.vue'
 import MysqlInstallWizard from './db/mysql/MysqlInstallWizard.vue'
 import RedisInstallWizard from './db/redis/RedisInstallWizard.vue'
 import type { NodeVersion } from '../../../shared/types'
@@ -322,14 +273,6 @@ const pendingRegistryUrl = ref('')
 const npmRegistries = ref<Array<{ name: string; url: string; ok: boolean; latency: number | null; current: boolean }>>([])
 const cachedPackage = ref<{ filePath: string; size: string } | null>(null)
 const showMavenWizard = ref(false)
-const mavenStep = ref(1)
-const mavenInstalling = ref(false)
-const mavenForm = ref({
-  installDir: 'C:\\DevTools\\maven',
-  repositoryDir: 'C:\\DevTools\\maven-repository',
-  mirrorId: 'huawei'
-})
-const mavenSettingsPreview = ref('')
 const showMysqlWizard = ref(false)
 const showRedisWizard = ref(false)
 const showGitConfirm = ref(false)
@@ -347,12 +290,6 @@ const selectedFilename = computed(() => {
 })
 const showLocalInstall = computed(() => ['maven', 'mysql', 'redis', 'git'].includes(props.tool.id) && !!cachedPackage.value)
 const canOpenCachedPackageDir = computed(() => ['mysql', 'redis', 'git'].includes(props.tool.id) && !!cachedPackage.value?.filePath)
-const mavenMirrorOptions = [
-  { label: '华为云 Maven', value: 'huawei', url: 'https://repo.huaweicloud.com/repository/maven/' },
-  { label: '腾讯云 Maven', value: 'tencent', url: 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' },
-  { label: '阿里云 Maven', value: 'aliyun', url: 'https://maven.aliyun.com/repository/public' }
-]
-const selectedMavenMirror = computed(() => mavenMirrorOptions.find((item) => item.value === mavenForm.value.mirrorId) ?? mavenMirrorOptions[0])
 
 const versionOptions = computed(() => {
   if (isDynamic.value && dynamicVersions.value.length) {
@@ -475,14 +412,6 @@ watch(
   () => {
     void refreshCachedPackage()
   }
-)
-
-watch(
-  mavenForm,
-  () => {
-    mavenSettingsPreview.value = buildMavenSettings()
-  },
-  { deep: true }
 )
 
 async function handleJdkVendorChange(vendorId: string) {
@@ -648,28 +577,6 @@ async function applyNpmRegistry(url: string) {
   }
 }
 
-function buildMavenSettings() {
-  const normalizeIniPath = (path: string) => path.replace(/\\/g, '/')
-  const repositoryDir = normalizeIniPath(mavenForm.value.repositoryDir)
-  const mirror = selectedMavenMirror.value
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
-  <localRepository>${repositoryDir}</localRepository>
-
-  <mirrors>
-    <mirror>
-      <id>${mirror.value}</id>
-      <name>${mirror.label}</name>
-      <url>${mirror.url}</url>
-      <mirrorOf>*</mirrorOf>
-    </mirror>
-  </mirrors>
-</settings>
-`
-}
-
 async function refreshCachedPackage() {
   if (!['maven', 'mysql', 'redis', 'git'].includes(props.tool.id)) return
   const filename = selectedFilename.value
@@ -691,14 +598,6 @@ function openLocalInstallWizard() {
 
 function openMavenInstallWizard() {
   if (!cachedPackage.value) return
-  const baseDir = (store.settings?.installBaseDir || 'C:\\DevTools').replace(/\\+$/, '')
-  mavenStep.value = 1
-  mavenForm.value = {
-    installDir: `${baseDir}\\maven-${selectedVersion.value}`,
-    repositoryDir: `${baseDir}\\maven-repository`,
-    mirrorId: 'huawei'
-  }
-  mavenSettingsPreview.value = buildMavenSettings()
   showMavenWizard.value = true
 }
 
@@ -720,24 +619,9 @@ function openRedisInstallWizard() {
   showRedisWizard.value = true
 }
 
-function closeMavenWizard() {
-  if (mavenInstalling.value) return
-  showMavenWizard.value = false
-}
-
 function closeGitConfirm() {
   if (gitInstalling.value) return
   showGitConfirm.value = false
-}
-
-async function selectMavenInstallDir() {
-  const selected = await window.api.dialog.selectDir(mavenForm.value.installDir)
-  if (selected) mavenForm.value.installDir = selected
-}
-
-async function selectMavenRepositoryDir() {
-  const selected = await window.api.dialog.selectDir(mavenForm.value.repositoryDir)
-  if (selected) mavenForm.value.repositoryDir = selected
 }
 
 async function selectGitInstallDir() {
@@ -750,46 +634,6 @@ async function openCachedPackageDir() {
   if (!packagePath) return
   window.api.log('info', `[ToolCard] open cached package directory: ${packagePath}`)
   await window.api.download.openDirOfFile(packagePath)
-}
-
-const canAdvanceMavenStep = computed(() => {
-  if (mavenStep.value === 1) return !!cachedPackage.value?.filePath && !!mavenForm.value.installDir
-  if (mavenStep.value === 2) return !!mavenForm.value.repositoryDir && !!selectedMavenMirror.value?.url
-  if (mavenStep.value === 3) return !!mavenSettingsPreview.value.trim()
-  return true
-})
-
-const canStartMavenInstall = computed(() =>
-  canAdvanceMavenStep.value
-  && !!cachedPackage.value?.filePath
-  && !!mavenForm.value.installDir
-  && !!mavenForm.value.repositoryDir
-  && !!mavenSettingsPreview.value.trim()
-)
-
-async function startMavenLocalInstall() {
-  if (!cachedPackage.value || mavenInstalling.value) return
-  mavenInstalling.value = true
-  try {
-    const mirror = selectedMavenMirror.value
-    const taskId = await window.api.maven.installLocal({
-      version: selectedVersion.value,
-      filePath: cachedPackage.value.filePath,
-      installDir: mavenForm.value.installDir,
-      repositoryDir: mavenForm.value.repositoryDir,
-      mirrorId: mirror.value as 'huawei' | 'tencent' | 'aliyun',
-      mirrorName: mirror.label,
-      mirrorUrl: mirror.url,
-      settingsXml: mavenSettingsPreview.value
-    })
-    window.api.log('info', `[ToolCard] maven local install taskId=${taskId}`)
-    showMavenWizard.value = false
-    await store.loadTools()
-  } catch (err: any) {
-    window.api.log('error', `[ToolCard] maven local install ERROR: ${err?.message ?? err}`)
-  } finally {
-    mavenInstalling.value = false
-  }
 }
 
 async function handleLocalInstallFinished() {

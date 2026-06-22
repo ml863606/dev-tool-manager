@@ -4,20 +4,21 @@ import { basename, dirname, extname, join } from 'path'
 import { randomBytes } from 'crypto'
 import { exec, spawn } from 'child_process'
 import { promisify } from 'util'
-import { closeSync, existsSync, mkdirSync, openSync, readSync, statSync, unlinkSync, writeFileSync } from 'fs'
-import { ensureDir, move, pathExists, remove } from 'fs-extra'
-import AdmZip from 'adm-zip'
+import { closeSync, existsSync, openSync, readSync, statSync, unlinkSync } from 'fs'
 import log from 'electron-log'
 import Store from 'electron-store'
 import { TOOLS_CONFIG, DEFAULT_SETTINGS } from '../shared/tools.config'
 import { downloader } from './downloader'
-import { configureEnvVar, installTool, verifyInstall, findCommandPath, extractVersion } from './installer'
+import { installTool, verifyInstall, findCommandPath, extractVersion } from './installer'
 import { resolveBestDownloadUrl, detectBestMirror, probeAll } from './network'
 import { loadTaskCache, loadToolsCatalog, saveTaskCache, saveToolsCatalog, upsertTask } from './task-db'
 import { registerMysqlHandlers } from './db/mysql'
 import { registerRedisHandlers } from './db/redis'
+import { registerJdkHandlers } from './backend/jdk'
+import { registerMavenHandlers } from './backend/maven'
+import { registerPythonHandlers } from './backend/python'
 import { sendToRenderer } from './ipc-utils'
-import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, MavenInstallPayload, ToolConfig } from '../shared/types'
+import type { AppSettings, DownloadTask, InstalledTool, IpcDownloadPayload, ToolConfig } from '../shared/types'
 const execAsync = promisify(exec)
 
 function generateId(): string {
@@ -636,89 +637,15 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     return null
   })
 
-  ipcMain.handle('maven:installLocal', async (_event, payload: MavenInstallPayload) => {
-    const toolsCatalog = await getToolsCatalog()
-    const toolConfig = toolsCatalog.find((t) => t.id === 'maven')
-    if (!toolConfig) throw new Error('Maven 配置不存在')
-
-    const taskId = generateId()
-    const stat = statSync(payload.filePath)
-    const task: DownloadTask = {
-      id: taskId,
-      toolId: 'maven',
-      toolName: toolConfig.name,
-      version: payload.version,
-      status: 'completed',
-      progress: 100,
-      speed: '0 B/s',
-      totalSize: formatBytes(stat.size),
-      downloadedSize: formatBytes(stat.size),
-      mirrorUsed: payload.mirrorId,
-      filePath: payload.filePath,
-      downloadUrl: payload.filePath,
-      startedAt: new Date().toISOString(),
-      completedAt: new Date().toISOString()
-    }
-    sendToRenderer(mainWindow, 'download:progress', task)
-    await upsertTask(task)
-
-    const sendLog = (msg: string) => sendToRenderer(mainWindow, 'install:status', { taskId, msg })
-    try {
-      if (extname(payload.filePath).toLowerCase() !== '.zip') throw new Error('Maven 本地安装仅支持 zip 包')
-
-      const installDir = payload.installDir
-      sendLog(`开始 Maven 本地安装: ${payload.version}`)
-      sendLog(`安装包: ${payload.filePath}`)
-      sendLog(`解压目录: ${installDir}`)
-      sendLog(`依赖仓库目录: ${payload.repositoryDir}`)
-      sendLog(`镜像仓库: ${payload.mirrorName} (${payload.mirrorUrl})`)
-
-      if (await pathExists(installDir)) {
-        await remove(installDir)
-        sendLog('已清理旧安装目录')
-      }
-      await ensureDir(dirname(installDir))
-      const zip = new AdmZip(payload.filePath)
-      zip.extractAllTo(installDir, true)
-
-      const entries = await import('fs').then((fs) => fs.readdirSync(installDir))
-      if (entries.length === 1) {
-        const subDir = join(installDir, entries[0])
-        if (statSync(subDir).isDirectory()) {
-          const tmpDir = `${installDir}_tmp`
-          await move(subDir, tmpDir)
-          await remove(installDir)
-          await move(tmpDir, installDir)
-          sendLog('已整理 Maven 顶层目录')
-        }
-      }
-
-      const settingsPath = join(installDir, 'conf', 'settings.xml')
-      await ensureDir(dirname(settingsPath))
-      await ensureDir(payload.repositoryDir)
-      writeFileSync(settingsPath, payload.settingsXml, 'utf-8')
-      sendLog(`已写入 Maven 配置: ${settingsPath}`)
-
-      await configureEnvVar('maven', installDir, toolConfig.pathAppend)
-      sendLog('环境变量配置完成')
-
-      const installed = store.get('installed') as Record<string, InstalledTool>
-      installed.maven = {
-        id: 'maven',
-        version: payload.version,
-        installPath: installDir,
-        installedAt: new Date().toISOString()
-      }
-      store.set('installed', installed)
-      sendToRenderer(mainWindow, 'install:complete', { taskId, toolId: 'maven', success: true, installPath: installDir })
-      return taskId
-    } catch (err: any) {
-      const message = err?.message ?? String(err)
-      sendLog(`Maven 安装失败: ${message}`)
-      sendToRenderer(mainWindow, 'install:complete', { taskId, toolId: 'maven', success: false, error: message })
-      return taskId
-    }
+  registerMavenHandlers({
+    mainWindow,
+    store,
+    getToolsCatalog,
+    generateId,
+    formatBytes
   })
+  registerPythonHandlers()
+  registerJdkHandlers()
 
   registerMysqlHandlers({
     mainWindow,
@@ -758,266 +685,6 @@ export function registerIpcHandlers(mainWindow: Electron.BrowserWindow): void {
     delete installed[toolId]
     store.set('installed', installed)
     return true
-  })
-
-  ipcMain.handle('python:fetchVersions', async () => {
-    const mirrorUrls = [
-      'https://mirrors.tuna.tsinghua.edu.cn/python/',
-      'https://repo.huaweicloud.com/python/',
-      'https://www.python.org/ftp/python/'
-    ]
-
-    const MONTH: Record<string, string> = {
-      Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',
-      Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'
-    }
-    function normalizeDate(raw: string): string {
-      // DD-Mon-YYYY → YYYY-MM-DD
-      const m = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/)
-      if (m) return `${m[3]}-${MONTH[m[2]] ?? '01'}-${m[1]}`
-      return raw
-    }
-
-    const mirrors = {
-      official: 'https://www.python.org/ftp/python',
-      aliyun: 'https://mirrors.tuna.tsinghua.edu.cn/python',
-      huawei: 'https://repo.huaweicloud.com/python',
-      tencent: 'https://mirrors.tuna.tsinghua.edu.cn/python'
-    } as const
-
-    for (const url of mirrorUrls) {
-      try {
-        log.info(`[python versions] 尝试: ${url}`)
-        const res = await axios.get<string>(url, { timeout: 6000 })
-        const html = res.data as string
-
-        // capture version + modification date from directory listing
-        // nginx:  href="3.15.0/"  ...  07-Apr-2026
-        // apache: href="3.15.0/"  ...  2026-04-07
-        const lineRe = /href="(3\.\d+\.\d+)\/[^"]*"[^\n]*?(\d{2}-[A-Za-z]{3}-\d{4}|\d{4}-\d{2}-\d{2})/g
-        const versionDateMap: Record<string, string> = {}
-        let lm: RegExpExecArray | null
-        while ((lm = lineRe.exec(html)) !== null) {
-          const ver = lm[1].replace(/\s/g, '')
-          if (!versionDateMap[ver]) versionDateMap[ver] = normalizeDate(lm[2])
-        }
-
-        // fallback: version-only regex for mirrors that omit dates
-        if (Object.keys(versionDateMap).length === 0) {
-          const simpleRe = /href="(3\.\d+\.\d+)\//g
-          while ((lm = simpleRe.exec(html)) !== null) {
-            const ver = lm[1].replace(/\s/g, '')
-            if (!versionDateMap[ver]) versionDateMap[ver] = ''
-          }
-        }
-
-        const sorted = Object.keys(versionDateMap).sort((a, b) => {
-          const pa = a.split('.').map(Number)
-          const pb = b.split('.').map(Number)
-          for (let i = 0; i < 3; i++) {
-            if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0)
-          }
-          return 0
-        }).slice(0, 20)
-
-        // Only keep versions that actually have Windows x64 installer.
-        const verified: Array<{ version: string; date: string; lts: false; filename: string; downloadUrls: Record<'official' | 'aliyun' | 'huawei' | 'tencent', string> }> = []
-        for (const v of sorted) {
-          const filename = `python-${v}-amd64.exe`
-          const officialUrl = `${mirrors.official}/${v}/${filename}`
-          try {
-            await axios.head(officialUrl, { timeout: 4000, validateStatus: (s) => s < 400 })
-            verified.push({
-              version: v,
-              date: versionDateMap[v] ?? '',
-              lts: false as false,
-              filename,
-              downloadUrls: {
-                official: officialUrl,
-                aliyun: `${mirrors.aliyun}/${v}/${filename}`,
-                huawei: `${mirrors.huawei}/${v}/${filename}`,
-                tencent: `${mirrors.tencent}/${v}/${filename}`
-              }
-            })
-          } catch {
-            // skip versions without final amd64 installer (e.g. pre-release dirs)
-          }
-          if (verified.length >= 15) break
-        }
-
-        log.info(`[python versions] 成功，目录 ${sorted.length} 个，已校验可下载 ${verified.length} 个，来源: ${url}`)
-        return verified
-      } catch (e: any) {
-        log.warn(`[python versions] 失败: ${url} — ${e.message}`)
-      }
-    }
-    return []
-  })
-
-  const jdkVendors = [
-    { id: 'openjdk', name: 'OpenJDK', distribution: 'openjdk' },
-    { id: 'eclipse', name: 'Eclipse Temurin', distribution: 'temurin' },
-    { id: 'bellsoft', name: 'BellSoft Liberica', distribution: 'liberica' },
-    { id: 'jetbrains', name: 'JetBrains Runtime', distribution: 'jetbrains' }
-  ] as const
-
-  async function sleep(ms: number): Promise<void> {
-    await new Promise((r) => setTimeout(r, ms))
-  }
-
-  async function fetchFoojayPackages(params: Record<string, string>, retries = 3): Promise<any[]> {
-    let lastErr: any
-    for (let i = 0; i < retries; i++) {
-      try {
-        const res = await axios.get('https://api.foojay.io/disco/v3.0/packages', {
-          timeout: 12000,
-          params
-        })
-        return (res.data?.result ?? []) as any[]
-      } catch (e: any) {
-        lastErr = e
-        const status = e?.response?.status
-        const retryable = e?.code === 'ECONNABORTED' || status === 429 || status === 502 || status === 503 || status === 504
-        if (!retryable || i === retries - 1) break
-        await sleep(600 * (i + 1))
-      }
-    }
-    throw lastErr
-  }
-
-  ipcMain.handle('jdk:fetchVendors', async () => jdkVendors.map((v) => ({ id: v.id, name: v.name })))
-
-  ipcMain.handle('jdk:fetchVersions', async (_event, vendorId?: string) => {
-    const vendor = jdkVendors.find((v) => v.id === (vendorId || 'bellsoft')) ?? jdkVendors[2]
-    try {
-      let items: any[] = []
-      const baseParams = {
-        distribution: vendor.distribution,
-        operating_system: 'windows',
-        archive_type: 'zip',
-        package_type: 'jdk',
-        latest: 'available',
-        release_status: 'ga'
-      }
-      // BellSoft often uses amd64, others are usually x64.
-      const archCandidates = vendor.id === 'bellsoft' ? ['amd64', 'x64'] : ['x64', 'amd64']
-      let lastErr: any
-      for (const arch of archCandidates) {
-        try {
-          items = await fetchFoojayPackages({ ...baseParams, architecture: arch }, 3)
-          if (items.length) break
-        } catch (e: any) {
-          lastErr = e
-        }
-      }
-      if (!items.length && vendor.id === 'eclipse') {
-        // Fallback for Eclipse vendor: Adoptium API
-        try {
-          const releasesRes = await axios.get('https://api.adoptium.net/v3/info/available_releases', { timeout: 10000 })
-          const ltsVersions = [...(releasesRes.data.available_lts_releases as number[])].reverse()
-          const fallbackResults: any[] = []
-          for (const major of ltsVersions) {
-            try {
-              const r = await axios.get(`https://api.adoptium.net/v3/assets/latest/${major}/hotspot`, {
-                params: { architecture: 'x64', image_type: 'jdk', os: 'windows', vendor: 'eclipse' },
-                timeout: 10000
-              })
-              const first = (r.data as any[])?.[0]
-              if (!first) continue
-              fallbackResults.push({
-                version: `${first.version.major}.${first.version.minor}.${first.version.security}`,
-                lts: true,
-                major,
-                filename: first.binary.package.name,
-                downloadUrls: {
-                  official: first.binary.package.link,
-                  aliyun: first.binary.package.link,
-                  huawei: first.binary.package.link,
-                  tencent: first.binary.package.link
-                }
-              })
-            } catch {}
-          }
-          if (fallbackResults.length) {
-            log.info(`[jdk versions] vendor=${vendor.id} foojay失败，adoptium回退成功 ${fallbackResults.length} 个版本`)
-            return fallbackResults
-          }
-        } catch {}
-      }
-      if (!items.length && lastErr) throw lastErr
-
-      const seenVersions = new Set<string>()
-      const list = items
-        .filter((i) => i?.links?.pkg_download_redirect && i?.filename)
-        .sort((a, b) => Number(b.major_version || 0) - Number(a.major_version || 0))
-        .map((i) => {
-          const version = String(i.distribution_version || i.java_version || i.major_version)
-          const filename = String(i.filename)
-          const officialUrl = String(i.links.pkg_download_redirect)
-          const major = Number(i.major_version || 0)
-          const tsinghuaAdoptium = `https://mirrors.tuna.tsinghua.edu.cn/Adoptium/${major}/jdk/x64/windows/${filename}`
-          const ustcAdoptium = `https://mirrors.ustc.edu.cn/adoptium/${major}/jdk/x64/windows/${filename}`
-          const isEclipseTemurin = vendor.id === 'eclipse'
-          return {
-            version,
-            lts: i.term_of_support === 'lts',
-            major,
-            filename,
-            downloadUrls: {
-              official: officialUrl,
-              // For Temurin, provide domestic mirrors first; final selection still goes through reachability probe.
-              aliyun: isEclipseTemurin ? tsinghuaAdoptium : officialUrl,
-              huawei: isEclipseTemurin ? ustcAdoptium : officialUrl,
-              tencent: isEclipseTemurin ? tsinghuaAdoptium : officialUrl
-            }
-          }
-        })
-        .filter((item) => {
-          if (seenVersions.has(item.version)) return false
-          seenVersions.add(item.version)
-          return true
-        })
-        .slice(0, 20)
-      log.info(`[jdk versions] vendor=${vendor.id} 成功，共 ${list.length} 个版本`)
-      return list
-    } catch (e: any) {
-      log.warn(`[jdk versions] vendor=${vendor.id} 获取失败: ${e.message}`)
-      return []
-    }
-  })
-
-  ipcMain.handle('maven:fetchVersions', async () => {
-    const metadataUrls = [
-      'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/maven-metadata.xml',
-      'https://maven.aliyun.com/repository/public/org/apache/maven/apache-maven/maven-metadata.xml',
-      'https://repo.huaweicloud.com/repository/maven/org/apache/maven/apache-maven/maven-metadata.xml'
-    ]
-    for (const url of metadataUrls) {
-      try {
-        log.info(`[maven versions] 尝试: ${url}`)
-        const res = await axios.get<string>(url, { timeout: 6000 })
-        const xml = res.data
-        const versions: string[] = []
-        const regex = /<version>(3\.\d+\.\d+)<\/version>/g
-        let m: RegExpExecArray | null
-        while ((m = regex.exec(xml)) !== null) {
-          versions.push(m[1])
-        }
-        const unique = [...new Set(versions)].sort((a, b) => {
-          const pa = a.split('.').map(Number)
-          const pb = b.split('.').map(Number)
-          for (let i = 0; i < 3; i++) {
-            if ((pb[i] ?? 0) !== (pa[i] ?? 0)) return (pb[i] ?? 0) - (pa[i] ?? 0)
-          }
-          return 0
-        }).slice(0, 20)
-        log.info(`[maven versions] 成功，${unique.length} 个版本，来源: ${url}`)
-        return unique.map((v) => ({ version: v }))
-      } catch (e: any) {
-        log.warn(`[maven versions] 失败: ${url} — ${e.message}`)
-      }
-    }
-    return []
   })
 
   ipcMain.handle('nodejs:fetchVersions', async () => {
